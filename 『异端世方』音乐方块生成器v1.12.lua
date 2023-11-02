@@ -1673,134 +1673,134 @@ local function useitem(event)
             --执行复制函数
             ctrl_c(UIN)
             
---停止起点和终点的特效
-World：stopEffectOnPosition（PDB[UIN].copy.pos.strpos.x， PDB[UIN].copy.pos.strpos.y， PDB[UIN].copy.pos.strpos.z，CopyEffectId）
-世界：stopEffectOnPosition（PDB[UIN].copy.pos.endpos.x， PDB[UIN].copy.pos.endpos.y， PDB[UIN].copy.pos.endpos.z，CopyEffectId）
+            --停止起点和终点的特效
+            World:stopEffectOnPosition(PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.strpos.z,CopyEffectId)
+            World:stopEffectOnPosition(PDB[UIN].copy.pos.endpos.x, PDB[UIN].copy.pos.endpos.y, PDB[UIN].copy.pos.endpos.z,CopyEffectId)
             
---将起点和终点的数据保存至keep 以备存入pat
-PDB[UIN].copy.keepPos.strpos.x = PDB[UIN].copy.pos.strpos.x
-PDB[UIN].copy.keepPos.strpos.y = PDB[UIN].copy.pos.strpos.y
-PDB[UIN].copy.keepPos.strpos.z = PDB[UIN].copy.pos.strpos.z
-PDB[UIN].copy.keepPos.endpos.x = PDB[UIN].copy.pos.endpos.x
-PDB[UIN].copy.keepPos.endpos.y = PDB[UIN].copy.pos.endpos.y
-PDB[UIN].copy.keepPos.endpos.z = PDB[UIN].copy.pos.endpos.z
+            --将起点和终点的数据保存至keep 以备存入pat
+            PDB[UIN].copy.keepPos.strpos.x = PDB[UIN].copy.pos.strpos.x
+            PDB[UIN].copy.keepPos.strpos.y = PDB[UIN].copy.pos.strpos.y
+            PDB[UIN].copy.keepPos.strpos.z = PDB[UIN].copy.pos.strpos.z
+            PDB[UIN].copy.keepPos.endpos.x = PDB[UIN].copy.pos.endpos.x
+            PDB[UIN].copy.keepPos.endpos.y = PDB[UIN].copy.pos.endpos.y
+            PDB[UIN].copy.keepPos.endpos.z = PDB[UIN].copy.pos.endpos.z
 
---清除起点和终点的数据
-PDB[UIN].copy.pos.strpos = {}
-PDB[UIN].copy.pos.endpos = {}
-返回 0
-结束
-结束
+            --清除起点和终点的数据
+            PDB[UIN].copy.pos.strpos = {}
+            PDB[UIN].copy.pos.endpos = {}
+            return 0
+        end 
+    end 
     
---极寒域法杖 粘贴
-如果（event.itemid == 11668）
-然后
-如果（PDB[UIN].copy.direction.x）
-然后
-msg（CL.tip.copy.startPaste[Lang]，UIN）
-ctrl_v（UIN）
-结束
-返回 0
-结束
+    --极寒域法杖 粘贴 
+    if(event.itemid == 11668)
+    then 
+        if(PDB[UIN].copy.direction.x)
+        then 
+            msg(CL.tip.copy.startPaste[Lang],UIN)
+            ctrl_v(UIN)
+        end 
+        return 0 
+    end
 
---复苏法杖 粘贴
-如果（event.itemid == 11584）
-然后
-粘贴（UIN）
-返回 0
-结束
-结束
+    --复苏法杖 粘贴
+    if(event.itemid == 11584)
+    then 
+        pastePat(UIN)
+        return 0
+    end
+end 
 
 --玩家移动时执行
-本地函数 MoveOneBlockSize（event）
-本地 UIN = event.eventobjid
---看看玩家刷子有没有打开
-if（PDB[UIN].Brush.state）
-then --若有 则执行刷子
-画笔（UIN）
-结束
-结束
+local function MoveOneBlockSize(event)
+    local UIN = event.eventobjid
+    --看看玩家刷子有没有打开
+    if(PDB[UIN].Brush.state)
+    then --若有 则执行刷子
+        Brush(UIN)
+    end 
+end
 
 ---------------------- 事件监听器 ----------------------
---注册玩家输入字符串监听器
-ScriptSupportEvent：registerEvent（[=[Player.NewInputContent]=]，PlayerNewInputContent）
+--注册玩家输入字符串监听器  
+ScriptSupportEvent:registerEvent([=[Player.NewInputContent]=],PlayerNewInputContent)
 --注册玩家进入游戏监听器
-ScriptSupportEvent：registerEvent（[=[Game.AnyPlayer.EnterGame]=]，Game_AnyPlayer_EnterGame）
+ScriptSupportEvent:registerEvent([=[Game.AnyPlayer.EnterGame]=],Game_AnyPlayer_EnterGame)
 --注册玩家离开游戏监听器
-ScriptSupportEvent：registerEvent（[=[Game.AnyPlayer.LeaveGame]=]，Game_AnyPlayer_LeaveGame）
+ScriptSupportEvent:registerEvent([=[Game.AnyPlayer.LeaveGame]=],Game_AnyPlayer_LeaveGame)
 --注册玩家选择快捷栏监听器
-ScriptSupportEvent：registerEvent（[=[Player.SelectShortcut]=]，PlayerSelectShortcut）
+ScriptSupportEvent:registerEvent([=[Player.SelectShortcut]=],PlayerSelectShortcut)
 --每秒运行一次的事件
-ScriptSupportEvent：registerEvent（[=[Game.RunTime]=]，Game_RunTime）
+ScriptSupportEvent:registerEvent([=[Game.RunTime]=],Game_RunTime)
 --注册玩家点击方块监听器
-ScriptSupportEvent：registerEvent（[=[Player.ClickBlock]=]，ClickBlock）--{eventobjid， blockid， x， y， z}
+ScriptSupportEvent:registerEvent([=[Player.ClickBlock]=],ClickBlock)--{eventobjid, blockid, x, y, z}
 --注册方块被撸监听器
-ScriptSupportEvent：registerEvent（[=[Block.Dig.Begin]=]，BlockDigBegin）-- {eventobjid， blockid， x， y， z}
+ScriptSupportEvent:registerEvent([=[Block.Dig.Begin]=],BlockDigBegin)--   {eventobjid, blockid, x, y, z}
 --注册玩家使用道具监听器
-ScriptSupportEvent：registerEvent（[=[Player.UseItem]=]，useitem）--eventobjid，itemid，itemnum，itemix
+ScriptSupportEvent:registerEvent([=[Player.UseItem]=],useitem)--eventobjid,itemid,itemnum,itemix
 --注册玩家移动监听器
-ScriptSupportEvent：registerEvent（[=[Player.MoveOneBlockSize]=]， MoveOneBlockSize） --eventobjid，shortix，x，y，z
-if（PDB[UIN].copy.vector.z < 0）
-然后
-PDB[UIN].copy.direction.z = -1
-结束
---输出提示
-msg（string.format（CL.tip.copy.strEntData[Lang]， PDB[UIN].copy.vector.x， PDB[UIN].copy.vector.y， PDB[UIN].copy.vector.z， PDB[UIN].copy.direction.x， PDB[UIN].copy.direction.y， PDB[UIN].copy.direction.z），UIN）
-基本框架 使用方法：手持道具（鼓 电子 综合 乐器方块）输入音块的点击次数 站在目标位置上按下潜行键 自动生成对应的音乐方块
---执行复制函数
-ctrl_c（UIN）
+ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize) --eventobjid,shortix,x,y,z
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+--[[{
+更新日志awa
+    v1.0 2023.01.20
+    基本框架 使用方法：手持道具（鼓 电子 综合 乐器方块）输入音块的点击次数 站在目标位置上按下潜行键 自动生成对应的音乐方块
     
-v1.5 2023.03.04 版
-修改使用方法 用平凡法杖做生成工具
-修改数据存储方法 联机房间中房主和各玩家均可以正常使用
+    后多次更新 修复bug等 作者未详记
     
-v1.6 2023.03.05 版本
-增加更多提示功能 优化特效
+    v1.5 2023.03.04
+    修改使用方法 用平凡法杖做生成工具 
+    修改数据存储方法 联机房间中房主和各玩家均可以正常使用
     
-v1.7 2023.03.05 版本
-将音调方块的生成和乐器方块的生成合并为一个项目 音乐方块生成器 便于玩家使用
+    v1.6 2023.03.05
+    增加更多提示功能 优化特效
     
-v1.8 2023.03.06 版
-在玩家背包中检测和添加初始道具
+    v1.7 2023.03.05
+    将音调方块的生成和乐器方块的生成合并为一个项目 音乐方块生成器 便于玩家使用
     
-v1.9 2023.03.25 版本
-新增音乐组（音调+乐器）复制功能
-新增玩家飞行功能（玩家在聊天框中输入“飞”或“落”进行控制）
-新增音调方块生成后玩家脱身功能 避免被方块卡住
-新增点击方块后显示方块坐标等信息功能
-新增玩家手持道具收割者(12009)点击方块将其清除的功能
-优化提示
+    v1.8 2023.03.06 
+    在玩家背包中检测和添加初始道具
     
-v1.10 2023.7.24 版本
-新增使用说明 修改了intro
-将玩家的初始状态改为飞行
-修改生成规则以适应新电路
+    v1.9 2023.03.25
+    新增音乐组（音调+乐器）复制功能
+    新增玩家飞行功能（玩家在聊天框中输入“飞”或“落”进行控制）
+    新增音调方块生成后玩家脱身功能 避免被方块卡住
+    新增点击方块后显示方块坐标等信息功能
+    新增玩家手持道具收割者(12009)点击方块将其清除的功能
+    优化提示
     
-v1.10.1 版 2023.7.29 版
-新增使用平凡法杖瞬移功能
-修改提示
-修复了提示的bug
+    v1.10 2023.7.24
+    新增使用说明 修改了intro
+    将玩家的初始状态改为飞行
+    修改生成规则以适应新电路
     
-v1.11 2023.8.4 版本
-新增区域内音乐方块复制功能
+    v1.10.1 2023.7.29
+    新增使用平凡法杖瞬移功能
+    修改提示
+    修复了提示的bug
     
-v1.12 2023.9.3 版本
-乐器刷子
-玩家手持乐器方块输入点击次数录入数据
-玩家刷子状态为true时 行走时 以玩家为中心点 在周围未放乐器的音调方块上 刷上对应的乐器
-手持刷子钛合金耙 输入数字 大于1小于10 可改变刷子大小 默认为2
-pattern功能
-pat数据库 保存所有玩家的pat
-玩家可将当前复制的区域方块数据保存为pattern
-玩家手持复苏法杖输入指令控制pat
-使用复苏法杖粘贴pat
-鼓的生成 加入生成状态 手持鼓 输入t/f控制状态 bool值为真 则像音调方块一样在玩家位置处生成 默认为假 即像乐器一样用平凡法杖放 已成
-修复bug
-音调方块生成时 数据乱跑（输入东西不标准也生成）
-优化提示
-优化数据结构（重构部分代码）
-新增语言选项 英语 English
-把聊天框弹提示和飘窗文字函数重载 规范化参数避免缺参
-将石矛改为平凡法杖 避免玩家使用时丢出
-收割者 添加设置命令 可改变调性、位置偏移、语言
+    v1.11 2023.8.4
+    新增区域内音乐方块复制功能
+    
+    v1.12 2023.9.3
+    乐器刷子
+        玩家手持乐器方块输入点击次数录入数据
+        玩家刷子状态为true时 行走时 以玩家为中心点 在周围未放乐器的音调方块上 刷上对应的乐器
+        手持刷子钛合金耙 输入数字 大于1小于10 可改变刷子大小 默认为2
+    pattern功能 
+        pat数据库 保存所有玩家的pat
+        玩家可将当前复制的区域方块数据保存为pattern
+        玩家手持复苏法杖输入指令控制pat
+        使用复苏法杖粘贴pat
+    鼓的生成 加入生成状态 手持鼓 输入t/f控制状态 bool值为真 则像音调方块一样在玩家位置处生成 默认为假 即像乐器一样用平凡法杖放 已成
+    修复bug
+        音调方块生成时 数据乱跑（输入东西不标准也生成）
+    优化提示
+    优化数据结构（重构部分代码）
+    新增语言选项 英语 English 
+    把聊天框弹提示和飘窗文字函数重载 规范化参数避免缺参
+    将石矛改为平凡法杖 避免玩家使用时丢出
+    收割者 添加设置命令 可改变调性、位置偏移、语言
 --}]]
