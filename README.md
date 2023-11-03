@@ -8,6 +8,8 @@
 
 未经世方府工作室书面授权，请勿用于商业用途。
 
+使用过程中如遇bug或有任何建议，请在Issue中提交。
+
 ### 作者联系方式
 Email: [owalabuy@gmail.com](mailto:owalabuy@gmail.com)  
 Telegram: [@OWALabuy](https://t.me/OWALabuy)
@@ -22,7 +24,10 @@ This tool is open-source and aims to assist music creators in improving the effi
 
 Commercial use of this tool is prohibited without written authorization from Shifang Studio.
 
+If you encounter bugs or have any suggestions during use, please submit them in Issue.
+
 ### Contact the Author
 Email: [owalabuy@gmail.com](mailto:owalabuy@gmail.com)  
 Telegram: [@OWALabuy](https://t.me/OWALabuy)
 
+# 配置教程 / Configuration tutorial
