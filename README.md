@@ -6,8 +6,6 @@
 
 本工具开源，旨在帮助各音乐作者提高音乐地图创作效率。请遵守当地法律，勿将此工具用于违法行为。作者不对他人运用此工具造成的任何后果负责。
 
-未经世方府工作室书面授权，请勿用于商业用途。
-
 使用过程中如遇bug或有任何建议，请在Issue中提交。
 
 ### 作者联系方式
@@ -24,8 +22,6 @@ This is a script tool for the game *MiniWorld,* developed by the Shifang Studio.
 **Author:** OWALabuy (欧阳闻奕), Member of the Heresy Organization, Head of Shifang Studio, MiniWorld UIN: 528278703.
 
 This tool is open-source and aims to assist music creators in improving the efficiency of creating music maps. Please comply with local laws and do not use this tool for illegal activities. The author is not responsible for any consequences resulting from the use of this tool by others.
-
-Commercial use of this tool is prohibited without written authorization from Shifang Studio.
 
 If you encounter bugs or have any suggestions during use, please submit them in Issue.
 
