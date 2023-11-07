@@ -14,7 +14,7 @@
 Email: [owalabuy@gmail.com](mailto:owalabuy@gmail.com)  
 Telegram: [@OWALabuy](https://t.me/OWALabuy)
 
-###世方府tg群
+### 世方府tg群
 [ShiFangStudio](https://t.me/ShiFangStudio)
 
 # Music Block Generator by Heresy Shifang Studio
@@ -33,7 +33,7 @@ If you encounter bugs or have any suggestions during use, please submit them in 
 Email: [owalabuy@gmail.com](mailto:owalabuy@gmail.com)  
 Telegram: [@OWALabuy](https://t.me/OWALabuy)
 
-###ShiFang Studio on Telegram
+### ShiFang Studio on Telegram
 [ShiFangStudio](https://t.me/ShiFangStudio)
 
 # 配置教程 / Configuration tutorial
