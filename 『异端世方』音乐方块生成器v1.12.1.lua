@@ -308,7 +308,7 @@ local CL = {
 --使用说明列表
 local readme = {
     {
-        "#c8bf6ab『异端世方』音乐方块生成器★v1.13\n            使 ★ 用 ★ 说 ★ 明",
+        "#c8bf6ab『异端世方』音乐方块生成器★v1.12.1\n            使 ★ 用 ★ 说 ★ 明",
         "#c66ccff==========================",
         "#cFFFF81通用功能：",
         "#cFFACAC1. 手持收割者查看基础功能及设置菜单。",
@@ -341,7 +341,7 @@ local readme = {
         "#c66ccff==========================",
     },
     {
-        "#c8bf6abMusic Block Generator★v1.13 by Heresy Shifang Studio",
+        "#c8bf6abMusic Block Generator★v1.12.1 by Heresy Shifang Studio",
         "#c66ccff==========================",
         "#cFFFF81General Functions:",
         "#cFFACAC1. Hold the Reaper to view basic functions and settings menu.",
@@ -418,7 +418,7 @@ local itemIntro = {
 
 local intro = {
     {
-        "#c8bf6ab『异端世方』音乐方块生成器★v1.13",
+        "#c8bf6ab『异端世方』音乐方块生成器★v1.12.1",
         "#c66ccff==========================",
         "#c61C0BF作者：欧阳闻奕（OWALabuy）",
         "#cBBDED6迷你号 5丨2丨8丨2丨7丨8丨7丨0丨3",
@@ -427,7 +427,7 @@ local intro = {
         "#c66ccff=========================="
     },
     {
-        "#c8bf6abMusic Block Generator★v1.13",
+        "#c8bf6abMusic Block Generator★v1.12.1",
         "#c66ccff==========================",
         "#c61C0BFby Heresy Shifang Studio",
         "#cBBDED6Author:OWALabuy (欧阳闻奕)",
@@ -1813,9 +1813,13 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
     将石矛改为平凡法杖 避免玩家使用时丢出
     收割者 添加设置命令 可改变调性、位置偏移、语言
 
-    v1.13
+    v1.12.1 2023.11.7
     修复bug
         设置位置偏移时 输入负数无法接受的问题
+        修复intro的问题
+
+    v1.13
+
     通用功能更新
         修改部分提示
         加速道具 输入数字可设置自己移动速度 扣0恢复正常 使用可向前冲刺
