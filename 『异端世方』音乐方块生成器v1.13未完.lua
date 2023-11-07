@@ -1,5 +1,5 @@
 --[[        
-       『异端世方』音乐方块生成器v1.12  
+       『异端世方』音乐方块生成器v1.13  
 音乐玩家一天7张图的秘密 告别手撸 拯救肝脏 让你的音乐创作更加高效且准确
 开发者模式下 新建一个脚本 将此文档粘贴 转换玩法地图即可使用 
 若要保留玩法模式下的创作 请开启玩法模式退出不重置地图
@@ -8,7 +8,7 @@
 异端 世方府工作室版权所有
 请关注异端老大轨心夕（杀手没有恨） 迷你号139246171
 
-        Music Block Generator v1.12 by Heresy Shifang Studio
+        Music Block Generator v1.13 by Heresy Shifang Studio
 
 Unlock the secret of creating seven maps a day for music players, bid farewell to manual block placement, save your liver, and make your music creation more efficient and accurate.
 
@@ -29,8 +29,12 @@ local CL = {
     tip = { --提示
         copy = {
             copySuccessfully = {
-                "#cFFE1E1复制区域内所有音乐方块成功，区域起点(%d,%d,%d)，使用极寒域法杖可粘贴方块。",
-                "#cFFE1E1Copy all music blocks in the area successfully, the starting position of the area is (%d,%d,%d), Use the Frostbite staff to paste the blocks."
+                "#cFFE1E1复制区域内所有音乐方块成功，区域起点(%d,%d,%d)",
+                "#cFFE1E1Copy all music blocks in the area successfully, the starting position of the area is (%d,%d,%d)"
+            },
+            copySuccessfully2 = {
+                "#cFFE1E1使用极寒域法杖可粘贴方块。",
+                "#cFFE1E1Use the Frostbite staff to paste the blocks."
             },
             pasteSuc = {
                 "#cCDF0EA粘贴音乐方块成功 起点(%d,%d,%d)",
@@ -109,8 +113,12 @@ local CL = {
         },
         Brush = {
             tip = {
-                "#cFCD1D1乐器刷子：输入t/f控制刷子开关，不分大小写，t:开，f:关\n当前状态：%s，\n输入1~10数字改变刷子大小，当前大小：%d",
-                "#cFCD1D1Instrument brush: input t/f to control the brush switch, not case sensitive, t: on, f: off\nCurrent state: %s,\nEnter a number from 1 to 10 to change the brush size, current size: %d"
+                "#cFCD1D1乐器刷子：输入t/f控制刷子开关，不分大小写，t:开，f:关",
+                "#cFCD1D1Instrument brush: input t/f to control the brush switch, not case sensitive, t: on, f: off"
+            },
+            tip2 = {
+                "#cFCD1D1当前状态：%s，\n输入1~10数字改变刷子大小，当前大小：%d",
+                "#cFCD1D1Current state: %s,\nEnter a number from 1 to 10 to change the brush size, current size: %d",
             },
             afterChangeState = {
                 "#cECE2E1您的乐器刷子开关状态已被设置为%s",
@@ -300,7 +308,7 @@ local CL = {
 --使用说明列表
 local readme = {
     {
-        "#c8bf6ab『异端世方』音乐方块生成器★v1.12\n            使 ★ 用 ★ 说 ★ 明",
+        "#c8bf6ab『异端世方』音乐方块生成器★v1.13\n            使 ★ 用 ★ 说 ★ 明",
         "#c66ccff==========================",
         "#cFFFF81通用功能：",
         "#cFFACAC1. 手持收割者查看基础功能及设置菜单。",
@@ -333,7 +341,7 @@ local readme = {
         "#c66ccff==========================",
     },
     {
-        "#c8bf6abMusic Block Generator★v1.12 by Heresy Shifang Studio",
+        "#c8bf6abMusic Block Generator★v1.13 by Heresy Shifang Studio",
         "#c66ccff==========================",
         "#cFFFF81General Functions:",
         "#cFFACAC1. Hold the Reaper to view basic functions and settings menu.",
@@ -410,19 +418,19 @@ local itemIntro = {
 
 local intro = {
     {
-        "#c8bf6ab『异端世方』音乐方块生成器★v1.12",
+        "#c8bf6ab『异端世方』音乐方块生成器★v1.13",
         "#c66ccff==========================",
-        "#c61C0BF作者：@欧阳闻奕 / @OWALabuy",
+        "#c61C0BF作者：欧阳闻奕（OWALabuy）",
         "#cBBDED6迷你号 5丨2丨8丨2丨7丨8丨7丨0丨3",
         "#cFAE3D9选择收割者查看菜单 / Select",
         "#cFFB6B9the Reaper to view the menu",
         "#c66ccff=========================="
     },
     {
-        "#c8bf6abMusic Block Generator★v1.12",
+        "#c8bf6abMusic Block Generator★v1.13",
         "#c66ccff==========================",
         "#c61C0BFby Heresy Shifang Studio",
-        "#cBBDED6Author:@OWALabuy / @欧阳闻奕",
+        "#cBBDED6Author:OWALabuy (欧阳闻奕)",
         "#cFAE3D9Select the Reaper ",
         "#cFFB6B9to view the menu",
         "#c66ccff=========================="
@@ -642,6 +650,7 @@ local function ctrl_c(UIN)
         end 
     end 
     msg(string.format(CL.tip.copy.copySuccessfully[Lang], PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.strpos.z),UIN)
+    msg(CL.tip.copy.copySuccessfully2[Lang], UIN)
     return 0 
 end
 
@@ -1101,20 +1110,20 @@ local function PlayerNewInputContent(event)
 
         if(so) --设置位置偏移的情况
         then
-            local input = event.content
-            local x, y, z = input:match("(%d+)%s+(%d+)%s+(%d+)")
+            local input = event.content  
+            local x, y, z = input:match("(-?%d+)%s+(-?%d+)%s+(-?%d+)")
             if (x and y and z)
             then --设置
-                offset.x = x
-                offset.y = y
-                offset.z = z
+                offset.x = tonumber(x)
+                offset.y = tonumber(y)
+                offset.z = tonumber(z)
                 local str = string.format(CL.tip.globalSetTip.setOffsetSuc[Lang], x, y, z)
                 msg(str, UIN)
                 globalSetState.setOffset = false --记得关掉
                 return 0
             else --输入格式不正确 不关掉 玩家可以再次输入
                 msg(CL.tip.globalSetTip.setOffsetErrInp[Lang], UIN)
-            end               
+            end            
             return 0
         end
     end
@@ -1438,7 +1447,7 @@ local function PlayerSelectShortcut(event)
     --如是钛合金耙 输出提示
     if(event.itemid == 11034)
     then 
-        msg(string.format(CL.tip.Brush.tip[Lang],tostring(PDB[UIN].Brush.state),PDB[UIN].Brush.size),UIN)
+        msg(string.format(CL.tip.Brush.tip2[Lang],tostring(PDB[UIN].Brush.state),PDB[UIN].Brush.size),UIN)
         if(PDB[UIN]['block_id'])--若有乐器数据 则提示数据 
         then
             local result,name=Item:getItemName(PDB[UIN]['block_id'])
@@ -1794,7 +1803,7 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         玩家可将当前复制的区域方块数据保存为pattern
         玩家手持复苏法杖输入指令控制pat
         使用复苏法杖粘贴pat
-    鼓的生成 加入生成状态 手持鼓 输入t/f控制状态 bool值为真 则像音调方块一样在玩家位置处生成 默认为假 即像乐器一样用平凡法杖放 已成
+    鼓的生成 加入生成状态 手持鼓 输入t/f控制状态 bool值为真 则像音调方块一样在玩家位置处生成 默认为假 即像乐器一样用平凡法杖放
     修复bug
         音调方块生成时 数据乱跑（输入东西不标准也生成）
     优化提示
@@ -1803,4 +1812,31 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
     把聊天框弹提示和飘窗文字函数重载 规范化参数避免缺参
     将石矛改为平凡法杖 避免玩家使用时丢出
     收割者 添加设置命令 可改变调性、位置偏移、语言
+
+    v1.13
+    修复bug
+        设置位置偏移时 输入负数无法接受的问题
+    通用功能更新
+        修改部分提示
+        加速道具 输入数字可设置自己移动速度 扣0恢复正常 使用可向前冲刺
+        人物大小设置功能 可改变自己的大小以钻入一格高的地方
+        检测手持道具信息功能 可显示id 名字 输入"id"(不分大小写)查看
+    音乐部分
+        新增选区移调与乐器方块替换功能 仅适用于音乐(整合到雷电法杖与极寒域法杖部分)
+        放置音调方块后的玩家位置偏移可选 依据最近的延迟器/增幅器的朝向确定偏移方向 适配s形折轨的音乐地图
+    新增电路元件类辅助
+        过山车轨道一键放置功能 带指示灯
+        巨人核心生成功能（输入数字控制朝向）
+        推拉机械臂花纹星能块一键放置功能（输入数字控制朝向）
+        封轨 拆轨(把音轨的星能分流器发出的光束线用指定方块截断 与其逆过程(手持道具输入控制))
+    新增音乐地图装饰辅助选区类（烈焰/冰魄法杖）
+        新增选区无限堆叠功能（用于装饰）
+        新增装饰pattern功能（同音乐pat那样）
+        新增选区根据方块id和data选择性删除/替换/清空功能 (整合到烈焰/冰魄法杖部分)
+    新增道具检索工具（）
+        手持其输入数字返回道具的名称
+        使用后 输入两个整数 输出两整数之间的所有id对应的道具名称
+    新增其他装饰辅助类
+        山生成器：可设定山高度 顶层/中层/底层方块id data和层数 生成范围大小
+        随机在玩家周围生成指定id data的方块 可调区域形状大小 方块密度 生成数 是否无视原有方块生成 模式（向心/离散）
 --}]]
