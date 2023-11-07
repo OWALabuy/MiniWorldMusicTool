@@ -5,7 +5,7 @@
 若要保留玩法模式下的创作 请开启玩法模式退出不重置地图
 1.5以上版本 联机房间中可以正常使用 玩家数据分别存储 互不干扰
 作者：异端 世方府 欧阳闻奕-528278703
-异端 世方府工作室版权所有 工作室核心技术 内部专用 禁止外传！！！
+异端 世方府工作室版权所有
 请关注异端老大轨心夕（杀手没有恨） 迷你号139246171
 
         Music Block Generator v1.12 by Heresy Shifang Studio
@@ -19,7 +19,7 @@ For versions 1.5 and above, it can be used normally in online rooms, with player
 
 Author: Heresy Shifang Studio - @OWALabuy-528278703
 
-All rights reserved by Heresy Shifang Studio. Core studio technology. For internal use only. No distribution!!!
+All rights reserved by Heresy Shifang Studio.
 
 --]]
 
