@@ -14,6 +14,9 @@
 Email: [owalabuy@gmail.com](mailto:owalabuy@gmail.com)  
 Telegram: [@OWALabuy](https://t.me/OWALabuy)
 
+###世方府tg群
+[ShiFangStudio](https://t.me/ShiFangStudio)
+
 # Music Block Generator by Heresy Shifang Studio
 
 This is a script tool for the game *MiniWorld,* developed by the Shifang Studio.
@@ -29,6 +32,9 @@ If you encounter bugs or have any suggestions during use, please submit them in 
 ### Contact the Author
 Email: [owalabuy@gmail.com](mailto:owalabuy@gmail.com)  
 Telegram: [@OWALabuy](https://t.me/OWALabuy)
+
+###ShiFang Studio on Telegram
+[ShiFangStudio](https://t.me/ShiFangStudio)
 
 # 配置教程 / Configuration tutorial
 1. 在迷你世界中创建一张高级创造模式地图</br>Create an advanced creation mode map in MiniWorld
