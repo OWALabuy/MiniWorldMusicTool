@@ -17,7 +17,7 @@ Telegram: [@OWALabuy](https://t.me/OWALabuy)
 
 # Music Block Generator by Heresy Shifang Studio
 
-This is a script tool for the game *MiniWorld,* developed by the Shifang Studio.
+This is a script tool for create music map in the game *MiniWorld,* developed by the Shifang Studio.
 
 **Author:** OWALabuy (欧阳闻奕), Member of the Heresy Organization, Head of Shifang Studio, MiniWorld UIN: 528278703.
 
