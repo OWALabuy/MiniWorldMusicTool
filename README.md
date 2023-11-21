@@ -8,6 +8,14 @@
 
 使用过程中如遇bug或有任何建议，请在Issue中提交。
 
+### 作者的话
+
+感谢您使用本工具进行创作，希望您将带有以下字符串的留言板/宣传语放在您创作的精美地图的公告处，以支持我们的项目！
+
+`#c8bf6ab本地图采用开源项目\n『异端世方』音乐方块生成器\n★Github:OWALabuy/MiniWorldMusicTool`
+
+![image](https://github.com/OWALabuy/MiniWorldMusicTool/assets/134919443/ecff3eb6-756e-4086-8e40-5ab16e071736)
+
 ### 作者联系方式
 Email: [owalabuy@gmail.com](mailto:owalabuy@gmail.com)  
 Telegram: [@OWALabuy](https://t.me/OWALabuy)
@@ -24,6 +32,15 @@ This is a script tool for create music map in the game *MiniWorld,* developed by
 This tool is open-source and aims to assist music creators in improving the efficiency of creating music maps. Please comply with local laws and do not use this tool for illegal activities. The author is not responsible for any consequences resulting from the use of this tool by others.
 
 If you encounter bugs or have any suggestions during use, please submit them in Issue.
+
+### Author's Message
+
+Thank you for using this tool for your creative endeavors. We hope you'll display the following message in the bulletin or announcement section of the beautiful map you've created to support our project!
+
+`#c8bf6abMusic Block Generator by Heresy Shifang Studio\n★Github: OWALabuy/MiniWorldMusicTool`
+
+![image](https://github.com/OWALabuy/MiniWorldMusicTool/assets/134919443/ecff3eb6-756e-4086-8e40-5ab16e071736)
+
 
 ### Contact the Author
 Email: [owalabuy@gmail.com](mailto:owalabuy@gmail.com)  
