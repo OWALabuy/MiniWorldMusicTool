@@ -14,7 +14,7 @@
 
 如果我不为受压迫的程序员发声，我受压迫时，谁来为我发声？
 
-<b color = "red">程序员的命也是命！</b>
+<b>Developers' lives matter.</b>
 
 ### 作者的话
 
@@ -47,7 +47,7 @@ If you encounter bugs or have any suggestions during use, please submit them in 
 
 If I do not speak for the oppressed programmer, who will speak for me when I am oppressed?
 
-<b color = "red">Developers' lives matter.</b>
+<b>Developers' lives matter.</b>
 
 ### Author's Message
 
