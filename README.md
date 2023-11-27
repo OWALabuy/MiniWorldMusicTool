@@ -14,6 +14,8 @@
 
 如果我不为受压迫的程序员发声，我受压迫时，谁来为我发声？
 
+<b color = "red">程序员的命也是命！</b>
+
 ### 作者的话
 
 感谢您使用本工具进行创作，希望您将带有以下字符串的留言板/宣传语放在您创作的精美地图的公告处，以支持我们的项目！
@@ -44,6 +46,8 @@ If you encounter bugs or have any suggestions during use, please submit them in 
 <a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg" alt="996.icu" /></a>
 
 If I do not speak for the oppressed programmer, who will speak for me when I am oppressed?
+
+<b color = "red">Developers' lives matter.</b>
 
 ### Author's Message
 
