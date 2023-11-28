@@ -16,13 +16,13 @@
 
 <b>Developers' lives matter.</b>
 
-    “996算什么 作者高中的时候玩的是6107 晚上10点放学后还要去网吧玩迷你 玩到12点再回家睡觉 我还没死呢”
+`“996算什么 作者高中的时候玩的是6107 晚上10点放学后还要去网吧玩迷你 玩到12点再回家睡觉 我还没死呢”`
 
 ### 作者的话
 
 感谢您使用本工具进行创作，希望您将带有以下字符串的留言板/宣传语放在您创作的精美地图的公告处，以支持我们的项目！
 
-`#c8bf6ab本地图采用开源项目\n『异端世方』音乐方块生成器\n★Github:OWALabuy/MiniWorldMusicTool`
+    #c8bf6ab本地图采用开源项目\n『异端世方』音乐方块生成器\n★Github:OWALabuy/MiniWorldMusicTool
 
 ![image](https://github.com/OWALabuy/MiniWorldMusicTool/assets/134919443/ecff3eb6-756e-4086-8e40-5ab16e071736)
 
@@ -55,7 +55,7 @@ If I do not speak for the oppressed programmer, who will speak for me when I am 
 
 Thank you for using this tool for your creative endeavors. We hope you'll display the following message in the bulletin or announcement section of the beautiful map you've created to support our project!
 
-`#c8bf6abMusic Block Generator by Heresy Shifang Studio\n★Github: OWALabuy/MiniWorldMusicTool`
+    #c8bf6abMusic Block Generator by Heresy Shifang Studio\n★Github: OWALabuy/MiniWorldMusicTool
 
 ![image](https://github.com/OWALabuy/MiniWorldMusicTool/assets/134919443/ecff3eb6-756e-4086-8e40-5ab16e071736)
 
