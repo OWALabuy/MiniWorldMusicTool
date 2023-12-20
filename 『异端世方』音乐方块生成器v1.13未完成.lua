@@ -297,6 +297,37 @@ local CL = {
                 "Item name: #W%s, #nID: #W%d",
             },
         },
+        attr = {
+            Horas1 = {
+                "#c8bf6ab使用星铜钻头，向前冲刺\n输入A B C 修改配置\n#Wa.输入数字设置自己的移动速度(x>=0,默认为10)",
+                "#c8bf6abDash forward using this item\nEnter A/B/C: Modify config\n#Wa. Set movement speed (x>=0, default: 10)"
+,
+            },
+            Horas2 = {
+                "#cffffffb.输入数字设置自己的模型大小(x=0,默认为1)\nc.输入数字设置自己的弹飞力度(建议非负,默认为10)",
+                "#cffffffb. Set your model size (x=0, default: 1)\nc. Set your knockback strength (recommended non-negative, default: 10)",
+            },
+            impNum = {
+                "#c66ccff请输入一个数字",
+                "#c66ccffPlease input a number",
+            },
+            impNumIllegal = {
+                "#c8bf6ab您的输入不在可接受区间，请重新输入",
+                "#c8bf6abYour input is not within the acceptable range, please re-enter",
+            },
+            changeSpeedSuc = {
+                "#c8bf6ab成功将您的移动速度改为%d",
+                "#c8bf6abSuccessfully changed your movement speed to %d",
+            },
+            changeSizeSuc = {
+                "#c8bf6ab成功将您的模型大小改为%d",
+                "#c8bf6abSuccessfully changed your model size to %d",
+            },
+            changeForceSuc = {
+                "#c8bf6ab成功将您的弹飞力度改为%d",
+                "#c8bf6abSuccessfully changed your launch force to %d",
+            },
+        },
     },
     
     order = { --指令
@@ -322,6 +353,7 @@ local readme = {
         "#cFFEBB43. 手持道具收割者点击方块可将其清除。",
         "#cFBFFB14. 手持非收割者道具点击方块，检测方块的属性",
         "#cFFF4D25. 使用平凡法杖，瞬移到准星位置",
+        "#cEED7CE6. 使用星铜钻头，向前冲刺。还可以调整玩家移动速度和模型大小。",
         "#cFFFF81音调方块的生成：",
         "#cE5D1FA1. 手持高中低音块，站在目标位置上，输入音块的点击次数(0~12)或音名(CDEFGAB)可生成音调方块。",
         "#cE3DFFD2. 音调方块生成后，可以对玩家做一个位置偏移以避免被生成的方块卡住。可以手持收割者设置这个偏移的值。",
@@ -356,6 +388,7 @@ local readme = {
         "#cFFEBB43. Click a block with the Reaper to remove it.",
         "#cFBFFB14. Click a block with a non-Reaper item to inspect its properties.",
         "#cFFF4D25. Use the Ordinary Wand to teleport to the crosshair position.",
+        "#cEED7CE6. Use the Horas Copper Drill to dash forward. Player movement speed and model size can also be adjusted in this.",
         "#cFFFF81Music Note Block Generation:",
         "#cE5D1FA1. Hold High, Middle, or Low Note Blocks, stand at the target location,",
             "#cE5D1FAand enter the number of clicks (0~12) or a note name (CDEFGAB) to generate a music note block.",
@@ -493,6 +526,12 @@ local PDB={}
             lastPasPatId = -1 --上次粘贴的patId
             },
         },
+        attr = { --玩家属性 attributes
+            force = 10, --弹飞 力度 默认为10
+            speed = false, --改变速度的状态
+            size = false, --改变模型大小的状态
+            setForce = false, --改变弹飞力度大小的状态
+        },
     }
     --]]
 
@@ -612,6 +651,7 @@ local function notify(content, UIN)
 end 
 
 ---------------------- 函数定义 ----------------------
+
 
 --对玩家输出使用说明 参数是玩家的迷你号
 local function user(UIN)
@@ -1025,6 +1065,12 @@ local function Game_AnyPlayer_EnterGame(event)
             LastPastePatPos = {},
             lastPasPatId = -1,
         },
+        attr = {
+            force = 10, 
+            speed = false,
+            size = false,
+            setForce = false,
+        },
     }
     return 0
 end
@@ -1155,6 +1201,75 @@ local function PlayerNewInputContent(event)
             end            
             return 0
         end
+    end
+
+    --星铜钻头的情况
+    if(CurToolid == 11016)
+    then
+        local num = tonumber(event.content)
+        if(event.content == "a" or event.content == "A") --输出提示 改变状态(打开一个关掉两个) 准备接收玩家的输入
+        then
+            msg(CL.tip.attr.impNum[Lang], UIN)
+            PDB[UIN].attr.speed = true
+            PDB[UIN].attr.size = false
+            PDB[UIN].attr.setForce = false
+            return 0
+        elseif(event.content == "b" or event.content == "B")
+        then
+            msg(CL.tip.attr.impNum[Lang], UIN)
+            PDB[UIN].attr.speed = false
+            PDB[UIN].attr.size = true
+            PDB[UIN].attr.setForce = false
+            return 0
+        elseif(event.content == "c" or event.content == "C")
+        then
+            msg(CL.tip.attr.impNum[Lang], UIN)
+            PDB[UIN].attr.speed = false
+            PDB[UIN].attr.size = false
+            PDB[UIN].attr.setForce = true
+            return 0
+        end
+
+        if(num)--输入是数字的情况
+        then
+            if(PDB[UIN].attr.speed) --设置速度
+            then
+                if(num < 0) --判断输入是否合法
+                then --不合法 输出提示
+                    msg(CL.tip.attr.impNumIllegal[Lang], UIN)
+                else --合法 更改玩家的移动速度和奔跑速度
+                    Player:setAttr(UIN, PLAYERATTR.WALK_SPEED, num)
+                    Player:setAttr(UIN, PLAYERATTR.RUN_SPEED, num)
+                    local str = string.format(CL.tip.attr.changeSpeedSuc[Lang], num) --制作消息
+                    msg(str, UIN) --对玩家弹出消息
+                end
+            elseif(PDB[UIN].attr.size)--设置大小
+            then
+                if(num <= 0) --判断输入是否合法
+                then --不合法 输出提示
+                    msg(CL.tip.attr.impNumIllegal[Lang], UIN)
+                else --合法 修改模型大小
+                    Player:setAttr(UIN, PLAYERATTR.DIMENSION, num)
+                    local str = string.format(CL.tip.attr.changeSizeSuc[Lang], num) --制作消息
+                    msg(str, UIN) --对玩家弹出消息
+                end
+            elseif(PDB[UIN].attr.setForce)--设置力度
+            then
+                if(num < 0) --判断输入是否合法
+                then --不合法 输出提示
+                    msg(CL.tip.attr.impNumIllegal[Lang], UIN)
+                else --合法
+                    PDB[UIN].attr.Force = num --更改数值
+                    local str = string.format(CL.tip.attr.changeForceSuc[Lang], num) --制作消息
+                    msg(str, UIN) --对玩家弹出消息
+                end
+            end
+            return 0
+        end
+    else--其他道具的话 就把那三个状态关掉 不结束这个函数
+        PDB[UIN].attr.speed = false
+        PDB[UIN].attr.size = false
+        PDB[UIN].attr.setForce = false
     end
 
     ---------------------- 区域方块复制与pat ----------------------
@@ -1378,6 +1493,13 @@ end
 --玩家选择快捷栏时运行
 local function PlayerSelectShortcut(event)
     local UIN = event.eventobjid --我不想变量名称太长
+
+    --如是星铜钻头 输出提示
+    if(event.itemid == 11016)
+    then
+        msg(CL.tip.attr.Horas1[Lang], UIN)
+        msg(CL.tip.attr.Horas2[Lang], UIN)
+    end
 
     --如是平凡法杖 且开关为开 放置乐器方块...
     if(event.itemid==11580 and PDB[UIN]['switch'])
@@ -1652,6 +1774,17 @@ local function useitem(event)
         return 0 
     end 
     
+    --星铜钻头 飘移
+    if(event.itemid == 11016)
+    then
+        --从玩家数据库中抽取该玩家的力度
+        local force = PDB[UIN].attr.force
+        local result, dirx, diry, dirz = Actor:getFaceDirection(UIN)--获取该玩家的面朝方向
+        --计算弹飞玩家的参数 弹飞玩家
+        local x, y, z = dirx * force, diry * force, dirz * force
+        Actor:appendSpeed(UIN, x, y, z)
+    end
+
     --雷电法杖 框选区域之锚定坐标点和录入复制数据
     if(event.itemid == 11582)
     then 
@@ -1852,9 +1985,10 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         修复玩家在没有复制音乐区域的情况下 手持复苏法杖进行pat录入提示错误的问题 --
     通用功能更新
         修改部分提示
-        加速道具&人物大小设置 星铜钻头11016（前是铜 不是瞳） ab两个选项 -
-            a 输入数字可设置自己移动速度 扣0恢复正常 使用可向前冲刺
-            b 输入数字可设置自己模型大小 扣0恢复正常 可改变自己的大小以钻入一格高的地方
+        加速道具&人物大小设置 星铜钻头11016（前是铜 不是瞳） abc三个选项 -
+            a 输入数字可设置自己移动速度 使用可向前冲刺
+            b 输入数字可设置自己模型大小 可改变自己的大小以钻入一格高的地方
+            c 输入数字 调整弹飞的力度
         检测手持道具信息功能 可显示id 名字 输入"id"(不分大小写)查看 --
     音乐部分
         玩家输入空格 向预设方向偏移一次
