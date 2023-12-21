@@ -316,16 +316,16 @@ local CL = {
                 "#c8bf6abYour input is not within the acceptable range, please re-enter",
             },
             changeSpeedSuc = {
-                "#c8bf6ab成功将您的移动速度改为%d",
-                "#c8bf6abSuccessfully changed your movement speed to %d",
+                "#c8bf6ab成功将您的移动速度改为%f",
+                "#c8bf6abSuccessfully changed your movement speed to %f",
             },
             changeSizeSuc = {
-                "#c8bf6ab成功将您的模型大小改为%d",
-                "#c8bf6abSuccessfully changed your model size to %d",
+                "#c8bf6ab成功将您的模型大小改为%f",
+                "#c8bf6abSuccessfully changed your model size to %f",
             },
             changeForceSuc = {
-                "#c8bf6ab成功将您的弹飞力度改为%d",
-                "#c8bf6abSuccessfully changed your launch force to %d",
+                "#c8bf6ab成功将您的弹飞力度改为%f",
+                "#c8bf6abSuccessfully changed your launch force to %f",
             },
         },
     },
@@ -1259,7 +1259,7 @@ local function PlayerNewInputContent(event)
                 then --不合法 输出提示
                     msg(CL.tip.attr.impNumIllegal[Lang], UIN)
                 else --合法
-                    PDB[UIN].attr.Force = num --更改数值
+                    PDB[UIN].attr.force = num --更改数值
                     local str = string.format(CL.tip.attr.changeForceSuc[Lang], num) --制作消息
                     msg(str, UIN) --对玩家弹出消息
                 end
