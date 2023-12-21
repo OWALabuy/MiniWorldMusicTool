@@ -6,6 +6,7 @@
 1.5以上版本 联机房间中可以正常使用 玩家数据分别存储 互不干扰
 作者：异端 世方府 欧阳闻奕-528278703
 异端 世方府工作室版权所有
+本项目托管在Github: OWALabuy/MiniWorldMusicTool
 请关注异端老大轨心夕（杀手没有恨） 迷你号139246171
 
         Music Block Generator v1.13 by Heresy Shifang Studio
@@ -13,6 +14,7 @@
 Unlock the secret of creating seven maps a day for music players, bid farewell to manual block placement, save your liver, and make your music creation more efficient and accurate.
 
 In Developer Mode, create a new script and paste this document to convert your gameplay map for use. 
+
 To preserve your creative mode gameplay, please enable Creative Mode and exit without resetting the map.
 
 For versions 1.5 and above, it can be used normally in online rooms, with player data stored separately and without interference.
@@ -21,6 +23,7 @@ Author: Heresy Shifang Studio - @OWALabuy-528278703
 
 All rights reserved by Heresy Shifang Studio.
 
+This project is hosted on Github: OWALabuy/MiniWorldMusicTool
 --]]
 
 ---------------------- 字符串常量(语言组) ----------------------
@@ -316,16 +319,16 @@ local CL = {
                 "#c8bf6abYour input is not within the acceptable range, please re-enter",
             },
             changeSpeedSuc = {
-                "#c8bf6ab成功将您的移动速度改为%f",
-                "#c8bf6abSuccessfully changed your movement speed to %f",
+                "#c8bf6ab成功将您的移动速度改为%s",
+                "#c8bf6abSuccessfully changed your movement speed to %s",
             },
             changeSizeSuc = {
-                "#c8bf6ab成功将您的模型大小改为%f",
-                "#c8bf6abSuccessfully changed your model size to %f",
+                "#c8bf6ab成功将您的模型大小改为%s",
+                "#c8bf6abSuccessfully changed your model size to %s",
             },
             changeForceSuc = {
-                "#c8bf6ab成功将您的弹飞力度改为%f",
-                "#c8bf6abSuccessfully changed your launch force to %f",
+                "#c8bf6ab成功将您的弹飞力度改为%s",
+                "#c8bf6abSuccessfully changed your launch force to %s",
             },
         },
     },
@@ -357,8 +360,9 @@ local readme = {
         "#cFFFF81音调方块的生成：",
         "#cE5D1FA1. 手持高中低音块，站在目标位置上，输入音块的点击次数(0~12)或音名(CDEFGAB)可生成音调方块。",
         "#cE3DFFD2. 音调方块生成后，可以对玩家做一个位置偏移以避免被生成的方块卡住。可以手持收割者设置这个偏移的值。",
+        "#cECF2FF3. 手持音调方块输入空格做一次偏移",
         "#cFFFF81乐器方块的生成：",
-        "#cECF2FF1. 手持鼓、电子、综合、乐器方块，输入音块的点击次数，手持平凡法杖再次选择该快捷栏可在准星位置生成对应的音乐方块。",
+        "#cFFE5E51. 手持鼓、电子、综合、乐器方块，输入音块的点击次数，手持平凡法杖再次选择该快捷栏可在准星位置生成对应的音乐方块。",
         "#cFBA1B72. 切换音色：手持对应乐器方块重新输入数字即可，这会覆盖复制的音组数据。",
         "#cFFD1DA3. 清除保存的数据：在聊天框输入“清除乐器方块数据”来清除，再次选择平凡法杖快捷栏不会生成方块。",
         "#cFFF0F54. 乐器刷子功能：钛合金耙控制，开启后，玩家行走时，在玩家周围未放乐器的音调方块上刷上录入的乐器",
@@ -374,8 +378,8 @@ local readme = {
         "#cFFCACC7. 在锚定点后，切换道具可取消所有锚定的点，再次选择雷电法杖快捷栏可取消区域的终结点",
         "#cDBC4F08. 手持极寒域法杖，输入数字可改变粘贴方式。 1:无视光束线粘贴(默认) 2.无视除电路外任何方块粘贴 3:无视任何方块粘贴",
         "#cFFFF81Pattern功能",
-        "#cB0DAFF1. 手持平凡法杖可依提示进行pattern操作",
-        "#cDAF5FF2. 使用平凡法杖粘贴就绪的pattern",
+        "#cB0DAFF1. 手持复苏法杖可依提示进行pattern操作",
+        "#cDAF5FF2. 使用复苏法杖粘贴就绪的pattern",
         "#c66ccff==========================",
     },
     {
@@ -394,8 +398,9 @@ local readme = {
             "#cE5D1FAand enter the number of clicks (0~12) or a note name (CDEFGAB) to generate a music note block.",
         "#cE3DFFD2. After generating a music note block, you can apply a player position offset to prevent block obstruction.",
             "#cE3DFFDYou can use the Reaper to set this offset value.",
+        "#cECF2FF3. Hold the node block and enter a sp丨ace to make an offset",
         "#cFFFF81Musical Instrument Block Generation:",
-        "#cECF2FF1. Hold Drum, Electronic, Composite Musical Instrument Blocks, enter the number of clicks,",
+        "#cFFE5E51. Hold Drum, Electronic, Composite Musical Instrument Blocks, enter the number of clicks,",
             "#cECF2FFand use the Ordinary Wand to generate corresponding music blocks at the crosshair position.",
         "#cFBA1B72. Change the instrument: Hold the corresponding musical instrument block and re-enter the number.",
             "#cFBA1B7This will overwrite the copied music group data.",
@@ -420,8 +425,8 @@ local readme = {
         "#cDBC4F08. Hold the Frostbite Staff and enter a number to change the paste method. 1: Paste without regard ",
             "#cDBC4F0to beam line (default)2: Paste without regard to any block except for circuits 3: Paste without regard to any block.",
         "#cFFFF81Pattern Function:",
-        "#cB0DAFF1. Hold the Ordinary Wand and follow the prompts to perform pattern operations.",
-        "#cDAF5FF2. Use the Ordinary Wand to paste prepared patterns.",
+        "#cB0DAFF1. Hold the Resurgence Wand and follow the prompts to perform pattern operations.",
+        "#cDAF5FF2. Use the Resurgence Wand to paste prepared patterns.",
         "#c66ccff==========================",
     },
 }
@@ -1010,6 +1015,17 @@ local function itemInt(UIN)
     return 0 
 end
 
+--格式化小数的函数 参数是一个num 返回值是string
+local function formatDecimal(number)
+    if(number % 1 == 0) --如果它是整数 那就直接返回 不处理
+    then
+        return tostring(number)
+    end
+    local decimalPlaces = tostring(number):match('%.?(%d*)$') --截取它的有效小数
+    local formattedNumber = string.format("%." .. #decimalPlaces .. "f", number)
+    return formattedNumber
+end
+
 ---------------------- 事件关联动作定义 ----------------------
 --玩家进入游戏时
 local function Game_AnyPlayer_EnterGame(event)
@@ -1240,7 +1256,7 @@ local function PlayerNewInputContent(event)
                 else --合法 更改玩家的移动速度和奔跑速度
                     Player:setAttr(UIN, PLAYERATTR.WALK_SPEED, num)
                     Player:setAttr(UIN, PLAYERATTR.RUN_SPEED, num)
-                    local str = string.format(CL.tip.attr.changeSpeedSuc[Lang], num) --制作消息
+                    local str = string.format(CL.tip.attr.changeSpeedSuc[Lang], event.content) --制作消息
                     msg(str, UIN) --对玩家弹出消息
                 end
             elseif(PDB[UIN].attr.size)--设置大小
@@ -1250,7 +1266,7 @@ local function PlayerNewInputContent(event)
                     msg(CL.tip.attr.impNumIllegal[Lang], UIN)
                 else --合法 修改模型大小
                     Player:setAttr(UIN, PLAYERATTR.DIMENSION, num)
-                    local str = string.format(CL.tip.attr.changeSizeSuc[Lang], num) --制作消息
+                    local str = string.format(CL.tip.attr.changeSizeSuc[Lang], event.content) --制作消息
                     msg(str, UIN) --对玩家弹出消息
                 end
             elseif(PDB[UIN].attr.setForce)--设置力度
@@ -1260,7 +1276,7 @@ local function PlayerNewInputContent(event)
                     msg(CL.tip.attr.impNumIllegal[Lang], UIN)
                 else --合法
                     PDB[UIN].attr.force = num --更改数值
-                    local str = string.format(CL.tip.attr.changeForceSuc[Lang], num) --制作消息
+                    local str = string.format(CL.tip.attr.changeForceSuc[Lang], event.content) --制作消息
                     msg(str, UIN) --对玩家弹出消息
                 end
             end
@@ -1440,8 +1456,16 @@ local function PlayerNewInputContent(event)
     
     ---------------------- 音调方块的生成 鼓的生成 ----------------------
     local result,blockid=Player:getCurToolID(UIN)
-    if(blockid==690 or blockid==691 or blockid==692 or (blockid == 693 and PDB[UIN].DrumState)) 
+    if(blockid==690 or blockid==691 or blockid==692 or (blockid == 693 and PDB[UIN].DrumState))
     then
+        if(event.content == " ")--如果是空格 那就做一次偏移
+        then --不过这个偏移的功能会重写成函数的吧
+            local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
+            --位置偏移
+            Actor:setPosition(UIN, x+offset.x, y+offset.y, z+offset.z)
+            --结束函数
+            return 0
+        end
         local clicknum = -1
         if(type(tonumber(event.content))=="number")--获取玩家在聊天框中输入的内容 若是一个数 则直接生成
         then
@@ -1984,18 +2008,18 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
     bug修复
         修复玩家在没有复制音乐区域的情况下 手持复苏法杖进行pat录入提示错误的问题 --
     通用功能更新
-        修改部分提示
-        加速道具&人物大小设置 星铜钻头11016（前是铜 不是瞳） abc三个选项 -
+        修改部分提示 -
+        加速道具&人物大小设置 星铜钻头11016（前是铜 不是瞳） abc三个选项 --
             a 输入数字可设置自己移动速度 使用可向前冲刺
             b 输入数字可设置自己模型大小 可改变自己的大小以钻入一格高的地方
             c 输入数字 调整弹飞的力度
         检测手持道具信息功能 可显示id 名字 输入"id"(不分大小写)查看 --
     音乐部分
-        玩家输入空格 向预设方向偏移一次
+        玩家输入空格 向预设方向偏移一次 --
         新增选区移调与乐器方块替换功能 仅适用于音乐(整合到雷电法杖与极寒域法杖部分)
-        放置音调方块后的玩家位置偏移可选 依据最近的延迟器/增幅器的朝向确定偏移方向 适配s形折轨的音乐地图
+        放置音调方块后的玩家位置偏移可选 询问玩家的地图方向 依据玩家位于区间（最近的主轨延迟器/增幅器的朝向）确定偏移方向 适配s形折轨的音乐地图
     新增电路元件类辅助
-        过山车轨道一键放置功能 带指示灯
+        过山车轨道一键放置功能 带指示灯 (玩家需要手动制作一个周期的轨道 然后录入自动生成)
         巨人核心生成功能（输入数字控制朝向）
         推拉机械臂花纹星能块一键放置功能（输入数字控制朝向）
         封轨 拆轨(把音轨的星能分流器发出的光束线用指定方块截断 与其逆过程(手持道具输入控制))
