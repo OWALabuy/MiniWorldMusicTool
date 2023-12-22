@@ -26,6 +26,7 @@ All rights reserved by Heresy Shifang Studio.
 This project is hosted on Github: OWALabuy/MiniWorldMusicTool
 --]]
 
+
 ---------------------- 字符串常量(语言组) ----------------------
 -- copy list 文案列表
 local CL = {
@@ -246,8 +247,8 @@ local CL = {
                 "#c8bf6ab1.Instructions for use\n2.Introduction to props\n3.切换为 中文\n4/5.Turn fly on/off",
             },
             menu3 = {
-                "#c8bf6ab6.设置调性\n7.设置位置偏移\n8.查看当前全局设置",
-                "#c8bf6ab6.Set tonality\n7.Set position offset\n8.View current global settings",
+                "#c8bf6ab6.设置调性\n7.设置位置偏移\n8.查看当前全局设置\n9.我的音轨是折叠的 呈S形",
+                "#c8bf6ab6.Set tonality\n7.Set position offset\n8.View current global settings\n9. My audio track is folded into an S shape",
             },
             toneDisplayTemplate = {
                 "#c8bf6ab%d.#cffffff%6s #c8bf6ab%s",
@@ -256,6 +257,10 @@ local CL = {
             setDisTem = {
                 "#c3BB4C1\n音调：%s %s\n位置偏移：(%d,%d,%d)",
                 "#c3BB4C1Current setting:\nKey: %s %s\nPosition offset: (%d,%d,%d)"
+            },
+            setDisFold = {
+                "#c3BB4C1\n音调：%s %s\n位置偏移：%d，周期：%d\n左轨位置：%d",
+                "#c3BB4C1Current setting:\nKey: %s %s\nPosition offset: %d Period: %d\nLeft Track: %d"
             },
             setPitchTip = {
                 "#c048998输入数字选择调性",
@@ -303,8 +308,7 @@ local CL = {
         attr = {
             Horas1 = {
                 "#c8bf6ab使用星铜钻头，向前冲刺\n输入A B C 修改配置\n#Wa.输入数字设置自己的移动速度(x>=0,默认为10)",
-                "#c8bf6abDash forward using this item\nEnter A/B/C: Modify config\n#Wa. Set movement speed (x>=0, default: 10)"
-,
+                "#c8bf6abDash forward using this item\nEnter A/B/C: Modify config\n#Wa. Set movement speed (x>=0, default: 10)",
             },
             Horas2 = {
                 "#cffffffb.输入数字设置自己的模型大小(x=0,默认为1)\nc.输入数字设置自己的弹飞力度(建议非负,默认为10)",
@@ -331,8 +335,50 @@ local CL = {
                 "#c8bf6abSuccessfully changed your launch force to %s",
             },
         },
+        fold = { --关于折轨的
+            tip1 = {
+                "#c7BD3EA如果你的音乐地图采用的是折叠音轨 我们需要简单配置一下您的位置偏移",
+                "#c7BD3EAIf your music map uses folded tracks, we need to simply configure your position offset",
+            },
+            tip2 = {
+                "#cA1EEBD请确保每行音轨的间距相等 否则可能导致偏移错误",
+                "#cA1EEBDPlease ensure that the spacing between each row of tracks is equal, otherwise it may cause offset errors",
+            },
+            tip3 = {
+                "#cF6F7C4现在 请您背对音乐地图的起点 面朝终点 告诉我您的前方是什么方向",
+                "#cF6F7C4Now, face the ending direction with your back to the music map's starting point. What direction is ahead of you.",
+            },
+            tip4 = {
+                "#cF6D6D6输入一个数字以选择",
+                "#cF6D6D6Enter a number to select",
+            },
+            chooseDirSuc = {
+                "#cFFE5E5成功选择方向！",
+                "#cFFE5E5Successfully choose the direction!",
+            },
+            trackTip = {
+                "#cE0AED0请任意找两行相邻且反方向的音轨 分别站在向左/向右的轨上输入L/R 不分大小写",
+                "#cE0AED0Identify two neighboring tracks facing opposite directions. Stand on the left/right track and input L/R, case-insensitive.",
+            },
+            trackTip2 = {
+                "#cE0AED0请先确定向左的轨的位置",
+                "#cE0AED0lease determine the position of the left track first",
+            },
+            trackTip3 = {
+                "#cAC87C5确定向左的轨位置成功\n请确定向右的轨的位置",
+                "#cAC87C5Determine the position of the left track successfully. Please confirm the position of the right track",
+            },
+            trackTip4 = {
+                "#cAC87C5确定向右的轨的位置成功\n请输入一个数字设置您的偏移量",
+                "#cAC87C5Determining the position of the right track successfully. Please enter a number to set your offset",
+            },
+            foldSuc = {
+                "#c756AB6成功为您的折叠轨地图配置了偏移！",
+                "#c756AB6Successfully configured offset for your folded track map!",
+            },
+        },
     },
-    
+
     order = { --指令
         cancel = {
             "撤销",
@@ -487,8 +533,8 @@ local intro = {
         "#cFFB6B9to view the menu",
         "#c66ccff=========================="
     },
-    
-} 
+
+}
 
 
 ---------------------- 变量及数据库 ----------------------
@@ -573,11 +619,115 @@ local Itemid_List={ --要检测和添加的初始道具列表
 local globalSetState = {
     chooseKey = false, --设置调性
     setOffset = false, --设置位置偏移
+    setFold = false, --设置折轨
+    chooseFoldPara = false, --设置折轨的参数
+    setLeftPos = false, --设置向左向右的轨的状态
+    setRightPos = false,
+    setFoldOffset = false, --设置偏移量
+}
+
+local fold = { --地图的折轨设定 这里的数值全是乱写的 数据等待玩家注入
+    axis = "Z", --用来在foldpara中找参数 下同 X或Z
+    direction = 1, --  1 或 -1
+    offset = 2, --向左或向右偏移的格式
+    leftTrackKeyPos = 4, --向左的音轨的关键坐标 (视方向而定 比如x轴就记录x坐标)
+    rightTrackKeyPos = 1, --向右的音轨的关键坐标(只记录X值或Z值)
+    leftTrackInPeriod = 1, --向左的轨在周期中的位置
+    distance = 1.5, --轨距离的二分之一 用于判断玩家的坐标
+    period = 6, --周期 也就是轨距离的二倍
+}
+
+local foldList = { --折轨的情况列表 玩家选了就注入到fold表中
+    [1] = {
+        axis = "Z",
+        direction = 1,
+    },
+    [2] = {
+        axis = "Z",
+        direction = -1,
+    },
+    [3] = {
+        axis = "X",
+        direction = 1,
+    },
+    [4] = {
+        axis = "X",
+        direction = -1,
+    },
+
+}
+
+local foldPara = { --折轨的有关参数
+    X = {
+        [1] = {
+            ind = 3,
+            direction = {
+                "#cffffff东方，X轴正方向",
+                "#cffffffEast, positive direction of X axis",
+            },
+            left = { --这是倍数 也就是偏移的时候对应坐标轴的方向
+                x = 0,
+                z = 1,
+            },
+            right = {
+                x = 0,
+                z = -1,
+            },
+        },
+        [-1] = {
+            ind = 4,
+            direction = {
+                "#c66ccff西方，X轴负方向",
+                "#c66ccffWest, negative direction of X axis",
+            },
+            left = {
+                x = 0,
+                z = -1,
+            },
+            right = {
+                x = 0,
+                z = 1,
+            },
+        },
+    },
+    Z = {
+        [1] = {
+            ind = 1, --在foldlist中的索引
+            direction = {
+                "#cffffff北方，Z轴正方向",
+                "#cffffffNorth, positive direction of Z axis",
+            },
+            left = { --这是倍数 也就是偏移的时候对应坐标轴的方向
+                x = -1,
+                z = 0,
+            },
+            right = {
+                x = 1,
+                z = 0,
+            },
+        },
+        [-1] = {
+            ind = 2,
+            direction = {
+                "#c66ccff南方，Z轴负方向",
+                "#c66ccffSouth, negative direction of Z axis",
+            },
+            left = {
+                x = 1,
+                z = 0,
+            },
+            right = {
+                x = -1,
+                z = 0,
+            },
+        },
+    },
 }
 
 local Lang = 1 --语言language 1:简体中文 2:English
 local CopyEffectId = 1212 --复制用的特效id
 local offset = {x=0, y=0, z=0} --位置偏移
+local isFold = false --是否是折叠轨（玩家可以配置折叠轨相关的参数）
 local pitch = 1 --调性
 local pitchList = {--调性调用的东西
     [1] = {
@@ -635,25 +785,25 @@ local pitchList = {--调性调用的东西
 --对玩家显示聊天框系统消息(重构) 参数是字符串和玩家迷你号 规范化参数避免缺参
 local function msg(content, UIN)
     if(content and UIN == nil) --检查参数是否完整
-    then 
+    then
         Chat:sendSystemMsg('msg:参数不完整！')
-        return 1001 
+        return 1001
     end
     Trigger:wait(0.1) --一个小的延迟
     Chat:sendSystemMsg(content, UIN)
-    return 0 
-end 
+    return 0
+end
 
 --对玩家显示飘窗文字(重构) 参数是字符串和玩家迷你号 规范化参数避免缺参
 local function notify(content, UIN)
     if(content and UIN == nil) --检查参数是否完整
-    then 
+    then
         Chat:sendSystemMsg('notify:参数不完整！')
-        return 1001 
+        return 1001
     end
     Player:notifyGameInfo2Self(UIN, content)
-    return 0 
-end 
+    return 0
+end
 
 ---------------------- 函数定义 ----------------------
 
@@ -669,7 +819,7 @@ local function user(UIN)
             Trigger:wait((#readme[Lang][i]*0.03)) --根据字数设定延迟
         end
     end
-    return 0 
+    return 0
 end
 
 --复制一个区域 录入一个区域的所有音乐方块数据 参数是玩家的迷你号
@@ -677,41 +827,41 @@ local function ctrl_c(UIN)
     --消灭掉上次复制的东西
     PDB[UIN].copy.areadata = {}
     --开辟表格 一层套一层 像俄罗斯套娃
-    for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x 
-    do 
+    for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x
+    do
         PDB[UIN].copy.areadata[x] = {}
-        for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y 
-        do 
+        for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y
+        do
             PDB[UIN].copy.areadata[x][y] ={}
             for z = 0, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.z
-            do 
+            do
                 PDB[UIN].copy.areadata[x][y][z] ={}
-            end 
-        end 
-    end 
-    
+            end
+        end
+    end
+
     --录入数据
     --遍历每一个方块
-    for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x 
-    do 
-        for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y 
-        do 
-            for z = 0, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.z 
-            do 
+    for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x
+    do
+        for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y
+        do
+            for z = 0, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.z
+            do
                 local result,id = Block:getBlockID( PDB[UIN].copy.pos.strpos.x+x, PDB[UIN].copy.pos.strpos.y+y, PDB[UIN].copy.pos.strpos.z+z)
                 if(id >= 690 and id <= 699)--如是音乐方块
-                then 
+                then
                     local result,data=Block:getBlockData( PDB[UIN].copy.pos.strpos.x+x, PDB[UIN].copy.pos.strpos.y+y, PDB[UIN].copy.pos.strpos.z+z)
                     --录入id 和data 
-                    PDB[UIN].copy.areadata[x][y][z].id = id 
+                    PDB[UIN].copy.areadata[x][y][z].id = id
                     PDB[UIN].copy.areadata[x][y][z].data = data
-                end 
-            end 
-        end 
-    end 
+                end
+            end
+        end
+    end
     msg(string.format(CL.tip.copy.copySuccessfully[Lang], PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.strpos.z),UIN)
     msg(CL.tip.copy.copySuccessfully2[Lang], UIN)
-    return 0 
+    return 0
 end
 
 --粘贴方块 根据PDB[UIN].copy.way选择粘贴的方式 参数是玩家的迷你号
@@ -721,93 +871,93 @@ local function ctrl_v(UIN)
     --将这次粘贴的位置保存到copy中
     PDB[UIN].copy.LastPastePos = {x=px,y=py,z=pz}
     --提取数据
-    for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x 
-    do 
-        for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y 
-        do 
-            for z = 0, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.z 
-            do 
+    for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x
+    do
+        for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y
+        do
+            for z = 0, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.z
+            do
                 if(PDB[UIN].copy.areadata[x][y][z].id)
-                then 
+                then
                     local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
                     if(PDB[UIN].copy.way == 1) --1.无视光束线粘贴(默认)
-                    then 
+                    then
                         if(BeforeId == 0 or BeforeId == 351) --空气或光束线
-                        then 
+                        then
                             Block:setBlockAll(px+x, py+y, pz+z, PDB[UIN].copy.areadata[x][y][z].id, PDB[UIN].copy.areadata[x][y][z].data)
-                        end 
+                        end
                     elseif(PDB[UIN].copy.way == 2)-- 2.无视除电路外任何方块粘贴
-                    then 
+                    then
                         if(not((BeforeId>=352 and BeforeId<=374) or (BeforeId==415) or (BeforeId>=690 and BeforeId<=722))) --排除电路元件和音乐方块
-                        then 
+                        then
                             Block:setBlockAll(px+x, py+y, pz+z, PDB[UIN].copy.areadata[x][y][z].id, PDB[UIN].copy.areadata[x][y][z].data)
-                        end 
+                        end
                     elseif(PDB[UIN].copy.way == 3)-- 3.无视任何方块粘贴 
-                    then 
+                    then
                         Block:setBlockAll(px+x, py+y, pz+z, PDB[UIN].copy.areadata[x][y][z].id, PDB[UIN].copy.areadata[x][y][z].data)
-                    end 
-                end 
-            end 
-        end 
-    end 
+                    end
+                end
+            end
+        end
+    end
     msg(string.format(CL.tip.copy.pasteSuc[Lang], px, py, pz),UIN)
-    return 0 
-end 
+    return 0
+end
 
 --撤消（消除刚刚粘贴的东西）
 local function ctrl_z(UIN)
     --上次粘贴的位置
-    local px, py, pz = PDB[UIN].copy.LastPastePos.x, PDB[UIN].copy.LastPastePos.y, PDB[UIN].copy.LastPastePos.z 
-    for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x 
-    do 
-        for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y 
-        do 
-            for z = 0, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.z 
-            do 
+    local px, py, pz = PDB[UIN].copy.LastPastePos.x, PDB[UIN].copy.LastPastePos.y, PDB[UIN].copy.LastPastePos.z
+    for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x
+    do
+        for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y
+        do
+            for z = 0, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.z
+            do
                 if(PDB[UIN].copy.areadata[x][y][z].id) --对比id和data 进行清除操作
-                then 
+                then
                     local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
                     if(BeforeId == PDB[UIN].copy.areadata[x][y][z].id)
-                    then 
+                    then
                         local result,data=Block:getBlockData(px+x, py+y, pz+z)
                         if(data == PDB[UIN].copy.areadata[x][y][z].data)
-                        then 
+                        then
                             Block:destroyBlock(px+x, py+y, pz+z, false)
-                        end 
-                    end 
-                end 
-            end 
-        end 
-    end 
+                        end
+                    end
+                end
+            end
+        end
+    end
     msg(CL.tip.pat.revokeSuc[Lang], UIN)
-    return 0 
-end 
+    return 0
+end
 
 --刷子函数 参数是玩家的迷你号 在玩家周围size大小的区域未放乐器的音调方块上刷上乐器方块
 local function Brush(UIN)
     local result, x0, y0, z0=Actor:getPosition(UIN)
     local size = PDB[UIN].Brush.size
-    local x1, x2 = x0 - size, x0 + size 
-    local y1, y2 = y0 - size, y0 + size 
-    local z1, z2 = z0 - size, z0 + size 
+    local x1, x2 = x0 - size, x0 + size
+    local y1, y2 = y0 - size, y0 + size
+    local z1, z2 = z0 - size, z0 + size
     for x = x1,x2
     do
-        for y = y1, y2 
-        do 
-            for z = z1, z2 
-            do 
+        for y = y1, y2
+        do
+            for z = z1, z2
+            do
                 local result,id = Block:getBlockID(x,y,z)
                 if(id>=690 and id<=692)--若是音调方块 检测上面的id
-                then 
+                then
                     local result,id2 = Block:getBlockID(x,y+1,z)
                     if(id2==0 or id2==351)--若是空气或光束线
                     then --刷上对应的乐器
                         Block:setBlockAll(x,y+1,z,PDB[UIN].block_id,PDB[UIN].click_num)
-                    end 
-                end 
+                    end
+                end
             end
-        end 
-    end 
+        end
+    end
     return 0
 end
 
@@ -864,34 +1014,34 @@ local function copyToPat(UIN)
         }
 
         --开data跑循环 一层套一层 像俄罗斯套娃
-        for x = 0, PAT.data[patId].vector.x, PAT.data[patId].direction.x 
-        do 
+        for x = 0, PAT.data[patId].vector.x, PAT.data[patId].direction.x
+        do
             PAT.data[patId].areadata[x] = {}
-            for y = 0, PAT.data[patId].vector.y, PAT.data[patId].direction.y 
-            do 
+            for y = 0, PAT.data[patId].vector.y, PAT.data[patId].direction.y
+            do
                 PAT.data[patId].areadata[x][y] ={}
                 for z = 0, PAT.data[patId].vector.z, PAT.data[patId].direction.z
-                do 
+                do
                     PAT.data[patId].areadata[x][y][z] ={}
-                end 
-            end 
+                end
+            end
         end
         --把数据搬过去
-        for x = 0, PAT.data[patId].vector.x, PAT.data[patId].direction.x 
-        do 
-            for y = 0, PAT.data[patId].vector.y, PAT.data[patId].direction.y 
-            do 
+        for x = 0, PAT.data[patId].vector.x, PAT.data[patId].direction.x
+        do
+            for y = 0, PAT.data[patId].vector.y, PAT.data[patId].direction.y
+            do
                 for z = 0, PAT.data[patId].vector.z, PAT.data[patId].direction.z
-                do 
+                do
                     if(PDB[UIN].copy.areadata[x][y][z].id)
-                    then 
+                    then
                         PAT.data[patId].areadata[x][y][z] ={
                             id = PDB[UIN].copy.areadata[x][y][z].id,
                             data = PDB[UIN].copy.areadata[x][y][z].data,
                         }
                     end
-                end 
-            end 
+                end
+            end
         end
 
         --记入pat数
@@ -917,34 +1067,34 @@ local function pastePat(UIN)
         --提取PatId
         local patId = PDB[UIN].pattern.nowPatId
         --提取数据
-        for x = 0, PAT.data[patId].vector.x, PAT.data[patId].direction.x 
-        do 
-            for y = 0, PAT.data[patId].vector.y, PAT.data[patId].direction.y 
-            do 
-                for z = 0, PAT.data[patId].vector.z, PAT.data[patId].direction.z 
-                do 
+        for x = 0, PAT.data[patId].vector.x, PAT.data[patId].direction.x
+        do
+            for y = 0, PAT.data[patId].vector.y, PAT.data[patId].direction.y
+            do
+                for z = 0, PAT.data[patId].vector.z, PAT.data[patId].direction.z
+                do
                     if(PAT.data[patId].areadata[x][y][z].id)
-                    then 
+                    then
                         local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
                         if(PDB[UIN].copy.way == 1) --1.无视光束线粘贴(默认)
-                        then 
+                        then
                             if(BeforeId == 0 or BeforeId == 351) --空气或光束线
-                            then 
+                            then
                                 Block:setBlockAll(px+x, py+y, pz+z, PAT.data[patId].areadata[x][y][z].id, PAT.data[patId].areadata[x][y][z].data)
-                            end 
+                            end
                         elseif(PDB[UIN].copy.way == 2)-- 2.无视除电路外任何方块粘贴
-                        then 
+                        then
                             if(not((BeforeId>=352 and BeforeId<=374) or (BeforeId==415) or (BeforeId>=690 and BeforeId<=722))) --排除电路元件和音乐方块
-                            then 
+                            then
                                 Block:setBlockAll(px+x, py+y, pz+z, PAT.data[patId].areadata[x][y][z].id, PAT.data[patId].areadata[x][y][z].data)
-                            end 
+                            end
                         elseif(PDB[UIN].copy.way == 3)-- 3.无视任何方块粘贴 
-                        then 
+                        then
                             Block:setBlockAll(px+x, py+y, pz+z, PAT.data[patId].areadata[x][y][z].id, PAT.data[patId].areadata[x][y][z].data)
-                        end 
-                    end 
-                end 
-            end 
+                        end
+                    end
+                end
+            end
         end
         --记录id 输出提示
         PDB[UIN].pattern.lastPasPatId = patId
@@ -960,28 +1110,28 @@ local function revokePat(UIN)
     if(lastPatId ~= -1) --有粘贴过东西
     then
         --上次粘贴的位置
-        local px, py, pz = PDB[UIN].pattern.LastPastePatPos.x, PDB[UIN].pattern.LastPastePatPos.y, PDB[UIN].pattern.LastPastePatPos.z 
-        for x = 0, PAT.data[lastPatId].vector.x, PAT.data[lastPatId].direction.x 
-        do 
-            for y = 0, PAT.data[lastPatId].vector.y, PAT.data[lastPatId].direction.y 
-            do 
-                for z = 0, PAT.data[lastPatId].vector.z, PAT.data[lastPatId].direction.z 
-                do 
+        local px, py, pz = PDB[UIN].pattern.LastPastePatPos.x, PDB[UIN].pattern.LastPastePatPos.y, PDB[UIN].pattern.LastPastePatPos.z
+        for x = 0, PAT.data[lastPatId].vector.x, PAT.data[lastPatId].direction.x
+        do
+            for y = 0, PAT.data[lastPatId].vector.y, PAT.data[lastPatId].direction.y
+            do
+                for z = 0, PAT.data[lastPatId].vector.z, PAT.data[lastPatId].direction.z
+                do
                     if(PAT.data[lastPatId].areadata[x][y][z].id) --对比id和data 进行清除操作
-                    then 
+                    then
                         local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
                         if(BeforeId == PAT.data[lastPatId].areadata[x][y][z].id)
-                        then 
+                        then
                             local result,data=Block:getBlockData(px+x, py+y, pz+z)
                             if(data == PAT.data[lastPatId].areadata[x][y][z].data)
-                            then 
+                            then
                                 Block:destroyBlock(px+x, py+y, pz+z, false)
-                            end 
-                        end 
-                    end 
-                end 
-            end 
-        end 
+                            end
+                        end
+                    end
+                end
+            end
+        end
         msg(CL.tip.pat.revokeSuc[Lang], UIN)
     end
     return 0
@@ -997,7 +1147,14 @@ end
 
 --对玩家显示设置数据 参数是玩家的迷你号
 local function displaySettings(UIN)
-    local str = string.format(CL.tip.globalSetTip.setDisTem[Lang], pitchList[pitch].name, pitchList[pitch].intro, offset.x, offset.y, offset.z)
+    local str = "awa"--先预设一个字符串
+    if(isFold) --制作提示消息
+    then --如果是折轨
+        str = string.format(CL.tip.globalSetTip.setDisFold[Lang], pitchList[pitch].name, pitchList[pitch].intro, fold.offset, fold.period, fold.leftTrackInPeriod)
+    else --直轨的
+        str = string.format(CL.tip.globalSetTip.setDisTem[Lang], pitchList[pitch].name, pitchList[pitch].intro, offset.x, offset.y, offset.z)
+    end
+    --输出
     msg(str, UIN)
 end
 
@@ -1012,7 +1169,7 @@ local function itemInt(UIN)
             Trigger:wait((#itemIntro[Lang][i]*0.03)) --根据字数设定延迟
         end
     end
-    return 0 
+    return 0
 end
 
 --格式化小数的函数 参数是一个num 返回值是string
@@ -1026,14 +1183,53 @@ local function formatDecimal(number)
     return formattedNumber
 end
 
+--判断离玩家最近的向左的轨的距离的函数 参数是玩家的关键坐标 返回值是玩家与最近的向左的轨的距离
+local function getDistance(playerPos)
+    --玩家的关键坐标对周期取模
+    local playerPosInPeriod = playerPos % fold.period
+
+    --顺时针逆时针分别求玩家与左轨的距离
+    local clockwiseDistance = math.abs(playerPosInPeriod - fold.leftTrackInPeriod)
+    local counterclockwiseDistance = fold.period - clockwiseDistance
+    --返回一个最小的
+    return math.min(clockwiseDistance, counterclockwiseDistance)
+end
+
+--对玩家做一个偏移 参数是玩家的迷你号
+local function doOffset(UIN)
+    local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
+    if(isFold)
+    then--折轨的情况
+        local distance = 0 --在这定义一个变量 放距离
+        if(fold.axis == "Z")--判断玩家与关键轴的距离
+        then--z轴
+            distance = getDistance(z)
+        else--x轴
+            distance = getDistance(x)
+        end
+
+        if(distance <= fold.distance)--看看玩家在哪个区间
+        then--向左
+            Actor:setPosition(UIN, x + foldPara[fold.axis][fold.direction].left.x * fold.offset, y, z+foldPara[fold.axis][fold.direction].left.z * fold.offset)
+        else--向右
+            Actor:setPosition(UIN, x + foldPara[fold.axis][fold.direction].right.x * fold.offset, y, z+foldPara[fold.axis][fold.direction].right.z * fold.offset)
+        end
+    else--直轨的情况 直接从全局的offset中抽提数据 这个简单awa
+        --位置偏移
+        Actor:setPosition(UIN, x+offset.x, y+offset.y, z+offset.z)
+        --结束函数
+        return 0
+    end
+end
+
 ---------------------- 事件关联动作定义 ----------------------
 --玩家进入游戏时
 local function Game_AnyPlayer_EnterGame(event)
     local UIN = event.eventobjid --我不想变量名称太长
-    
+
     --让玩家飞行
     Player:changPlayerMoveType(UIN,1)
-    
+
     --检测并给玩家添加道具
     for k ,v in pairs(Itemid_List)
     do
@@ -1050,7 +1246,7 @@ local function Game_AnyPlayer_EnterGame(event)
     do
         msg(intro[Lang][i],UIN)
     end
-    
+
     --将玩家拉入清单
     PDB[UIN]={
         switch = false,
@@ -1066,7 +1262,7 @@ local function Game_AnyPlayer_EnterGame(event)
                 endpos = {},
             },
             keepPos = {
-                strpos = {}, 
+                strpos = {},
                 endpos = {},
             },
             vector = {},
@@ -1082,7 +1278,7 @@ local function Game_AnyPlayer_EnterGame(event)
             lastPasPatId = -1,
         },
         attr = {
-            force = 10, 
+            force = 10,
             speed = false,
             size = false,
             setForce = false,
@@ -1099,7 +1295,7 @@ end
 --玩家输入字符串时 ...
 local function PlayerNewInputContent(event)
     local UIN = event.eventobjid --我不想变量名称太长
-    
+
     ---------------------- 通用功能 ----------------------
 
     --输入id（不分大小写） 输出玩家当前手持道具的信息
@@ -1125,7 +1321,7 @@ local function PlayerNewInputContent(event)
         msg(CL.tip.MI.clearMIDataSuc[Lang], UIN)
         return 0
     end
-    
+
     local result,CurToolid=Player:getCurToolID(UIN)
     --如果是收割者 操作
     if(CurToolid == 12009)
@@ -1133,10 +1329,95 @@ local function PlayerNewInputContent(event)
         local num = tonumber(event.content)
         local ck = globalSetState.chooseKey
         local so = globalSetState.setOffset
+        local sf = globalSetState.setFold
+        local cfp = globalSetState.chooseFoldPara
+        local slp = globalSetState.setLeftPos
+        local srp = globalSetState.setRightPos
+        local sfo = globalSetState.setFoldOffset
+
+        if(sf)--配置折轨的情况
+        then
+            if(cfp) --选方向
+            then
+                if(0 <= num and num <= 4)
+                then --从索引表中注入数据
+                    fold.axis = foldList[num].axis
+                    fold.direction = foldList[num].direction
+
+                    --改变开关状态
+                    globalSetState.chooseFoldPara = false
+                    globalSetState.setLeftPos = true
+
+                    --输出下一条的提示
+                    msg(CL.tip.fold.chooseDirSuc[Lang], UIN)
+                    msg(CL.tip.fold.trackTip[Lang], UIN)
+                    msg(CL.tip.fold.trackTip2[Lang], UIN)
+                    --结束函数
+                    return 0
+                end
+            elseif(slp) --定左轨
+            then
+                local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
+                if(event.content == "L" or event.content == "l")
+                then --配置向左的
+                    if(fold.axis == "Z") --根据地图方向确定关键坐标
+                    then
+                        fold.leftTrackKeyPos = z
+                    else
+                        fold.leftTrackKeyPos = x
+                    end
+                    --开关
+                    globalSetState.setLeftPos = false
+                    globalSetState.setRightPos = true
+                    --输出提示
+                    msg(CL.tip.fold.trackTip3[Lang], UIN)
+                    --结束函数
+                    return 0
+                end
+            elseif(srp) --定右轨
+            then
+                local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
+                if(event.content == "R" or event.content == "r")
+                then --配置向右的
+                    if(fold.axis == "Z") --根据地图方向确定关键坐标
+                    then
+                        fold.rightTrackKeyPos = z
+                    else
+                        fold.rightTrackKeyPos = x
+                    end
+                end
+                --开关
+                globalSetState.setRightPos = false
+                globalSetState.setFoldOffset = true
+                --输出提示
+                msg(CL.tip.fold.trackTip4[Lang], UIN)
+                --做数值计算 填表
+                local dis = math.abs(fold.leftTrackKeyPos - fold.rightTrackKeyPos)--轨距
+                fold.period = 2 * dis --周期
+                fold.distance = dis / 2 --判断玩家区间用的值
+                fold.leftTrackInPeriod = fold.leftTrackKeyPos % fold.period ----向左的轨在周期中的位置
+                --结束函数
+                return 0
+            elseif(sfo) --设偏移量
+            then
+                if(num) --如果玩家输入的是数字
+                then
+                    fold.offset = num --注入数据
+                    --开关 设置状态全部关掉 并打开全局折轨状态
+                    globalSetState.setFoldOffset = false
+                    globalSetState.setFold = false
+                    isFold = true
+
+                    --输出提示
+                    msg(CL.tip.fold.foldSuc[Lang], UIN)
+                end
+            end
+        end
+
         if(num)--如果玩家输入的是数字
         then
-            if(ck == false and so == false) --单纯指令的情况
-            then
+            if(ck == false and so == false and sf == false and cfp == false and slp == false and srp == false and sfo == false)
+            then --单纯指令的情况
                 if(num == 1) --使用说明
                 then
                     user(UIN)
@@ -1183,6 +1464,27 @@ local function PlayerNewInputContent(event)
                 then
                     displaySettings(UIN)
                     return 0
+                elseif(num == 9) --设置折轨
+                then
+                    --先输出提示
+                    msg(CL.tip.fold.tip1[Lang], UIN)
+                    msg(CL.tip.fold.tip2[Lang], UIN)
+                    msg(CL.tip.fold.tip3[Lang], UIN)
+                    msg(CL.tip.fold.tip4[Lang], UIN)
+
+                    --打开状态 以接受输入
+                    globalSetState.setFold = true
+                    globalSetState.chooseFoldPara = true
+
+                    Trigger:wait(5) --等待一下
+
+                    --输出方向列表供玩家选择
+                    for key, value in pairs(foldPara)
+                    do
+                        for k, v in pairs(value) do
+                            msg(tostring(v.ind) .. ". " .. v.direction[Lang], UIN)
+                        end
+                    end
                 end
             end
 
@@ -1199,9 +1501,9 @@ local function PlayerNewInputContent(event)
             end
         end
 
-        if(so) --设置位置偏移的情况
+        if(so) --设置直轨位置偏移的情况
         then
-            local input = event.content  
+            local input = event.content
             local x, y, z = input:match("(-?%d+)%s+(-?%d+)%s+(-?%d+)")
             if (x and y and z)
             then --设置
@@ -1211,10 +1513,11 @@ local function PlayerNewInputContent(event)
                 local str = string.format(CL.tip.globalSetTip.setOffsetSuc[Lang], x, y, z)
                 msg(str, UIN)
                 globalSetState.setOffset = false --记得关掉
+                isFold = false --如果设置了直轨 就把折轨关掉
                 return 0
             else --输入格式不正确 不关掉 玩家可以再次输入
                 msg(CL.tip.globalSetTip.setOffsetErrInp[Lang], UIN)
-            end            
+            end
             return 0
         end
     end
@@ -1291,25 +1594,25 @@ local function PlayerNewInputContent(event)
     ---------------------- 区域方块复制与pat ----------------------
     --手持极寒域法杖 执行撤销操作/ 输入数字 改变copy.way(粘贴的方式)
     if(CurToolid == 11668 )
-    then 
+    then
         --执行撤销操作
         if(event.content == CL.ORDER.CANCEL[Lang])
         then
             if(PDB[UIN].copy.LastPastePos.x)
-            then 
+            then
                 msg(CL.tip.copy.startUndo[Lang],UIN)
                 ctrl_z(UIN)
-            end 
-            return 0 
+            end
+            return 0
         end
-        
+
         local num = tonumber(event.content)
         if(num>= 1 and num<= 3 )
-        then 
+        then
             PDB[UIN].copy.way = num
             msg(string.format(CL.tip.copy.changePasWay[Lang], num), UIN)
-        end 
-        return 0 
+        end
+        return 0
     end
 
     --如是复苏法杖 pattern操作
@@ -1378,7 +1681,7 @@ local function PlayerNewInputContent(event)
                 end
             else --不是重命名 就是玩家选择想粘贴的id 录入就绪的id 输出消息
                 if(num > 0) --保险起见
-                then 
+                then
                     PDB[UIN].pattern.nowPatId = num
                     msg(string.format(CL.tip.pat.specPatSuc[Lang], PDB[UIN].pattern.nowPatId), UIN)
                     return 0
@@ -1390,9 +1693,9 @@ local function PlayerNewInputContent(event)
 
     ---------------------- 乐器刷子 ----------------------
     if(CurToolid == 11034) --钛合金耙
-    then 
+    then
         if(event.content == "t" or event.content == "T")
-        then 
+        then
             if(PDB[UIN].block_id and PDB[UIN].click_num)--看看该玩家数据库中有没有可以刷的乐器方块数据
             then --有 就打开
                 PDB[UIN].Brush.state = true
@@ -1406,30 +1709,30 @@ local function PlayerNewInputContent(event)
             msg(string.format(CL.tip.Brush.afterChangeState[Lang],tostring(PDB[UIN].Brush.state)),UIN)
         else
             local num = tonumber(event.content)
-            if(num >= 1 and num <= 10) 
+            if(num >= 1 and num <= 10)
             then
-                PDB[UIN].Brush.size = num 
+                PDB[UIN].Brush.size = num
                 msg(string.format(CL.tip.Brush.afterChangeSize[Lang],tostring(PDB[UIN].Brush.size)),UIN)
             end
-        end 
-    end 
-    
+        end
+    end
+
     ---------------------- 乐器方块的录入数据 鼓的处理 ----------------------    
     local result,block_id=Player:getCurToolID(UIN)
     if(block_id == 693)--处理鼓的tf
-    then 
+    then
         if(event.content == "t" or event.content == "T")--t/f(改变生成的方式)
-        then 
-            PDB[UIN].DrumState = true 
+        then
+            PDB[UIN].DrumState = true
             msg(string.format(CL.tip.drum.tipAfterChange[Lang], tostring(PDB[UIN].DrumState)), UIN)
-            return 0 
+            return 0
         elseif(event.content == "f" or event.content == "F")
-        then 
+        then
             PDB[UIN].DrumState = false
             msg(string.format(CL.tip.drum.tipAfterChange[Lang], tostring(PDB[UIN].DrumState)), UIN)
             return 0
         end
-    end 
+    end
 
     if((block_id == 693 and (PDB[UIN].DrumState == false)) or block_id == 694 or block_id == 695) --电子 综合 和用乐器方块方式处理的鼓
     then
@@ -1453,18 +1756,14 @@ local function PlayerNewInputContent(event)
         end
         return 0
     end
-    
+
     ---------------------- 音调方块的生成 鼓的生成 ----------------------
     local result,blockid=Player:getCurToolID(UIN)
     if(blockid==690 or blockid==691 or blockid==692 or (blockid == 693 and PDB[UIN].DrumState))
     then
         if(event.content == " ")--如果是空格 那就做一次偏移
-        then --不过这个偏移的功能会重写成函数的吧
-            local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
-            --位置偏移
-            Actor:setPosition(UIN, x+offset.x, y+offset.y, z+offset.z)
-            --结束函数
-            return 0
+        then
+            doOffset(UIN)
         end
         local clicknum = -1
         if(type(tonumber(event.content))=="number")--获取玩家在聊天框中输入的内容 若是一个数 则直接生成
@@ -1497,7 +1796,7 @@ local function PlayerNewInputContent(event)
                 end
             end
         end
-        
+
         if(clicknum>=0 and clicknum<=11)--若clicknum>=0且<=11 生成方块
         then
             local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
@@ -1508,11 +1807,11 @@ local function PlayerNewInputContent(event)
                 return 1001--返回发育不正常码
             end
             --位置偏移
-            Actor:setPosition(UIN, x+offset.x, y+offset.y, z+offset.z)
+            doOffset(UIN)
         end
         return 0
     end
-end 
+end
 
 --玩家选择快捷栏时运行
 local function PlayerSelectShortcut(event)
@@ -1531,7 +1830,7 @@ local function PlayerSelectShortcut(event)
         local result,x,y,z=Player:getAimPos(UIN)--获取玩家准心位置
         --若该位置的方块不是空气方块且不是光束线 则向上偏移一格
         local y1=y--保留y的初值
-        local isrun=false 
+        local isrun=false
         local result,id=Block:getBlockID(x,y,z)
         if(id ~= 0 and id ~= 351)
         then
@@ -1542,7 +1841,7 @@ local function PlayerSelectShortcut(event)
                 isrun=true
             end
         end
-        
+
         --若有音组数据 且音调处的方块不是空气 则向上偏移一格
         if(PDB[UIN]['z_bloid'] and PDB[UIN]['z_num'] and isrun==false)
         then
@@ -1552,7 +1851,7 @@ local function PlayerSelectShortcut(event)
                 y=y1+1
             end
         end
-        
+
         --康康'click_num'参数是否存在
         if(PDB[UIN]['click_num']==nil)
         then
@@ -1560,7 +1859,7 @@ local function PlayerSelectShortcut(event)
             msg("乐器方块生成器:请您输入点击次数 否则程序无法发育",UIN)
             return 1001--返回发育不正常码
         end
-        
+
         --放置乐器方块
         local result=Block:setBlockAll(x,y,z,PDB[UIN]['block_id'],PDB[UIN]['click_num'])
         World:playParticalEffect(x,y,z,1005,1)--播放特效
@@ -1597,18 +1896,18 @@ local function PlayerSelectShortcut(event)
 
     --如是复苏法杖 输出pat提示 不是 则关掉pat的状态
     if(event.itemid == 11584)
-    then 
+    then
         msg(CL.tip.pat.patTip[Lang],UIN)
         msg(CL.tip.pat.patTip2[Lang],UIN)
         --如果有就绪的数据 提示当前的数据
         if(PDB[UIN].pattern.nowPatId ~= -1)
-        then 
+        then
             msg(string.format(CL.tip.pat.patTip3[Lang],PDB[UIN].pattern.nowPatId),UIN)
-        end 
+        end
     else
         PDB[UIN].pattern.rename = false
         PDB[UIN].pattern.renameId = -1
-    end 
+    end
 
     --如是收割者 弹窗提醒 输出控制提示
     if(event.itemid==12009)
@@ -1621,39 +1920,44 @@ local function PlayerSelectShortcut(event)
 
     --如是钛合金耙 输出提示
     if(event.itemid == 11034)
-    then 
+    then
         msg(string.format(CL.tip.Brush.tip2[Lang],tostring(PDB[UIN].Brush.state),PDB[UIN].Brush.size),UIN)
         if(PDB[UIN]['block_id'])--若有乐器数据 则提示数据 
         then
             local result,name=Item:getItemName(PDB[UIN]['block_id'])
             msg(string.format(CL.tip.MI.brushTip[Lang],name,PDB[UIN]['click_num']), UIN)
         end
-    else 
+    else --如果不是 关掉相关的状态
         globalSetState.chooseKey = false
         globalSetState.setOffset = false
-    end 
-    
+        globalSetState.setFold = false
+        globalSetState.chooseFoldPara = false
+        globalSetState.setLeftPos = false
+        globalSetState.setRightPos= false
+        globalSetState.setFoldOffset = false
+    end
+
     --如是雷电法杖 可取消点 或输出提示 如不是 则进行清除数据的操作
     if(event.itemid == 11582)
-    then 
+    then
         local pos = PDB[UIN].copy.pos --引用这个表
         --分情况
         if(pos.strpos.x and pos.endpos.x == nil)
-        then 
+        then
             World:stopEffectOnPosition(pos.strpos.x,pos.strpos.y,pos.strpos.z,CopyEffectId)--停止特效
             pos.strpos = {}
             msg(CL.tip.copy.canStrPos[Lang],UIN)
-            return 0 
+            return 0
         end
         if(pos.strpos.x and pos.endpos.x)
-        then 
+        then
             World:stopEffectOnPosition(pos.endpos.x,pos.endpos.y,pos.endpos.z,CopyEffectId)--停止特效
             pos.endpos = {}
             msg(CL.tip.copy.canEndPos[Lang],UIN)
-            return 0 
+            return 0
         end
-        return 0 
-    else 
+        return 0
+    else
         local pos = PDB[UIN].copy.pos --引用这个表
         if(pos.strpos.x or pos.endpos.x)
         then
@@ -1664,36 +1968,36 @@ local function PlayerSelectShortcut(event)
             pos.strpos = {}
             pos.endpos = {}
             --不结束这个函数！这只是附带的功能！
-        end 
-    end 
-    
+        end
+    end
+
     --如果是鼓方块 输出提示
     if(event.itemid == 693)
-    then 
+    then
         msg(CL.tip.drum.drumtip[Lang], UIN)
         msg(string.format(CL.tip.drum.displaystate[Lang],tostring(PDB[UIN].DrumState)), UIN)
         return 0
-    end 
-    
+    end
+
     --如是极寒域法杖 输出提示
     if(event.itemid == 11668)
-    then 
+    then
         if(PDB[UIN].copy.direction.x )--有数据
-        then 
+        then
             msg(string.format(CL.tip.copy.patTip[Lang],PDB[UIN].copy.way),UIN)
             msg(CL.tip.copy.patTip2[Lang],UIN)
             msg(CL.tip.copy.patTip3[Lang], UIN)
-        else 
+        else
             msg(CL.tip.copy.patTip3[Lang], UIN)
-        end 
-        return 0 
-    end 
+        end
+        return 0
+    end
     return 0
 end
 
 --每秒运行一次
 local function Game_RunTime(event)
-    if(event.second) 
+    if(event.second)
     then
         for playerid,tab in pairs(PDB)
         do
@@ -1709,7 +2013,7 @@ end
 --玩家点击方块时运行
 local function ClickBlock(event)
     local UIN = event.eventobjid --我不想变量名称太长
-    
+
     --收割者清除方块
     local result,itemid=Player:getCurToolID(UIN)
     if(itemid==12009)--若是收割者
@@ -1729,7 +2033,7 @@ end
 local function BlockDigBegin(event)
     local UIN = event.eventobjid --我不想变量名称太长
     local result,item_id=Player:getCurToolID(UIN)--获得手持道具id
-    
+
     --乐器方块部分的音组复制数据录入
     if(item_id==11580)
     then
@@ -1758,23 +2062,23 @@ local function BlockDigBegin(event)
         end
         return 0
     end
-    
+
     --框选区域之锚定坐标点
     if(item_id == 11582)
-    then 
+    then
         --起点
         if(PDB[UIN].copy.pos.strpos.x == nil and PDB[UIN].copy.pos.endpos.x == nil)
-        then 
+        then
             PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.strpos.z = event.x,event.y,event.z
             World:playParticalEffect(PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.strpos.z,CopyEffectId,1) --在锚定的点上播放特效
             msg(string.format(CL.tip.copy.strPos[Lang], PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.strpos.z),UIN)
             msg(CL.tip.copy.tip2[Lang], UIN)
             return 0
         end
-        
+
         --终点
         if(PDB[UIN].copy.pos.strpos.x and PDB[UIN].copy.pos.endpos.x == nil)
-        then 
+        then
             PDB[UIN].copy.pos.endpos.x, PDB[UIN].copy.pos.endpos.y, PDB[UIN].copy.pos.endpos.z = event.x,event.y,event.z
             World:playParticalEffect(PDB[UIN].copy.pos.endpos.x, PDB[UIN].copy.pos.endpos.y, PDB[UIN].copy.pos.endpos.z ,CopyEffectId,1) --在锚定的点上播放特效
             msg(string.format(CL.tip.copy.endPos[Lang],PDB[UIN].copy.pos.endpos.x, PDB[UIN].copy.pos.endpos.y, PDB[UIN].copy.pos.endpos.z ),UIN)
@@ -1789,15 +2093,15 @@ end
 --玩家使用道具时执行
 local function useitem(event)
     local UIN = event.eventobjid --我不想变量名称太长
-    
+
     --平凡法杖 瞬移
     if(event.itemid == 11580)
-    then 
+    then
         local result,x,y,z=Player:getAimPos(UIN)--获取玩家准心位置
         Actor:setPosition(UIN,x,y,z) --瞬移
-        return 0 
-    end 
-    
+        return 0
+    end
+
     --星铜钻头 飘移
     if(event.itemid == 11016)
     then
@@ -1811,10 +2115,10 @@ local function useitem(event)
 
     --雷电法杖 框选区域之锚定坐标点和录入复制数据
     if(event.itemid == 11582)
-    then 
+    then
         --起点
         if(PDB[UIN].copy.pos.strpos.x == nil and PDB[UIN].copy.pos.endpos.x == nil)
-        then 
+        then
             local result,x,y,z=Actor:getPosition(UIN)
             PDB[UIN].copy.pos.strpos.x = x
             PDB[UIN].copy.pos.strpos.y = y
@@ -1824,10 +2128,10 @@ local function useitem(event)
             msg(CL.tip.copy.tip2[Lang], UIN)
             return 0
         end
-        
+
         --终点
         if(PDB[UIN].copy.pos.strpos.x and PDB[UIN].copy.pos.endpos.x == nil)
-        then 
+        then
             local result,x,y,z=Actor:getPosition(UIN)
             PDB[UIN].copy.pos.endpos.x = x
             PDB[UIN].copy.pos.endpos.y = y
@@ -1839,10 +2143,10 @@ local function useitem(event)
             msg(CL.tip.copy.tip4[Lang], UIN)
             return 0
         end
-        
+
         --录入数据（相当于复制到剪贴板）
         if(PDB[UIN].copy.pos.strpos.x and PDB[UIN].copy.pos.endpos.x)
-        then 
+        then
             --末位置减去初位置，得到相对于原点的向量
             PDB[UIN].copy.vector.x = PDB[UIN].copy.pos.endpos.x - PDB[UIN].copy.pos.strpos.x
             PDB[UIN].copy.vector.y = PDB[UIN].copy.pos.endpos.y - PDB[UIN].copy.pos.strpos.y
@@ -1850,28 +2154,28 @@ local function useitem(event)
             local direction = PDB[UIN].copy.direction
             PDB[UIN].copy.direction = {x=1,y=1,z=1} --the direction of the vector 向量的方向
             --考虑负的情况
-            if(PDB[UIN].copy.vector.x < 0) 
+            if(PDB[UIN].copy.vector.x < 0)
             then
                 PDB[UIN].copy.direction.x = -1
-            end 
+            end
             if(PDB[UIN].copy.vector.y < 0)
             then
                 PDB[UIN].copy.direction.y = -1
-            end 
+            end
             if(PDB[UIN].copy.vector.z < 0)
             then
                 PDB[UIN].copy.direction.z = -1
-            end 
+            end
             --输出提示
             msg(string.format(CL.tip.copy.strEntData[Lang], PDB[UIN].copy.vector.x, PDB[UIN].copy.vector.y, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.x, PDB[UIN].copy.direction.y, PDB[UIN].copy.direction.z),UIN)
-            
+
             --执行复制函数
             ctrl_c(UIN)
-            
+
             --停止起点和终点的特效
             World:stopEffectOnPosition(PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.strpos.z,CopyEffectId)
             World:stopEffectOnPosition(PDB[UIN].copy.pos.endpos.x, PDB[UIN].copy.pos.endpos.y, PDB[UIN].copy.pos.endpos.z,CopyEffectId)
-            
+
             --将起点和终点的数据保存至keep 以备存入pat
             PDB[UIN].copy.keepPos.strpos.x = PDB[UIN].copy.pos.strpos.x
             PDB[UIN].copy.keepPos.strpos.y = PDB[UIN].copy.pos.strpos.y
@@ -1884,27 +2188,27 @@ local function useitem(event)
             PDB[UIN].copy.pos.strpos = {}
             PDB[UIN].copy.pos.endpos = {}
             return 0
-        end 
-    end 
-    
+        end
+    end
+
     --极寒域法杖 粘贴 
     if(event.itemid == 11668)
-    then 
+    then
         if(PDB[UIN].copy.direction.x)
-        then 
+        then
             msg(CL.tip.copy.startPaste[Lang],UIN)
             ctrl_v(UIN)
-        end 
-        return 0 
+        end
+        return 0
     end
 
     --复苏法杖 粘贴
     if(event.itemid == 11584)
-    then 
+    then
         pastePat(UIN)
         return 0
     end
-end 
+end
 
 --玩家移动时执行
 local function MoveOneBlockSize(event)
@@ -1913,7 +2217,7 @@ local function MoveOneBlockSize(event)
     if(PDB[UIN].Brush.state)
     then --若有 则执行刷子
         Brush(UIN)
-    end 
+    end
 end
 
 ---------------------- 事件监听器 ----------------------
@@ -2017,7 +2321,7 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
     音乐部分
         玩家输入空格 向预设方向偏移一次 --
         新增选区移调与乐器方块替换功能 仅适用于音乐(整合到雷电法杖与极寒域法杖部分)
-        放置音调方块后的玩家位置偏移可选 询问玩家的地图方向 依据玩家位于区间（最近的主轨延迟器/增幅器的朝向）确定偏移方向 适配s形折轨的音乐地图
+        放置音调方块后的玩家位置偏移可选 确定偏移方向 适配s形折轨的音乐地图 -
     新增电路元件类辅助
         过山车轨道一键放置功能 带指示灯 (玩家需要手动制作一个周期的轨道 然后录入自动生成)
         巨人核心生成功能（输入数字控制朝向）
