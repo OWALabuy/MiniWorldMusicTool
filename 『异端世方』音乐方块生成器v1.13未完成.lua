@@ -1183,6 +1183,17 @@ local function formatDecimal(number)
     return formattedNumber
 end
 
+--向0取整的函数
+local function roundTo0(num)
+    if(num >= 0)
+    then
+        integerPart = math.floor(num)
+    else
+        integerPart = math.ceil(num)
+    end
+    return integerPart
+end
+
 --判断离玩家最近的向左的轨的距离的函数 参数是玩家的关键坐标 返回值是玩家与最近的向左的轨的距离
 local function getDistance(playerPos)
     --玩家的关键坐标对周期取模
@@ -1358,6 +1369,8 @@ local function PlayerNewInputContent(event)
             elseif(slp) --定左轨
             then
                 local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
+                x = roundTo0(x) --取整
+                z = roundTo0(z)
                 if(event.content == "L" or event.content == "l")
                 then --配置向左的
                     if(fold.axis == "Z") --根据地图方向确定关键坐标
@@ -1377,6 +1390,8 @@ local function PlayerNewInputContent(event)
             elseif(srp) --定右轨
             then
                 local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
+                x = roundTo0(x) --取整
+                z = roundTo0(z)
                 if(event.content == "R" or event.content == "r")
                 then --配置向右的
                     if(fold.axis == "Z") --根据地图方向确定关键坐标
@@ -2321,7 +2336,7 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
     音乐部分
         玩家输入空格 向预设方向偏移一次 --
         新增选区移调与乐器方块替换功能 仅适用于音乐(整合到雷电法杖与极寒域法杖部分)
-        放置音调方块后的玩家位置偏移可选 确定偏移方向 适配s形折轨的音乐地图 -
+        放置音调方块后的玩家位置偏移可选 确定偏移方向 适配s形折轨的音乐地图 --
     新增电路元件类辅助
         过山车轨道一键放置功能 带指示灯 (玩家需要手动制作一个周期的轨道 然后录入自动生成)
         巨人核心生成功能（输入数字控制朝向）
