@@ -1185,6 +1185,7 @@ end
 
 --向0取整的函数
 local function roundTo0(num)
+    local integerPart = 0 --预定义一个变量
     if(num >= 0)
     then
         integerPart = math.floor(num)
