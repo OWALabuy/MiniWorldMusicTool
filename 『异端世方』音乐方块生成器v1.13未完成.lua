@@ -305,7 +305,7 @@ local CL = {
                 "Item name: #W%s, #nID: #W%d",
             },
         },
-        attr = {
+        attr = { --玩家属性
             Horas1 = {
                 "#c8bf6ab使用星铜钻头，向前冲刺\n输入A B C 修改配置\n#Wa.输入数字设置自己的移动速度(x>=0,默认为10)",
                 "#c8bf6abDash forward using this item\nEnter A/B/C: Modify config\n#Wa. Set movement speed (x>=0, default: 10)",
@@ -377,6 +377,12 @@ local CL = {
                 "#c756AB6Successfully configured offset for your folded track map!",
             },
         },
+        armAndGiant = { --巨人核心和推拉机械臂的提示
+            tip = {
+                "#c66ccff输入数字在您的位置生成%s\n方向: 0.西, 1.东\n2.北, 3.南\n4.下, 5.上",
+                "#c66ccffEnter num to gen %s at your location\nDirections: 0. West, 1. East\n 2. North, 3. South\n 4. Down, 5. Up",
+            },
+        },
     },
 
     order = { --指令
@@ -403,6 +409,10 @@ local readme = {
         "#cFBFFB14. 手持非收割者道具点击方块，检测方块的属性",
         "#cFFF4D25. 使用平凡法杖，瞬移到准星位置",
         "#cEED7CE6. 使用星铜钻头，向前冲刺。还可以调整玩家移动速度和模型大小。",
+        "#c92C7CF7. 手持巨人核心输入数字可在玩家位置处生成",
+        "#cAAD7D98. 手持推拉机械臂输入数字可在玩家位置生成，并附带一个电源",
+        "#cFBF9F1",
+        "#cE5E1DA",
         "#cFFFF81音调方块的生成：",
         "#cE5D1FA1. 手持高中低音块，站在目标位置上，输入音块的点击次数(0~12)或音名(CDEFGAB)可生成音调方块。",
         "#cE3DFFD2. 音调方块生成后，可以对玩家做一个位置偏移以避免被生成的方块卡住。可以手持收割者设置这个偏移的值。",
@@ -439,6 +449,10 @@ local readme = {
         "#cFBFFB14. Click a block with a non-Reaper item to inspect its properties.",
         "#cFFF4D25. Use the Ordinary Wand to teleport to the crosshair position.",
         "#cEED7CE6. Use the Horas Copper Drill to dash forward. Player movement speed and model size can also be adjusted in this.",
+        "#c92C7CF7. Holding the Giant Core and inputting numbers can generate it at your position.",
+        "#cAAD7D98. Holding a Push-pull Robot Arm and input num can generate at your position and comes with a power supply",
+        "#cFBF9F1",
+        "#cE5E1DA",
         "#cFFFF81Music Note Block Generation:",
         "#cE5D1FA1. Hold High, Middle, or Low Note Blocks, stand at the target location,",
             "#cE5D1FAand enter the number of clicks (0~12) or a note name (CDEFGAB) to generate a music note block.",
@@ -490,8 +504,8 @@ local itemIntro = {
         "#c176B87钛合金耙：控制乐器刷子",
         "#c053B50复苏法杖：pattern录入、操作、粘贴",
         "#cFED9ED星铜钻头：使用向前冲刺、控制玩家移动速度和模型大小",
-        "#cE7BCDE",
-        "#cBB9CC0",
+        "#cE7BCDE巨人核心：输入数字生成",
+        "#cBB9CC0推拉机械臂：输入数字生成 附带一个花纹星能块",
         "#c67729D",
         "#c66ccff==========================",
     },
@@ -507,8 +521,8 @@ local itemIntro = {
         "#c176B87Titanium Rake: Controls the instrument brush.",
         "#c053B50Resurgence Wand: Pattern recording, operations, and pasting.",
         "#cFED9EDHoras Copper Drill: Forward dash, control player movement speed and model size",
-        "#cE7BCDE",
-        "#cBB9CC0",
+        "#cE7BCDEGiant Core: Enter number to generate",
+        "#cBB9CC0Push-pull Robot Arm: Enter number to generate, Place a Patterned Celesthium Block at the same time",
         "#c67729D",
         "#c66ccff==========================",
     },
@@ -614,6 +628,8 @@ local Itemid_List={ --要检测和添加的初始道具列表
     11034, --钛合金耙 乐器刷子道具
     11584, --复苏法杖 pattern录入 操作 粘贴
     11016, --星铜钻头 玩家移动速度控制 玩家模型大小控制
+    368, --推拉机械臂 花纹电石块是1104
+    1059, --巨人核心
 }
 
 local globalSetState = {
@@ -722,6 +738,15 @@ local foldPara = { --折轨的有关参数
             },
         },
     },
+}
+
+local robotArmDir = { --推拉机械臂放置后 电石块应该放在哪里
+    [0] = {x = -1, y = 0, z = 0},
+    [1] = {x = 1, y = 0, z = 0},
+    [2] = {x = 0, y = 0, z = -1},
+    [3] = {x = 0, y = 0, z = 1},
+    [4] = {x = 0, y = -1, z = 0},
+    [5] = {x = 0, y = 1, z = 0},
 }
 
 local Lang = 1 --语言language 1:简体中文 2:English
@@ -1607,6 +1632,23 @@ local function PlayerNewInputContent(event)
         PDB[UIN].attr.setForce = false
     end
 
+    --巨人核心和推拉机械臂
+    if(CurToolid == 1059 or CurToolid == 368)
+    then
+        local num = tonumber(event.content)
+        if(num)--如果玩家输入的是一个数
+        then
+            if(0 <= num and num <= 5) --判断玩家输入是否合法
+            then --在范围内就生成awa
+                local result, x, y, z = Actor:getPosition(UIN) --获取玩家位置
+                Block:setBlockAll(x, y, z, CurToolid, num) --生成方块
+                if(CurToolid == 368)
+                then--如果是推拉机械臂 要附带一个花纹电石块
+                    Block:placeBlock(1104, x + robotArmDir[num].x, y + robotArmDir[num].y, z + robotArmDir[num].z, 0)
+                end
+            end
+        end
+    end
     ---------------------- 区域方块复制与pat ----------------------
     --手持极寒域法杖 执行撤销操作/ 输入数字 改变copy.way(粘贴的方式)
     if(CurToolid == 11668 )
@@ -2008,6 +2050,14 @@ local function PlayerSelectShortcut(event)
         end
         return 0
     end
+
+    --如果是巨人核心或推拉机械臂 输出提示
+    if(event.itemid == 1059 or event.itemid == 368)
+    then
+        local result, name = Item:getItemName(event.itemid) --获取道具的名称
+        local str = string.format(CL.tip.armAndGiant.tip[Lang], name) --制作一个消息
+        msg(str, UIN) --对玩家输出
+    end
     return 0
 end
 
@@ -2340,8 +2390,8 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         放置音调方块后的玩家位置偏移可选 确定偏移方向 适配s形折轨的音乐地图 --
     新增电路元件类辅助
         过山车轨道一键放置功能 带指示灯 (玩家需要手动制作一个周期的轨道 然后录入自动生成)
-        巨人核心生成功能 手持 输入数字控制朝向 在准心处生成
-        推拉机械臂花纹星能块一键放置功能（输入数字控制朝向）
+        巨人核心生成功能 手持 输入数字控制朝向 在玩家处生成 --
+        推拉机械臂花纹星能块一键放置功能（输入数字控制朝向） --
         封轨 拆轨(把音轨的星能分流器发出的光束线用指定方块截断 与其逆过程(手持道具输入控制))
     新增音乐地图装饰辅助选区类（烈焰/冰魄法杖）
         新增选区无限堆叠功能（用于装饰）
