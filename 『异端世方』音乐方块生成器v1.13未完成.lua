@@ -383,6 +383,63 @@ local CL = {
                 "#c66ccffEnter num to gen %s at your location\nDirections: 0. West, 1. East\n 2. North, 3. South\n 4. Down, 5. Up",
             },
         },
+        areaOperations = {
+            indexTip = {
+                "#c8bf6ab在区域中检测到以下数据",
+                "#c8bf6abThe following data was detected in the area",
+            },
+            formatMsg = "%d. #W%s#n id: #W%d#n, data: #W%d",
+            replaceSuc = {
+                "#c8bf6ab区域内方块替换成功",
+                "#c8bf6abBlock replacement in the area was successful",
+            },
+        },
+        transpose = {
+            inputErr = {
+                "#cF6D6D6输入错误 仅能接受-12到12范围内的整数",
+                "#cF6D6D6Input error, only integers in the range -12 to 12 can be accepted",
+            },
+            transSuc = {
+                "#c8bf6ab移调成功",
+                "#c8bf6abTransposed successfully",
+            },
+            tip1 = {
+                "#c66ccff现在你可以在聊天框输入命令来进行以下操作",
+                "#c66ccffNow you can enter commands in the chat box to perform the following operations",
+            },
+            ordTip1 = {
+                "#W/trans #nsemitoneNum #cF6F4EB对选区内所有音调方块移调 参数是半音数 可接受-12 ~ 12",
+                "#W/trans #nsemitoneNum #cF6F4EBTransposes all pitch blocks in the selection. Argument: Semitones count. Range: -12 ~ 12",
+            },
+            ordTip2 = {
+                "#W/index #c91C8E4为区域的音乐方块创建索引 没有参数",
+                "#W/index #c91C8E4Creates an index for the area's music cube, no argument",
+            },
+            ordTip3 = {
+                "#W/replace #nindex id data #c7895CB指定选区索引对应的方块种类和data",
+                "#W/replace #nindex id data #c7895CBSelect the block type and data corresponding to the selection index",
+            },
+            ordTip4 = {
+                "#c7895CB并将其替换成你所指定的方块id和data 参数是索引 替换后的id和data",
+                "#c7895CBreplace it with the block id and data you specified, argument: index, replaced id and data",
+            },
+            ordTip5 = {
+                "#W/del #nindex #c4682A9删除区域内指定索引的方块",
+                "#W/del #nindex #c4682A9Delete the block at the specified index in the area",
+            },
+            ordTip6 = {
+                "#W/clear #c164B60清空区域内所有的音乐方块 无参数",
+                "#W/clear #c164B60Clear all the music block in the area, no argument",
+            },
+            clearSuc = {
+                "#W清除成功",
+                "#WCleared successfully",
+            },
+            delSuc = {
+                "#W删除成功",
+                "#WDeleted successfully",
+            },
+        },
     },
 
     order = { --指令
@@ -433,6 +490,7 @@ local readme = {
         "#cD4E2D46. 手持极寒域法杖，在聊天框输入“撤消”可撤消刚刚粘贴的东西，但使用2和3方式粘贴时被破坏的方块无法恢复",
         "#cFFCACC7. 在锚定点后，切换道具可取消所有锚定的点，再次选择雷电法杖快捷栏可取消区域的终结点",
         "#cDBC4F08. 手持极寒域法杖，输入数字可改变粘贴方式。 1:无视光束线粘贴(默认) 2.无视除电路外任何方块粘贴 3:无视任何方块粘贴",
+        "#cB1B2FF9. 在持有区域的情况下，依提示输入命令实现选区移调和乐器替换等功能",
         "#cFFFF81Pattern功能",
         "#cB0DAFF1. 手持复苏法杖可依提示进行pattern操作",
         "#cDAF5FF2. 使用复苏法杖粘贴就绪的pattern",
@@ -482,8 +540,10 @@ local readme = {
             "#cD4E2D4but blocks destroyed during paste with methods 2 and 3 cannot be recovered.",
         "#cFFCACC7. After anchoring points, changing items cancels all anchored points.",
             "#cFFCACCSelecting the Thunderstaff shortcut again cancels the area's endpoint.",
-        "#cDBC4F08. Hold the Frostbite Staff and enter a number to change the paste method. 1: Paste without regard ",
-            "#cDBC4F0to beam line (default)2: Paste without regard to any block except for circuits 3: Paste without regard to any block.",
+        "#cDBC4F08. Hold the Frostbite Staff and enter a number to change the paste method. 1: Paste without regard to beam",
+            "#cDBC4F0line (default)2: Paste without regard to any block except for circuits 3: Paste without regard to any block.",
+        "#cB1B2FF9. While holding the area, follow the prompts to enter commands to implement functions",
+            "#cB1B2FFsuch as selection transposition and instrument replacement",
         "#cFFFF81Pattern Function:",
         "#cB0DAFF1. Hold the Resurgence Wand and follow the prompts to perform pattern operations.",
         "#cDAF5FF2. Use the Resurgence Wand to paste prepared patterns.",
@@ -574,7 +634,7 @@ local PDB={}
                 strpos = {}, <里面有两个table 分别为 strpos endpos 格式形如{x=2,y=3,z=4}>
                 endpos = {},
             },
-            keepPos = {
+            keepPos = { --保存玩家的区域坐标
                 strpos = {}, 
                 endpos = {},
             },
@@ -597,10 +657,51 @@ local PDB={}
             size = false, --改变模型大小的状态
             setForce = false, --改变弹飞力度大小的状态
         },
+        areaBlockData = {--这是遍历区域后所得的区域原始数据 这个表和下个表在 选区音块操作 和 选区所有方块操作 中共用
+            [blockId1] = {data1, data2, ...},
+            [blockId2] = {data1, data2, ...},
+        },
+        areaBlockDataIndex = {--遍历完成后 统计areaBlockData表中数据并生成索引 这两个表在玩家切换道具后清空
+            [1] = {id = 1, data = 0},
+            ...
+        },
+        areaPAT = { --存储玩家框选的装饰区域的数据 准备制作pat 也可以用来做id data替换
+            rename = false, --重命名的状态 
+            renameId = -1, --要重命名的patId 
+            nowPatId = -1,--当前准备就绪要粘贴的patId
+            LastPastePatPos = {}, --上次粘贴pat的位置
+            lastPasPatId = -1 --上次粘贴的patId
+            },
+            way = 1,<粘贴的方法枚举  1:无视光束线粘贴(默认) 2.无视除电路外任何方块粘贴 3:无视任何方块粘贴> 
+            pos = {
+                strpos = {}, <里面有两个table 分别为 strpos endpos 格式形如{x=2,y=3,z=4}>
+                endpos = {},
+            },
+            LastPastePos = {}, <上次粘贴的坐标 用于撤销>
+        },
     }
     --]]
 
 local PAT = { --pattern的数据库
+    count = 0, --现在有多少个pat
+    data = {}, --这个东西里面的数据结构如下
+    --[[ data的数据结构 PAT.data[patId].
+        [patId] = {
+            name = "pat" .. count, --默认名字
+            authorName = "",
+            authorUIN = ,
+            pos = {
+                strpos = {},
+                endpos = {},
+            },
+            vector = {},<向量坐标 代表区域的大小和相对于起点坐标的方向 形如{x=2,y=3,z=4} 末位置减去初位置> 
+            direction = {},<向量的方向 如 {x=1,y=1,z=1}>
+            areadata = {},<区域的数据 是一个三维的tab 每个元素的索引为其在向量中的相对坐标 形如PDB[528278703]["copy"]["areadata"][3][1][2] val为一个tab 里面有id和data 形如PDB[528278703]["copy"]["areadata"][3][1][2][id] 从起点坐标开始遍历整个区域 录入每个方块的id的data>
+    }
+    --]]
+}
+
+local areaPAT = { --区域（装饰用）pat 录入的是所有方块的数据 不只有音乐方块
     count = 0, --现在有多少个pat
     data = {}, --这个东西里面的数据结构如下
     --[[ data的数据结构 PAT.data[patId].
@@ -815,6 +916,10 @@ local function msg(content, UIN)
         return 1001
     end
     Trigger:wait(0.1) --一个小的延迟
+    if(type(content) ~= "string")--类型转换
+    then
+        content = tostring(content)
+    end
     Chat:sendSystemMsg(content, UIN)
     return 0
 end
@@ -1208,7 +1313,7 @@ local function formatDecimal(number)
     return formattedNumber
 end
 
---向0取整的函数
+--向0取整的函数 用来处理玩家坐标
 local function roundTo0(num)
     local integerPart = 0 --预定义一个变量
     if(num >= 0)
@@ -1218,6 +1323,16 @@ local function roundTo0(num)
         integerPart = math.ceil(num)
     end
     return integerPart
+end
+
+-- 检查一个数值是否存在于表中 参数是那个表名和要查找的值 返回一个布尔值
+local function containsValue(tbl, value)
+    for _, v in ipairs(tbl) do
+        if v == value then
+            return true
+        end
+    end
+    return false
 end
 
 --判断离玩家最近的向左的轨的距离的函数 参数是玩家的关键坐标 返回值是玩家与最近的向左的轨的距离
@@ -1257,6 +1372,278 @@ local function doOffset(UIN)
         --结束函数
         return 0
     end
+end
+
+--根据玩家锚定的起点和终点 检索其中的方块记录在表中 参数是玩家的迷你号和一个布尔值 代表是否只记录音乐方块
+local function createAreaBlockDataList(UIN, isOnlyMusBlo)
+    --先清空两个等下要用的表 确保其中没有残留的数据
+    PDB[UIN].areaBlockData = {}
+    PDB[UIN].areaBlockDataIndex = {}
+
+    --取区域的端点值
+    local x1, x2, y1, y2, z1, z2 = 0, 0, 0, 0, 0, 0 --定义变量
+    if(isOnlyMusBlo)
+    then --玩家用雷电法杖框选的音乐区域
+        x1, x2 = math.min(PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.endpos.x), math.max(PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.endpos.x)
+        y1, y2 = math.min(PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.endpos.y), math.max(PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.endpos.y)
+        z1, z2 = math.min(PDB[UIN].copy.pos.strpos.z, PDB[UIN].copy.pos.endpos.z), math.max(PDB[UIN].copy.pos.strpos.z, PDB[UIN].copy.pos.endpos.z)
+    else --全类型方块区域
+        x1, x2 = math.min(PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.endpos.x), math.max(PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.endpos.x)
+        y1, y2 = math.min(PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.endpos.y), math.max(PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.endpos.y)
+        z1, z2 = math.min(PDB[UIN].areaPAT.pos.strpos.z, PDB[UIN].areaPAT.pos.endpos.z), math.max(PDB[UIN].areaPAT.pos.strpos.z, PDB[UIN].areaPAT.pos.endpos.z)
+    end
+
+    if(isOnlyMusBlo)--只看音乐方块
+    then
+        for x = x1, x2
+        do
+            for y = y1, y2
+            do
+                for z = z1, z2
+                do
+                    --获取方块id
+                    local result, id = Block:getBlockID(x, y, z)
+                    if(690 <= id and id <= 695)--如果是音乐方块
+                    then--检查表中是否有索引 并注入数据
+                        if(not PDB[UIN].areaBlockData[id])
+                        then --如果没有这个方块的索引 就新增一个
+                            PDB[UIN].areaBlockData[id] = {}
+                        end
+                        --获取它的data 并检测是否在表中
+                        local result, data = Block:getBlockData(x, y, z)
+                        if(not containsValue(PDB[UIN].areaBlockData[id], data))
+                        then --如果没有 就新增一个
+                            table.insert(PDB[UIN].areaBlockData[id], data)
+                        end
+                    end
+                end
+            end
+        end
+    else --这就是录入所有方块的数据了 我为什么不把isOnlyMusBlo条件判断写到循环内呢 因为循环内部执行的东西越少越好 不要弄一次就是一个条件判断 要注意性能的消耗
+        for x = x1, x2
+        do
+            for y = y1, y2
+            do
+                for z = z1, z2
+                do
+                    --获取方块id
+                    local result, id = Block:getBlockID(x, y, z)
+                    --检查表中是否有索引 并注入数据
+                    if(not PDB[UIN].areaBlockData[id])
+                    then --如果没有这个方块的索引 就新增一个
+                        PDB[UIN].areaBlockData[id] = {}
+                    end
+                    --获取它的data 并检测是否在表中
+                    local result, data = Block:getBlockData(x, y, z)
+                    if(not containsValue(PDB[UIN].areaBlockData[id], data))
+                    then --如果没有 就新增一个
+                        table.insert(PDB[UIN].areaBlockData[id], data)
+                    end
+                end
+            end
+        end
+    end
+    --录入数据之后开始整理计算 输出表中的玩意
+    local index = 1 --表的索引
+    for bloId, dataList in pairs(PDB[UIN].areaBlockData)
+    do--这里的每个val都是对应方块的data表
+        for i = 1, #dataList
+        do --对每个方块的每种data创建一个索引
+            PDB[UIN].areaBlockDataIndex[index] = {
+                id = bloId,
+                data = dataList[i],
+            }
+            --制作并输出消息
+            local result, name = Item:getItemName(bloId)
+            local str = string.format(CL.tip.areaOperations.formatMsg,index, name, bloId, dataList[i])
+            msg(str, UIN)
+            index = index + 1 --索引自加
+        end
+    end
+    return 0
+end
+
+--整理计算完成后 对区域方块进行替换的函数 参数是玩家迷你号 玩家在areaBlockDataIndex中指定的索引 想要替换成的方块id 和data 还有是否只弄音乐方块
+local function areaBlockReplace(UIN, targetIndex, afterId, afterData, isOnlyMusBlo)
+    --取区域的端点值
+    local x1, x2, y1, y2, z1, z2 = 0, 0, 0, 0, 0, 0 --定义变量
+    if(isOnlyMusBlo)
+    then --玩家用雷电法杖框选的音乐区域
+        x1, x2 = math.min(PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.endpos.x), math.max(PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.endpos.x)
+        y1, y2 = math.min(PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.endpos.y), math.max(PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.endpos.y)
+        z1, z2 = math.min(PDB[UIN].copy.pos.strpos.z, PDB[UIN].copy.pos.endpos.z), math.max(PDB[UIN].copy.pos.strpos.z, PDB[UIN].copy.pos.endpos.z)
+    else --全类型方块区域
+        x1, x2 = math.min(PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.endpos.x), math.max(PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.endpos.x)
+        y1, y2 = math.min(PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.endpos.y), math.max(PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.endpos.y)
+        z1, z2 = math.min(PDB[UIN].areaPAT.pos.strpos.z, PDB[UIN].areaPAT.pos.endpos.z), math.max(PDB[UIN].areaPAT.pos.strpos.z, PDB[UIN].areaPAT.pos.endpos.z)
+    end
+
+    for x = x1, x2
+    do
+        for y = y1, y2
+        do
+            for z = z1, z2
+            do
+                local result, id = Block:getBlockID(x, y, z) --获取方块id
+                --如果方块id等于玩家指定的那个索引
+                if(id == PDB[UIN].areaBlockDataIndex[targetIndex].id)
+                then --再看看它的data是不是玩家所指定的
+                    local result, data = Block:getBlockData(x, y, z)
+                    if(data == PDB[UIN].areaBlockDataIndex[targetIndex].data)
+                    then --如果是 那就替换成玩家指定的方块类型和data
+                        Block:setBlockAll(x, y, z, afterId, afterData)
+                    end
+                end
+            end
+        end
+    end
+    --输出成功的提示
+    msg(CL.tip.areaOperations.replaceSuc[Lang], UIN)
+    return 0
+end
+
+--判断某数值是否在一个由两个数值组成的区间中 参数是区间端点两个数 待检测的那个数 区间是否是闭区间(包含端点) 返回值是一个布尔值
+local function isNumInRange(ran1, ran2, num, isCloseInterval)
+    --取端点值
+    local num1 = math.min(ran1, ran2)
+    local num2 = math.max(ran1, ran2)
+    if(isCloseInterval)
+    then --闭区间 包含端点
+        if(num1 <= num and num <= num2)
+        then
+            return true
+        end
+        return false
+    else --开区间
+        if(num1 < num and num < num2)
+        then
+            return true
+        end
+        return false
+    end
+end
+
+--对玩家的音乐选区进行移调 参数是玩家的迷你号 移多少个半音（-12 ~ 12）
+local function transpose(UIN, semitoneNum)
+    --检查它的参数
+    if(not (-12 <= semitoneNum and semitoneNum <= 12))
+    then --不在合法范围内 输入错误
+        msg(CL.tip.transpose.inputErr[Lang], UIN)
+        return 1001 --返回错误码
+    end
+    --取区域的端点值
+    local x1, x2, y1, y2, z1, z2 = 0, 0, 0, 0, 0, 0 --定义变量
+    x1, x2 = math.min(PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.endpos.x), math.max(PDB[UIN].copy.pos.strpos.x, PDB[UIN].copy.pos.endpos.x)
+    y1, y2 = math.min(PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.endpos.y), math.max(PDB[UIN].copy.pos.strpos.y, PDB[UIN].copy.pos.endpos.y)
+    z1, z2 = math.min(PDB[UIN].copy.pos.strpos.z, PDB[UIN].copy.pos.endpos.z), math.max(PDB[UIN].copy.pos.strpos.z, PDB[UIN].copy.pos.endpos.z)
+    for x = x1, x2
+    do
+        for y = y1, y2
+        do
+            for z = z1, z2
+            do
+                local result, id = Block:getBlockID(x, y, z) --获取方块id
+                --如果方块是音调方块
+                if(690 <= id and id <= 692)
+                then --再把它的data扲出来
+                    local result, data = Block:getBlockData(x, y, z)
+                    local afterId = id --移调后的id
+                    --然后开始计算它移调后的id和data
+                    local afterData = data + semitoneNum
+                    if(afterData >= 12)
+                    then --如果data在移调后超过最大值
+                        afterId = afterId + 1
+                        afterData = afterData - 12
+                    elseif(afterData < 0)
+                    then --如果data在移调后小于最小值
+                        afterId = afterId - 1
+                        afterData = afterData + 12
+                    end
+
+                    --看看移调后的音调方块id是否在可置区间内 如果不在范围内 使用倍高音或倍低音
+                    if(afterId < 690)
+                    then --使用倍低音 电子(694)0
+                        --在上面放上对应的乐器方块
+                        Block:setBlockAll(x, y + 1, z, 694, 0)
+                        afterId = 690 --将音调方块置于可用区间
+                    elseif(afterId > 692)
+                    then --使用倍高音 综合(695)7
+                        Block:setBlockAll(x, y + 1, z, 695, 7)
+                        afterId = 692
+                    end
+                    --放置移调后的音调方块
+                    Block:setBlockAll(x, y, z, afterId, afterData)
+                end
+            end
+        end
+    end
+    --输出提示
+    msg(CL.tip.transpose.transSuc[Lang], UIN)
+    return 0
+end
+
+--删除区域内指定id和data的方块的函数 参数是起点终点的tab 形如{x = 1, y = 2, z = 3} 目标方块的id和data
+local function delBlockInAreaByIdData(strposTab, endposTab, targetId, targetData)
+    --取区域端点值
+    local x1, x2 = math.min(strposTab.x, endposTab.x), math.max(strposTab.x, endposTab.x)
+    local y1, y2 = math.min(strposTab.y, endposTab.y), math.max(strposTab.y, endposTab.y)
+    local z1, z2 = math.min(strposTab.z, endposTab.z), math.max(strposTab.z, endposTab.z)
+    for x = x1, x2
+    do
+        for y = y1, y2
+        do
+            for z = z1, z2
+            do
+                local result, id = Block:getBlockID(x, y, z) --获取方块id
+                --如果方块id正确
+                if(id == targetId)
+                then --再把它的data扲出来
+                    local result, data = Block:getBlockData(x, y, z)
+                    if(data == targetData)
+                    then --如果data正确 就删掉这个方块
+                        Block:destroyBlock(x, y, z, false)
+                    end
+                end
+            end
+        end
+    end
+end
+
+--判断方块是不是音乐方块 参数是方块的id 返回值是一个布尔值
+local function isMusicBlo(id)
+    if(690 <= id and id <= 699)
+    then
+        return true
+    end
+    return false
+end
+
+--清空一个区域内的所有音乐方块 参数是起点终点的tab 形如{x = 1, y = 2, z = 3}
+local function clearAreaMusicBlock(strposTab, endposTab)
+    --取区域端点值
+    local x1, x2 = math.min(strposTab.x, endposTab.x), math.max(strposTab.x, endposTab.x)
+    local y1, y2 = math.min(strposTab.y, endposTab.y), math.max(strposTab.y, endposTab.y)
+    local z1, z2 = math.min(strposTab.z, endposTab.z), math.max(strposTab.z, endposTab.z)
+    for x = x1, x2
+    do
+        for y = y1, y2
+        do
+            for z = z1, z2
+            do
+                local result, id = Block:getBlockID(x, y, z) --获取方块id
+                --如果方块是音乐方块 就破坏掉
+                if(isMusicBlo(id))
+                then
+                    Block:destroyBlock(x, y, z, false)
+                end
+            end
+        end
+    end
+end
+
+--判断字符串是不是以/开头的指令 参数是字符串 返回值是一个布尔值
+local function isCommand(input)
+    return input:sub(1, 1) == "/"
 end
 
 ---------------------- 事件关联动作定义 ----------------------
@@ -1319,6 +1706,21 @@ local function Game_AnyPlayer_EnterGame(event)
             speed = false,
             size = false,
             setForce = false,
+        },
+        areaBlockData = {},
+        areaBlockDataIndex = {},
+        areaPAT = {
+            rename = false,
+            renameId = -1,
+            nowPatId = -1,
+            LastPastePatPos = {},
+            lastPasPatId = -1,
+            way = 1,
+            pos = {
+                strpos = {},
+                endpos = {},
+            },
+            LastPastePos = {},
         },
     }
     return 0
@@ -1649,7 +2051,7 @@ local function PlayerNewInputContent(event)
             end
         end
     end
-    ---------------------- 区域方块复制与pat ----------------------
+    ---------------------- 区域方块复制、操作与pat ----------------------
     --手持极寒域法杖 执行撤销操作/ 输入数字 改变copy.way(粘贴的方式)
     if(CurToolid == 11668 )
     then
@@ -1747,6 +2149,52 @@ local function PlayerNewInputContent(event)
             end
         end
         return 0
+    end
+
+    --如果是雷电法杖且玩家持有选区(终点)信息 看看玩家输入的是不是指令
+    if((CurToolid == 11582) and (type(PDB[UIN].copy.pos.endpos.x) == "number"))
+    then
+        if(isCommand(event.content)) --如果是指令
+        then --判断对应的指令 按规则截取它们的参数 执行对应的函数
+            local pattern = "/(%a+)%s*()" --匹配它的指令(string) 和参数开头的位置(num)
+            local command, strnum = string.match(event.content, pattern)
+            
+            --如果能找到参数列表 就从对应的位置开始截取它的参数
+            local arguments = "awa" --定义变量罢了 值是乱写的
+            if(strnum)
+            then
+                arguments = string.sub(event.content, strnum)
+            else --没有参数列表 就删掉这个变量
+                arguments = nil
+            end
+
+            if(command == "trans") --移调 nsemitoneNum
+            then
+                local num = tonumber(arguments) --只有一个参数 那么直接转成数值就行了
+                transpose(UIN, num) --移调
+            elseif(command == "index") --创建索引 无参数
+            then--这一定是只看音乐方块 所以函数的第二个参数是true
+                createAreaBlockDataList(UIN, true)
+            elseif(command == "replace") --替换方块 index id data
+            then
+                --截取需要的三个参数
+                local index, id, data = string.match(arguments, "(%d+)%s+(%d+)%s+(%d+)")
+                --替换对应的方块 只看音乐方块
+                areaBlockReplace(UIN, index, id, data, true)
+            elseif(command == "del") --删除方块 index
+            then
+                local index = tonumber(arguments) --只有一个参数
+                local tarId, tarData = PDB[UIN].areaBlockDataIndex[index].id, PDB[UIN].areaBlockDataIndex[index].data
+                delBlockInAreaByIdData(PDB[UIN].copy.pos.strpos, PDB[UIN].copy.pos.endpos, tarId, tarData)
+                --输出提示
+                msg(CL.tip.transpose.delSuc[Lang], UIN)
+            elseif(command == "clear") --清空区域
+            then
+                clearAreaMusicBlock(PDB[UIN].copy.pos.strpos, PDB[UIN].copy.pos.endpos)
+                --输出提示
+                msg(CL.tip.transpose.clearSuc[Lang], UIN)
+            end
+        end
     end
 
     ---------------------- 乐器刷子 ----------------------
@@ -1938,16 +2386,19 @@ local function PlayerSelectShortcut(event)
         if(PDB[UIN]['switch']==false)
         then
             local result,name=Item:getItemName(PDB[UIN]['block_id'])
-            --飘窗文字提示
-            if(PDB[UIN]['z_bloid'] and PDB[UIN]['z_num'])--若有音组数据 则提示全部的数据 
+            if(name) --如果持有乐器方块数据 就提示
             then
-                local result,z_name=Item:getItemName(PDB[UIN]['z_bloid'])
-                notify(string.format(CL.tip.MI.ztip[Lang],name,PDB[UIN]['click_num'],z_name,PDB[UIN]['z_num']), UIN)
-            else--没有则只提示乐器方块的
-                notify(string.format(CL.tip.MI.brushTip[Lang],name,PDB[UIN]['click_num']), UIN)
+                --飘窗文字提示
+                if(PDB[UIN]['z_bloid'] and PDB[UIN]['z_num'])--若有音组数据 则提示全部的数据 
+                then
+                    local result,z_name=Item:getItemName(PDB[UIN]['z_bloid'])
+                    notify(string.format(CL.tip.MI.ztip[Lang], name, PDB[UIN]['click_num'], z_name,PDB[UIN]['z_num']), UIN)
+                else--没有则只提示乐器方块的
+                    notify(string.format(CL.tip.MI.brushTip[Lang], name, PDB[UIN]['click_num']), UIN)
+                end
+                PDB[UIN]['switch']=true
             end
         end
-        PDB[UIN]['switch']=true
     else
         PDB[UIN]['switch']=false
     end
@@ -2207,6 +2658,20 @@ local function useitem(event)
             msg(CL.tip.copy.tip2[Lang], UIN)
             msg(CL.tip.copy.tip3[Lang], UIN)
             msg(CL.tip.copy.tip4[Lang], UIN)
+
+            --之后 提醒玩家可以进行选区移调和乐器方块替换的功能
+            Trigger:wait(3) --等待3秒
+            --输出一些提示
+            msg(CL.tip.transpose.tip1[Lang], UIN)
+            Trigger:wait(1) --等待1秒
+            msg(CL.tip.transpose.ordTip1[Lang], UIN)
+            msg(CL.tip.transpose.ordTip2[Lang], UIN)
+            Trigger:wait(1) --等待1秒
+            msg(CL.tip.transpose.ordTip3[Lang], UIN)
+            msg(CL.tip.transpose.ordTip4[Lang], UIN)
+            Trigger:wait(1) --等待1秒
+            msg(CL.tip.transpose.ordTip5[Lang], UIN)
+            msg(CL.tip.transpose.ordTip6[Lang], UIN)
             return 0
         end
 
@@ -2386,7 +2851,7 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         检测手持道具信息功能 可显示id 名字 输入"id"(不分大小写)查看 --
     音乐部分
         玩家输入空格 向预设方向偏移一次 --
-        新增选区移调与乐器方块替换功能 仅适用于音乐(整合到雷电法杖与极寒域法杖部分)
+        新增选区移调与乐器方块替换功能 仅适用于音乐(整合到雷电法杖与极寒域法杖部分) --
         放置音调方块后的玩家位置偏移可选 确定偏移方向 适配s形折轨的音乐地图 --
     新增电路元件类辅助
         过山车轨道一键放置功能 带指示灯 (玩家需要手动制作一个周期的轨道 然后录入自动生成)
@@ -2397,9 +2862,6 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         新增选区无限堆叠功能（用于装饰）
         新增装饰pattern功能（同音乐pat那样）
         新增选区根据方块id和data选择性删除/替换/清空功能 (整合到烈焰/冰魄法杖部分)
-    新增道具检索工具（）
-        手持其输入数字返回道具的名称
-        使用后 输入两个整数 输出两整数之间的所有id对应的道具名称
     新增其他装饰辅助类
         山生成器：可设定山高度 顶层/中层/底层方块id data和层数 生成范围大小
         随机在玩家周围生成指定id data的方块 可调区域形状大小 方块密度 生成数 是否无视原有方块生成 模式（向心/离散）
