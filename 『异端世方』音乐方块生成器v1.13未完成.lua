@@ -38,7 +38,7 @@ local CL = {
             },
             copySuccessfully2 = {
                 "#cFFE1E1使用极寒域法杖可粘贴方块。",
-                "#cFFE1E1Use the Frostbite staff to paste the blocks."
+                "#cFFE1E1Use the Frigid staff to paste the blocks."
             },
             pasteSuc = {
                 "#cCDF0EA粘贴音乐方块成功 起点(%d,%d,%d)",
@@ -186,7 +186,7 @@ local CL = {
             },
             patTip3 = {
                 "#cFFFBC1就绪的pattern为%d 使用复苏法杖在您的位置粘贴",
-                "#cFFFBC1The ready pattern is %d, Paste at your location using the wand of revival",
+                "#cFFFBC1The ready pattern is %d, Paste at your location using the Revival Staff",
             },
             noPatData = {
                 "#cB6E2A1您还没有pattern 请先录入pat数据",
@@ -413,7 +413,7 @@ local CL = {
             },
             ordTip2 = {
                 "#W/index #c91C8E4为区域的音乐方块创建索引 没有参数",
-                "#W/index #c91C8E4Creates an index for the area's music cube, no argument",
+                "#W/index #c91C8E4Creates an index for the area's music blocks, no argument",
             },
             ordTip3 = {
                 "#W/replace #nindex id data #c7895CB指定选区索引对应的方块种类和data",
@@ -438,6 +438,160 @@ local CL = {
             delSuc = {
                 "#W删除成功",
                 "#WDeleted successfully",
+            },
+            viewOrderList = {
+                "#cFAE7F3输入1以查看可用的指令列表",
+                "#cFAE7F3Enter 1 to view a list of available commands",
+            },
+        },
+        areaPAT = {
+            viewOrderList = {
+                "#cFAE7F3输入1以查看可用的指令列表",
+                "#cFAE7F3Enter 1 to view a list of available commands",
+            },
+            orderTip1 = {
+                "#c66ccff现在你可以在聊天框输入命令来进行以下操作",
+                "#c66ccffNow you can enter commands in the chat box to perform the following operations",
+            },
+            ordTip2 = {
+                "#W/index #c91C8E4为区域内的方块创建索引 没有参数",
+                "#W/index #c91C8E4Creates an index for the area's blocks, no argument",
+            },
+            ordTip3 = {
+                "#W/replace #nindex id data #c7895CB指定选区索引对应的方块种类和data",
+                "#W/replace #nindex id data #c7895CBSelect the block type and data corresponding to the selection index",
+            },
+            ordTip4 = {
+                "#c7895CB并将其替换成你所指定的方块id和data 参数是索引 替换后的id和data",
+                "#c7895CBreplace it with the block id and data you specified, argument: index, replaced id and data",
+            },
+            ordTip5 = {
+                "#W/del #nindex #c4682A9删除区域内指定索引的方块",
+                "#W/del #nindex #c4682A9Delete the block at the specified index in the area",
+            },
+            ordTip6 = {
+                "#W/clear #c164B60清空区域内所有的方块 无参数",
+                "#W/clear #c164B60Clear all blocks in the area, no argument",
+            },
+            clearSuc = {
+                "#W清除成功",
+                "#WCleared successfully",
+            },
+            delSuc = {
+                "#W删除成功",
+                "#WDeleted successfully",
+            },
+            strPos = {
+                "#c8EC3B0已锚定区域起点(%d,%d,%d)",
+                "#c8EC3B0The starting pos of the area is(%d,%d,%d)",
+            },
+            endPos = {
+                "#c8EC3B0已锚定区域终点(%d,%d,%d)",
+                "#c8EC3B0The end pos of the area is(%d,%d,%d)"
+            },
+            canStrPos = {
+                "#c8bf6ab取消了区域起点",
+                "#c8bf6abRegion start removed",
+            },
+            canEndPos = {
+                "#c8bf6ab取消了区域终点",
+                "#c8bf6abRegion end removed",
+            },
+            tip2 = {
+                "#c9ED5C5选择其他快捷栏清除所有锚定的点",
+                "#c9ED5C5Select other shortcut bars to clear all anchored points",
+            },
+            tip3 = {
+                "#cBCEAD5再次使用炽烈法杖可以将选中的区域录入为areaPAT",
+                "#cBCEAD5Use the Fiery Staff again to enter the selected area as areaPAT",
+            },
+            tip4 = {
+                "#cDEF5E5再次选择炽烈法杖快捷栏可取消区域的终结点",
+                "#cDEF5E5Select the Fiery Staff shortcut bar again to cancel the end point of the area",
+            },
+            strEntData = {
+                "#cBCCEF8开始录入数据，向量(%d,%d,%d)，方向(%d,%d,%d)",
+                "#cBCCEF8Start data entry, vector(%d,%d,%d), direction (%d,%d,%d)",
+            },
+            changePasWay = {
+                "#c8bf6ab已将粘贴的方式改为#W%d",
+                "#c8bf6abThe pasting method has been changed to #W%d",
+            },
+            startUndo = {
+                "#c8bf6ab开始撤销",
+                "#c8bf6abStart Undo",
+            },
+            startPaste = {
+                "#c8bf6ab开始粘贴areaPAT",
+                "#c8bf6abStart Paste areaPAT"
+            },
+            pasteTip1 = {
+                "#c9DD8C8粘贴方式枚举 1:无视光束线粘贴(默认) 2.无视除电路外任何方块粘贴 3:无视任何方块粘贴",
+                "#c9DD8C8Way 1:Paste regardless of beam line 2.Paste regardless of any blocks except circuits 3:Paste regardless of any blocks"
+            },
+            pasteTip2 = {
+                "#c8bf6ab输入1 2 3 可改变粘贴的策略",
+                "#c8bf6abInput 1~3 to change the pasting strategy",
+            },
+            patTip = {
+                "#cF7A4A4AreaPAT工具：请输入字母指令操作 不分大小写",
+                "#cF7A4A4AreaPAT tool: Please enter the letter command operation, regardless of case ",
+            },
+            patTip2 = {--为什么要分几个写呢 因为一个写不下了awa
+                "#cFEBE8Ca.显示AreaPAT列表 \nb.改变粘贴的策略 当前: %d \nc.显示pat列表并重命名指定pat",
+                "#cFEBE8Ca. Display the AreaPAT list \nb. Change the pasting strategy(now: %d)\nc. Rename the specified pat",
+            },
+            patTip3 = {
+                "#cFFFBC1就绪的pattern为%d 使用冰魄法杖在您的位置粘贴",
+                "#cFFFBC1The ready pattern is %d, Paste at your location using the Ice Staff",
+            },
+            displayTemplate = { --输出pat数据的模板
+                "#cA8D8EAID:%d 名称:%s \n丨作者:%s 大小:(%d,%d,%d)",
+                "#cA8D8EAID: %d Name: %s \n 丨 Author: %s Size: (%d,%d,%d)",
+            },
+            enterAreaPATSuc = {
+                "#cFCBAD3成功录入areaPAT数据 \nId:%d 名称:%s",
+                "#cFCBAD3Successfully entered areaPAT data \nId:%d Name:%s",
+            },
+            enterAreaPATSuc2 = {
+                "#cFFE1E1使用冰魄法杖可进行粘贴等操作。",
+                "#cFFE1E1Use the Ice staff to perform operations such as pasting."
+            },
+            enterAreaPATFail = {
+                "#cFFFFD2录入数据失败",
+                "#cFFFFD2Failed to enter data",
+            },
+            renameTip = {
+                "#cD77FA1输入您想要重命名的areaPAT的id进行选中",
+                "#cD77FA1Enter the id of the areaPAT you want to rename to select",
+            },
+            renameTip2 = {
+                "#cE6B2C6您已选中%d areaPAT 输入它的新名字为它重命名",
+                "#cE6B2C6You have selected %d areaPAT, Enter its new name to rename it",
+            },
+            renameSuc = {
+                "#cFEF6FB成功将%s重命名为%s",
+                "#cFEF6FBSuccessfully renamed %s to %s",
+            },
+            pasteNoSpec = {
+                "#cD6E5FA您还没有指定要粘贴的areaPATId 输入数字可指定",
+                "#cD6E5FAYou have not specified the PatId to paste. Enter a number to specify it.",
+            },
+            pastePatSuc = {
+                "#cFDEFF4成功粘贴areaPAT Id:%d",
+                "#cFDEFF4areaPAT Id:%d successfully pasted",
+            },
+            specPatSuc = {
+                "#cFFC0D3已选中Id为%d的patten",
+                "#cFFC0D3The pattern whose Id is %d has been selected",
+            },
+            revokeSuc = {
+                "#cFF5C8D撤销成功",
+                "#cFF5C8DCanceled successfully",
+            },
+            chooseIdNoData = {
+                "#c8bf6ab没有这个id的数据 请重新选择",
+                "#c8bf6abThere is no data for this id. Please select again",
             },
         },
     },
@@ -494,6 +648,11 @@ local readme = {
         "#cFFFF81Pattern功能",
         "#cB0DAFF1. 手持复苏法杖可依提示进行pattern操作",
         "#cDAF5FF2. 使用复苏法杖粘贴就绪的pattern",
+        "#cFFFF81区域装饰方块操作与areaPAT功能(炽烈法杖和冰魄法杖)",
+        "#c756AB61. 与雷电法杖操作差不多，使用炽烈法杖可框选区域和录入areaPAT",
+        "#cAC87C52. 使用炽烈法杖持有区域时，可输入指令对区域进行操作",
+        "#cE0AED03. 使用冰魄法杖可粘贴areaPAT，类似于复苏法杖的操作",
+        "#cFFE5E5",
         "#c66ccff==========================",
     },
     {
@@ -512,7 +671,7 @@ local readme = {
         "#cFBF9F1",
         "#cE5E1DA",
         "#cFFFF81Music Note Block Generation:",
-        "#cE5D1FA1. Hold High, Middle, or Low Note Blocks, stand at the target location,",
+        "#cE5D1FA1. Hold Treble, Alto, or Base Blocks, stand at the target location,",
             "#cE5D1FAand enter the number of clicks (0~12) or a note name (CDEFGAB) to generate a music note block.",
         "#cE3DFFD2. After generating a music note block, you can apply a player position offset to prevent block obstruction.",
             "#cE3DFFDYou can use the Reaper to set this offset value.",
@@ -528,25 +687,30 @@ local readme = {
             "#cFFF0F5it paints the recorded instruments on music note blocks around the player when walking.",
         "#cFFFF81Drum Block Generation:",
         "#cFFDBAA1. Drum blocks can be generated using the above two methods. Hold a drum block to view the operation prompt.",
-        "#cFFFF81Area Music Block Copying (Thunderstaff and Frostbite Staff):",
+        "#cFFFF81Area Music Block Copying (Thunderstaff and Frigid Staff):",
         "#cFEFCF31. Use the Thunderstaff to mark the start and end points of the area you want to copy.",
             "#cFEFCF3Methods are described in the next point.",
         "#cF5EBE02. Hold the Thunderstaff and use it once to anchor a point at your player's position.",
             "#cF5EBE0Use it on a block to anchor a point at the block's position.",
         "#cF0DBDB3. Both methods can be used, depending on personal preferences.",
         "#cDBA39A4. After selecting the area, use the Thunderstaff again to record the data of all music blocks in the designated area.",
-        "#cFAF3F05. After copying, use the Frostbite Staff, starting from your position, to paste music blocks.",
-        "#cD4E2D46. Hold the Frostbite Staff and enter 'Undo' in the chat to undo the paste,",
+        "#cFAF3F05. After copying, use the Frigid Staff, starting from your position, to paste music blocks.",
+        "#cD4E2D46. Hold the Frigid Staff and enter 'Undo' in the chat to undo the paste,",
             "#cD4E2D4but blocks destroyed during paste with methods 2 and 3 cannot be recovered.",
         "#cFFCACC7. After anchoring points, changing items cancels all anchored points.",
             "#cFFCACCSelecting the Thunderstaff shortcut again cancels the area's endpoint.",
-        "#cDBC4F08. Hold the Frostbite Staff and enter a number to change the paste method. 1: Paste without regard to beam",
+        "#cDBC4F08. Hold the Frigid Staff and enter a number to change the paste method. 1: Paste without regard to beam",
             "#cDBC4F0line (default)2: Paste without regard to any block except for circuits 3: Paste without regard to any block.",
         "#cB1B2FF9. While holding the area, follow the prompts to enter commands to implement functions",
             "#cB1B2FFsuch as selection transposition and instrument replacement",
         "#cFFFF81Pattern Function:",
-        "#cB0DAFF1. Hold the Resurgence Wand and follow the prompts to perform pattern operations.",
-        "#cDAF5FF2. Use the Resurgence Wand to paste prepared patterns.",
+        "#cB0DAFF1. Hold the Revival Staff and follow the prompts to perform pattern operations.",
+        "#cDAF5FF2. Use the Revival Staff to paste prepared patterns.",
+        "#cFFFF81 Area decoration block operation and areaPAT function (Fiery Staff and Ice Staff)",
+        "#c756AB61. The operation is similar to the Thunder Staff. Using the Fiery Staff, you can select area and enter areaPAT.",
+        "#cAC87C52. When using the Fiery Staff to hold an area, you can enter commands to operate the area.",
+        "#cE0AED03. Use the Ice Staff to paste areaPAT, similar to the operation of the Revival Staff",
+        "#cFFE5E5",
         "#c66ccff==========================",
     },
 }
@@ -560,30 +724,30 @@ local itemIntro = {
         "#cEFD595乐器方块：录入数据后可用平凡法杖放置",
         "#cEBEF95鼓方块可以用以上两种生成方式",
         "#cEEEEEE收割者：清除方块与基础设置",
-        "#c64CCC5雷电法杖与极寒域法杖：区域的复制粘贴",
+        "#c64CCC5雷电法杖与极寒域法杖：区域音乐方块的复制粘贴",
         "#c176B87钛合金耙：控制乐器刷子",
         "#c053B50复苏法杖：pattern录入、操作、粘贴",
         "#cFED9ED星铜钻头：使用向前冲刺、控制玩家移动速度和模型大小",
         "#cE7BCDE巨人核心：输入数字生成",
         "#cBB9CC0推拉机械臂：输入数字生成 附带一个花纹星能块",
-        "#c67729D",
+        "#c67729D炽烈法杖和冰魄法杖：区域装饰方块与areaPAT操作",
         "#c66ccff==========================",
     },
     {
         "#c8bf6ab           ~ Item Introduction ~",
         "#c66ccff==========================",
-        "#cEF9595Low, Medium, High Note Blocks: Used for generating music note blocks.",
+        "#cEF9595Base, Alto, Treble Blocks: Used for generating music note blocks.",
         "#cEFB495Ordinary Wand: Places instrument blocks and allows teleportation.",
         "#cEFD595Instrument Blocks: Can be placed using the Ordinary Wand after data recording.",
         "#cEBEF95Drum Blocks can be generated using the above two methods.",
         "#cEEEEEEReaper: Clears blocks and basic settings.",
-        "#c64CCC5Thunderstaff and Frostbite Staff: Copy and paste for areas.",
+        "#c64CCC5Thunderstaff and Frigid Staff: Copy and paste for music block in area.",
         "#c176B87Titanium Rake: Controls the instrument brush.",
-        "#c053B50Resurgence Wand: Pattern recording, operations, and pasting.",
+        "#c053B50Revival Staff: Pattern recording, operations, and pasting.",
         "#cFED9EDHoras Copper Drill: Forward dash, control player movement speed and model size",
         "#cE7BCDEGiant Core: Enter number to generate",
         "#cBB9CC0Push-pull Robot Arm: Enter number to generate, Place a Patterned Celesthium Block at the same time",
-        "#c67729D",
+        "#c67729DFiery Staff and Ice Staff: Area decoration blocks and areaPAT operations",
         "#c66ccff==========================",
     },
 }
@@ -673,10 +837,13 @@ local PDB={}
             lastPasPatId = -1 --上次粘贴的patId
             },
             way = 1,<粘贴的方法枚举  1:无视光束线粘贴(默认) 2.无视除电路外任何方块粘贴 3:无视任何方块粘贴> 
+            changePasWay = false; --改变粘贴方式有状态
             pos = {
                 strpos = {}, <里面有两个table 分别为 strpos endpos 格式形如{x=2,y=3,z=4}>
                 endpos = {},
             },
+            vector = {},<向量坐标 代表区域的大小和相对于起点坐标的方向 形如{x=2,y=3,z=4} 末位置减去初位置> 
+            direction = {},<向量的方向 如 {x=1,y=1,z=1}>
             LastPastePos = {}, <上次粘贴的坐标 用于撤销>
         },
     }
@@ -704,7 +871,7 @@ local PAT = { --pattern的数据库
 local areaPAT = { --区域（装饰用）pat 录入的是所有方块的数据 不只有音乐方块
     count = 0, --现在有多少个pat
     data = {}, --这个东西里面的数据结构如下
-    --[[ data的数据结构 PAT.data[patId].
+    --[[ data的数据结构 areaPAT.data[patId].
         [patId] = {
             name = "pat" .. count, --默认名字
             authorName = "",
@@ -721,16 +888,17 @@ local areaPAT = { --区域（装饰用）pat 录入的是所有方块的数据 �
 }
 
 local Itemid_List={ --要检测和添加的初始道具列表
-    690,691,692, --音调方块 低中高
+    690, 691, 692, --音调方块 低中高
     11580, --平凡法杖 放置乐器方块 瞬移
-    693,694,695, --乐器方块 鼓 电子 综合
+    693, 694, 695, --乐器方块 鼓 电子 综合
     12009, --收割者 清除方块 基础设置
-    11582,11668, --雷电法杖与极寒域法杖 复制粘贴区域
+    11582, 11668, --雷电法杖与极寒域法杖 复制粘贴区域
     11034, --钛合金耙 乐器刷子道具
     11584, --复苏法杖 pattern录入 操作 粘贴
     11016, --星铜钻头 玩家移动速度控制 玩家模型大小控制
     368, --推拉机械臂 花纹电石块是1104
     1059, --巨人核心
+    11581, 11667, --炽烈法杖和冰魄法杖 用于装饰区域和pat操作
 }
 
 local globalSetState = {
@@ -997,7 +1165,8 @@ end
 --粘贴方块 根据PDB[UIN].copy.way选择粘贴的方式 参数是玩家的迷你号
 local function ctrl_v(UIN)
     --获取玩家位置
-    local result,px,py,pz=Actor:getPosition(UIN)
+    local result, px, py, pz = Actor:getPosition(UIN)
+    px, py, pz = math.floor(px), math.floor(py), math.floor(pz)
     --将这次粘贴的位置保存到copy中
     PDB[UIN].copy.LastPastePos = {x=px,y=py,z=pz}
     --提取数据
@@ -1066,6 +1235,7 @@ end
 --刷子函数 参数是玩家的迷你号 在玩家周围size大小的区域未放乐器的音调方块上刷上乐器方块
 local function Brush(UIN)
     local result, x0, y0, z0=Actor:getPosition(UIN)
+    x0, y0, z0 = math.floor(x0), math.floor(y0), math.floor(z0)
     local size = PDB[UIN].Brush.size
     local x1, x2 = x0 - size, x0 + size
     local y1, y2 = y0 - size, y0 + size
@@ -1191,9 +1361,10 @@ local function pastePat(UIN)
         msg(CL.tip.pat.pasteNoSpec[Lang],UIN)
     else --有指定的pat 就粘贴
         --获取玩家位置
-        local result,px,py,pz=Actor:getPosition(UIN)
+        local result, px, py, pz=Actor:getPosition(UIN)
+        px, py, pz = math.floor(px), math.floor(py), math.floor(pz)
         --将这次粘贴的位置保存到copy中 备撤销用
-        PDB[UIN].pattern.LastPastePatPos = {x=px,y=py,z=pz}
+        PDB[UIN].pattern.LastPastePatPos = {x = px, y = py, z = pz}
         --提取PatId
         local patId = PDB[UIN].pattern.nowPatId
         --提取数据
@@ -1313,18 +1484,6 @@ local function formatDecimal(number)
     return formattedNumber
 end
 
---向0取整的函数 用来处理玩家坐标
-local function roundTo0(num)
-    local integerPart = 0 --预定义一个变量
-    if(num >= 0)
-    then
-        integerPart = math.floor(num)
-    else
-        integerPart = math.ceil(num)
-    end
-    return integerPart
-end
-
 -- 检查一个数值是否存在于表中 参数是那个表名和要查找的值 返回一个布尔值
 local function containsValue(tbl, value)
     for _, v in ipairs(tbl) do
@@ -1349,7 +1508,7 @@ end
 
 --对玩家做一个偏移 参数是玩家的迷你号
 local function doOffset(UIN)
-    local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
+    local result, x, y, z = Actor:getPosition(UIN)--获取玩家位置
     if(isFold)
     then--折轨的情况
         local distance = 0 --在这定义一个变量 放距离
@@ -1428,16 +1587,19 @@ local function createAreaBlockDataList(UIN, isOnlyMusBlo)
                 do
                     --获取方块id
                     local result, id = Block:getBlockID(x, y, z)
-                    --检查表中是否有索引 并注入数据
-                    if(not PDB[UIN].areaBlockData[id])
-                    then --如果没有这个方块的索引 就新增一个
-                        PDB[UIN].areaBlockData[id] = {}
-                    end
-                    --获取它的data 并检测是否在表中
-                    local result, data = Block:getBlockData(x, y, z)
-                    if(not containsValue(PDB[UIN].areaBlockData[id], data))
-                    then --如果没有 就新增一个
-                        table.insert(PDB[UIN].areaBlockData[id], data)
+                    if(id ~= 0) --只要不是空的方块 都录入
+                    then
+                        --检查表中是否有索引 并注入数据
+                        if(not PDB[UIN].areaBlockData[id])
+                        then --如果没有这个方块的索引 就新增一个
+                            PDB[UIN].areaBlockData[id] = {}
+                        end
+                        --获取它的data 并检测是否在表中
+                        local result, data = Block:getBlockData(x, y, z)
+                        if(not containsValue(PDB[UIN].areaBlockData[id], data))
+                        then --如果没有 就新增一个
+                            table.insert(PDB[UIN].areaBlockData[id], data)
+                        end
                     end
                 end
             end
@@ -1455,7 +1617,7 @@ local function createAreaBlockDataList(UIN, isOnlyMusBlo)
             }
             --制作并输出消息
             local result, name = Item:getItemName(bloId)
-            local str = string.format(CL.tip.areaOperations.formatMsg,index, name, bloId, dataList[i])
+            local str = string.format(CL.tip.areaOperations.formatMsg, index, name, bloId, dataList[i])
             msg(str, UIN)
             index = index + 1 --索引自加
         end
@@ -1646,19 +1808,215 @@ local function isCommand(input)
     return input:sub(1, 1) == "/"
 end
 
+--将玩家当前选中的区域方块数据录入到areaPAT库 参数是玩家的迷你号 返回值是id和名字
+local function makeAreaPAT(UIN)
+    local patId = areaPAT.count + 1
+    local result,name = Player:getNickname(UIN)
+    areaPAT.data[patId] = { --建立一个以count为索引的tab存放pat数据
+        name = "areaPAT" .. patId,
+        --录入作者信息
+        authorName = name,
+        authorUIN = UIN,
+        --录入区域信息
+        pos = {
+            strpos = {
+                x = PDB[UIN].areaPAT.pos.strpos.x,
+                y = PDB[UIN].areaPAT.pos.strpos.y,
+                z = PDB[UIN].areaPAT.pos.strpos.z,
+            },
+            endpos = {
+                x = PDB[UIN].areaPAT.pos.endpos.x,
+                y = PDB[UIN].areaPAT.pos.endpos.y,
+                z = PDB[UIN].areaPAT.pos.endpos.z,
+            },
+        },
+        vector = {
+            x = PDB[UIN].areaPAT.vector.x,
+            y = PDB[UIN].areaPAT.vector.y,
+            z = PDB[UIN].areaPAT.vector.z,
+        },
+        direction = {
+            x = PDB[UIN].areaPAT.direction.x,
+            y = PDB[UIN].areaPAT.direction.y,
+            z = PDB[UIN].areaPAT.direction.z,
+        },
+        areadata = {},
+    }
+
+    --开data跑循环 一层套一层 像俄罗斯套娃
+    for x = 0, areaPAT.data[patId].vector.x, areaPAT.data[patId].direction.x
+    do
+        areaPAT.data[patId].areadata[x] = {}
+        for y = 0, areaPAT.data[patId].vector.y, areaPAT.data[patId].direction.y
+        do
+            areaPAT.data[patId].areadata[x][y] ={}
+            for z = 0, areaPAT.data[patId].vector.z, areaPAT.data[patId].direction.z
+            do
+                areaPAT.data[patId].areadata[x][y][z] ={}
+            end
+        end
+    end
+    --录入数据
+    for x = 0, areaPAT.data[patId].vector.x, areaPAT.data[patId].direction.x
+    do
+        for y = 0, areaPAT.data[patId].vector.y, areaPAT.data[patId].direction.y
+        do
+            for z = 0, areaPAT.data[patId].vector.z, areaPAT.data[patId].direction.z
+            do
+                local result, id = Block:getBlockID(PDB[UIN].areaPAT.pos.strpos.x + x, PDB[UIN].areaPAT.pos.strpos.y + y, PDB[UIN].areaPAT.pos.strpos.z + z)
+                local result, data = Block:getBlockData(PDB[UIN].areaPAT.pos.strpos.x + x, PDB[UIN].areaPAT.pos.strpos.y + y, PDB[UIN].areaPAT.pos.strpos.z + z)
+                --录入id 和data 
+                areaPAT.data[patId].areadata[x][y][z] = {
+                    id = id,
+                    data = data,
+                }
+            end
+        end
+    end
+
+    --记入pat数
+    areaPAT.count = areaPAT.count + 1
+    --返回id和名字
+    return areaPAT.count, areaPAT.data[areaPAT.count].name
+end
+
+--在玩家当前位置粘贴areaPAT 根据PDB[UIN].areaPAT.way选择粘贴的方式 使用冰魄法杖后运行 参数是玩家的迷你号 
+local function pasteAreaPAT(UIN)
+    if(PDB[UIN].areaPAT.nowPatId == -1)--如果没有指定patid 
+    then--输出没有指定的消息 (输入字母是选择操作用的)
+        msg(CL.tip.areaPAT.pasteNoSpec[Lang],UIN)
+    else --有指定的pat 就粘贴
+        --获取玩家位置
+        local result, px, py, pz = Actor:getPosition(UIN)
+        px, py, pz = math.floor(px), math.floor(py), math.floor(pz)
+        --将这次粘贴的位置保存到areaPAT中 备撤销用
+        PDB[UIN].areaPAT.LastPastePatPos = {x = px, y = py, z = pz}
+        --提取PatId
+        local patId = PDB[UIN].areaPAT.nowPatId
+        --提取数据
+        for x = 0, areaPAT.data[patId].vector.x, areaPAT.data[patId].direction.x
+        do
+            for y = 0, areaPAT.data[patId].vector.y, areaPAT.data[patId].direction.y
+            do
+                for z = 0, areaPAT.data[patId].vector.z, areaPAT.data[patId].direction.z
+                do
+                    if(areaPAT.data[patId].areadata[x][y][z].id)
+                    then
+                        local result,BeforeId = Block:getBlockID(px + x, py + y, pz + z)
+                        if(PDB[UIN].areaPAT.way == 1) --1.无视光束线粘贴(默认)
+                        then
+                            if(BeforeId == 0 or BeforeId == 351) --空气或光束线
+                            then
+                                Block:setBlockAll(px+x, py+y, pz+z, areaPAT.data[patId].areadata[x][y][z].id, areaPAT.data[patId].areadata[x][y][z].data)
+                            end
+                        elseif(PDB[UIN].areaPAT.way == 2)-- 2.无视除电路外任何方块粘贴
+                        then
+                            if(not((BeforeId>=352 and BeforeId<=374) or (BeforeId==415) or (BeforeId>=690 and BeforeId<=722))) --排除电路元件和音乐方块
+                            then
+                                Block:setBlockAll(px+x, py+y, pz+z, areaPAT.data[patId].areadata[x][y][z].id, areaPAT.data[patId].areadata[x][y][z].data)
+                            end
+                        elseif(PDB[UIN].areaPAT.way == 3)-- 3.无视任何方块粘贴 
+                        then
+                            Block:setBlockAll(px+x, py+y, pz+z, areaPAT.data[patId].areadata[x][y][z].id, areaPAT.data[patId].areadata[x][y][z].data)
+                        end
+                    end
+                end
+            end
+        end
+        --记录id 输出提示
+        PDB[UIN].areaPAT.lastPasPatId = patId
+        msg(string.format(CL.tip.areaPAT.pastePatSuc[Lang], patId), UIN)
+    end
+    return 0
+end
+
+--撤销粘贴的areaPAT 参数是玩家的迷你号
+local function revokeAreaPAT(UIN)
+    --上次粘贴的id
+    local lastPatId = PDB[UIN].areaPAT.lastPasPatId
+    if(lastPatId ~= -1) --有粘贴过东西
+    then
+        --上次粘贴的位置
+        local px, py, pz = PDB[UIN].areaPAT.LastPastePatPos.x, PDB[UIN].areaPAT.LastPastePatPos.y, PDB[UIN].areaPAT.LastPastePatPos.z
+        for x = 0, areaPAT.data[lastPatId].vector.x, areaPAT.data[lastPatId].direction.x
+        do
+            for y = 0, areaPAT.data[lastPatId].vector.y, areaPAT.data[lastPatId].direction.y
+            do
+                for z = 0, areaPAT.data[lastPatId].vector.z, areaPAT.data[lastPatId].direction.z
+                do
+                    if(areaPAT.data[lastPatId].areadata[x][y][z].id) --对比id和data 进行清除操作
+                    then
+                        local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
+                        if(BeforeId == areaPAT.data[lastPatId].areadata[x][y][z].id)
+                        then
+                            local result,data=Block:getBlockData(px+x, py+y, pz+z)
+                            if(data == areaPAT.data[lastPatId].areadata[x][y][z].data)
+                            then
+                                Block:destroyBlock(px+x, py+y, pz+z, false)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        msg(CL.tip.areaPAT.revokeSuc[Lang], UIN)
+    end
+    return 0
+end
+
+--对玩家显示areaPAT列表 参数是玩家的迷你号
+local function displayAreaPATList(UIN)
+    if(areaPAT.count == 0)--如果没有pat数据 就直接输出提示
+    then
+        msg(CL.tip.pat.noPatData[Lang],UIN)
+    else --如果有 就跑循环输出每一个pat的信息
+        for id = 1, #areaPAT.data
+        do
+            msg(string.format(CL.tip.areaPAT.displayTemplate[Lang], id, areaPAT.data[id].name, areaPAT.data[id].authorName, areaPAT.data[id].vector.x, areaPAT.data[id].vector.y, areaPAT.data[id].vector.z), UIN)
+        end
+    end
+    return 0
+end
+
+--对玩家显示雷电法杖的指令列表 参数是玩家的迷你号
+local function displayMIAreaOrder(UIN)
+    msg(CL.tip.transpose.tip1[Lang], UIN)
+    Trigger:wait(1) --等待1秒
+    msg(CL.tip.transpose.ordTip1[Lang], UIN)
+    msg(CL.tip.transpose.ordTip2[Lang], UIN)
+    Trigger:wait(1) --等待1秒
+    msg(CL.tip.transpose.ordTip3[Lang], UIN)
+    msg(CL.tip.transpose.ordTip4[Lang], UIN)
+    Trigger:wait(1) --等待1秒
+    msg(CL.tip.transpose.ordTip5[Lang], UIN)
+    msg(CL.tip.transpose.ordTip6[Lang], UIN)
+end
+
+--对玩家显示炽烈法杖的areaPAT指令列表 参数是玩家的迷你号
+local function displayAreaPATOrder(UIN)
+    msg(CL.tip.areaPAT.orderTip1[Lang], UIN)
+    msg(CL.tip.areaPAT.ordTip2[Lang], UIN)
+    Trigger:wait(1) --等待1秒
+    msg(CL.tip.areaPAT.ordTip3[Lang], UIN)
+    msg(CL.tip.areaPAT.ordTip4[Lang], UIN)
+    Trigger:wait(1) --等待1秒
+    msg(CL.tip.areaPAT.ordTip5[Lang], UIN)
+    msg(CL.tip.areaPAT.ordTip6[Lang], UIN)
+end
+
 ---------------------- 事件关联动作定义 ----------------------
 --玩家进入游戏时
 local function Game_AnyPlayer_EnterGame(event)
     local UIN = event.eventobjid --我不想变量名称太长
 
     --让玩家飞行
-    Player:changPlayerMoveType(UIN,1)
+    Player:changPlayerMoveType(UIN, 1)
 
     --检测并给玩家添加道具
     for k ,v in pairs(Itemid_List)
     do
-        local result=Backpack:hasItemByBackpackBar(UIN,1,v)
-        local result2=Backpack:hasItemByBackpackBar(UIN,2,v)
+        local result=Backpack:hasItemByBackpackBar(UIN, 1, v)
+        local result2=Backpack:hasItemByBackpackBar(UIN, 2, v)
         if(result2==1001 and result==1001)
         then
             Player:gainItems(UIN,v,1,1)
@@ -1666,7 +2024,7 @@ local function Game_AnyPlayer_EnterGame(event)
     end
 
     --intro
-    for i = 0 ,#intro[Lang]
+    for i = 1 ,#intro[Lang]
     do
         msg(intro[Lang][i],UIN)
     end
@@ -1716,10 +2074,13 @@ local function Game_AnyPlayer_EnterGame(event)
             LastPastePatPos = {},
             lastPasPatId = -1,
             way = 1,
+            changePasWay = false;
             pos = {
                 strpos = {},
                 endpos = {},
             },
+            vector = {},
+            direction = {},
             LastPastePos = {},
         },
     }
@@ -1797,8 +2158,7 @@ local function PlayerNewInputContent(event)
             elseif(slp) --定左轨
             then
                 local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
-                x = roundTo0(x) --取整
-                z = roundTo0(z)
+                x, y, z = math.floor(x), math.floor(y), math.floor(z)
                 if(event.content == "L" or event.content == "l")
                 then --配置向左的
                     if(fold.axis == "Z") --根据地图方向确定关键坐标
@@ -1818,8 +2178,7 @@ local function PlayerNewInputContent(event)
             elseif(srp) --定右轨
             then
                 local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
-                x = roundTo0(x) --取整
-                z = roundTo0(z)
+                x, y, z = math.floor(x), math.floor(y), math.floor(z)
                 if(event.content == "R" or event.content == "r")
                 then --配置向右的
                     if(fold.axis == "Z") --根据地图方向确定关键坐标
@@ -2043,6 +2402,7 @@ local function PlayerNewInputContent(event)
             if(0 <= num and num <= 5) --判断玩家输入是否合法
             then --在范围内就生成awa
                 local result, x, y, z = Actor:getPosition(UIN) --获取玩家位置
+                x, y, z = math.floor(x), math.floor(y), math.floor(z)
                 Block:setBlockAll(x, y, z, CurToolid, num) --生成方块
                 if(CurToolid == 368)
                 then--如果是推拉机械臂 要附带一个花纹电石块
@@ -2053,10 +2413,10 @@ local function PlayerNewInputContent(event)
     end
     ---------------------- 区域方块复制、操作与pat ----------------------
     --手持极寒域法杖 执行撤销操作/ 输入数字 改变copy.way(粘贴的方式)
-    if(CurToolid == 11668 )
+    if(CurToolid == 11668)
     then
         --执行撤销操作
-        if(event.content == CL.ORDER.CANCEL[Lang])
+        if(event.content == CL.order.cancel[Lang])
         then
             if(PDB[UIN].copy.LastPastePos.x)
             then
@@ -2127,6 +2487,7 @@ local function PlayerNewInputContent(event)
             end
         end
 
+
         local num = tonumber(event.content)
         if(num) --如果玩家输入的是数字
         then
@@ -2140,25 +2501,117 @@ local function PlayerNewInputContent(event)
                     return 0
                 end
             else --不是重命名 就是玩家选择想粘贴的id 录入就绪的id 输出消息
-                if(num > 0) --保险起见
+                if(areaPAT.data[num]) --看看数据库中有没有这个id的数据
                 then
                     PDB[UIN].pattern.nowPatId = num
                     msg(string.format(CL.tip.pat.specPatSuc[Lang], PDB[UIN].pattern.nowPatId), UIN)
                     return 0
+                else
+                    msg(CL.tip.areaPAT.chooseIdNoData[Lang], UIN)
                 end
             end
         end
         return 0
     end
 
-    --如果是雷电法杖且玩家持有选区(终点)信息 看看玩家输入的是不是指令
+    --如是冰魄法杖 areaPAT操作
+    if(CurToolid == 11667)
+    then
+        --首先考虑接受字符串为pat重命名的情况
+        if(PDB[UIN].areaPAT.rename and (PDB[UIN].areaPAT.renameId ~= -1))
+        then
+            local name = event.content
+            local id = PDB[UIN].areaPAT.renameId
+            local preName = areaPAT.data[id].name --留下以前的名字
+            areaPAT.data[id].name = name --重命名的操作
+            msg(string.format(CL.tip.areaPAT.renameSuc[Lang], preName, areaPAT.data[id].name),UIN)
+            --复原
+            PDB[UIN].areaPAT.rename = false
+            PDB[UIN].areaPAT.renameId = -1
+            return 0
+        end
+
+        --撤销的操作
+        if(event.content == CL.order.cancel[Lang])
+        then
+            msg(CL.tip.areaPAT.startUndo[Lang], UIN)
+            revokeAreaPAT(UIN)
+            return 0
+        end
+
+        if(event.content == "a" or event.content == "A")
+        then --显示pat列表
+            displayAreaPATList(UIN)
+            return 0
+        end
+
+        if(event.content == "b" or event.content == "B")
+        then --改变粘贴的方式
+            --开启状态 等待玩家输入
+            PDB[UIN].areaPAT.changePasWay = true
+            --输出提示
+            msg(CL.tip.areaPAT.pasteTip1[Lang], UIN)
+            msg(CL.tip.areaPAT.pasteTip2[Lang], UIN)
+            return 0
+        end
+
+        if(event.content == "c" or event.content == "C")
+        then --显示pat列表并重命名指定pat
+            displayAreaPATList(UIN)
+            PDB[UIN].areaPAT.rename = true
+            if(areaPAT.count ~= 0) --有数据
+            then
+                msg(CL.tip.areaPAT.renameTip[Lang],UIN)
+            end
+        end
+
+        local num = tonumber(event.content)
+        if(num) --如果玩家输入的是数字
+        then
+            --判断是不是重命名的情况 和哪种情况
+            if(PDB[UIN].areaPAT.rename) --如果玩家的rename状态是开
+            then
+                if(PDB[UIN].areaPAT.renameId == -1)
+                then --没有要重命名的pat 接收这个数作为要重命名的pat
+                    PDB[UIN].areaPAT.renameId = num
+                    msg(string.format(CL.tip.areaPAT.renameTip2[Lang], num),UIN)
+                    return 0
+                end
+            elseif(PDB[UIN].areaPAT.changePasWay)
+            then --改变粘贴的方式
+                if(1 <= num and num <= 3) --判定输入是否合法
+                then --改变方式 关掉状态 输出提示
+                    PDB[UIN].areaPAT.way = num
+                    PDB[UIN].areaPAT.changePasWay = false
+                    msg(string.format(CL.tip.areaPAT.changePasWay[Lang], PDB[UIN].areaPAT.way), UIN)
+                end
+            else --不是重命名 就是玩家选择想粘贴的id 录入就绪的id 输出消息
+                if(areaPAT.data[num]) --看看数据库中有没有这个id的数据
+                then
+                    PDB[UIN].areaPAT.nowPatId = num
+                    msg(string.format(CL.tip.areaPAT.specPatSuc[Lang], PDB[UIN].areaPAT.nowPatId), UIN)
+                    return 0
+                else
+                    msg(CL.tip.areaPAT.chooseIdNoData[Lang], UIN)
+                end
+            end
+        end
+        return 0
+    end
+
+    --如果是雷电法杖且玩家持有选区(终点)信息
     if((CurToolid == 11582) and (type(PDB[UIN].copy.pos.endpos.x) == "number"))
     then
+        if(event.content == "1") --如果玩家扣1 展示它的指令列表
+        then
+            displayMIAreaOrder(UIN)
+        end
+
         if(isCommand(event.content)) --如果是指令
         then --判断对应的指令 按规则截取它们的参数 执行对应的函数
             local pattern = "/(%a+)%s*()" --匹配它的指令(string) 和参数开头的位置(num)
             local command, strnum = string.match(event.content, pattern)
-            
+
             --如果能找到参数列表 就从对应的位置开始截取它的参数
             local arguments = "awa" --定义变量罢了 值是乱写的
             if(strnum)
@@ -2193,6 +2646,54 @@ local function PlayerNewInputContent(event)
                 clearAreaMusicBlock(PDB[UIN].copy.pos.strpos, PDB[UIN].copy.pos.endpos)
                 --输出提示
                 msg(CL.tip.transpose.clearSuc[Lang], UIN)
+            end
+        end
+    end
+
+    --如果是炽烈法杖且玩家持有选区(终点)信息
+    if((CurToolid == 11581) and (type(PDB[UIN].areaPAT.pos.endpos.x) == "number"))
+    then
+        if(event.content == "1") --如果玩家扣1 展示它的指令列表
+        then
+            displayAreaPATOrder(UIN)
+            return 0
+        end
+
+        if(isCommand(event.content)) --如果是指令
+        then --判断对应的指令 按规则截取它们的参数 执行对应的函数
+            local pattern = "/(%a+)%s*()" --匹配它的指令(string) 和参数开头的位置(num)
+            local command, strnum = string.match(event.content, pattern)
+
+            --如果能找到参数列表 就从对应的位置开始截取它的参数
+            local arguments = "awa" --定义变量罢了 值是乱写的
+            if(strnum)
+            then
+                arguments = string.sub(event.content, strnum)
+            else --没有参数列表 就删掉这个变量
+                arguments = nil
+            end
+
+            if(command == "index") --创建索引 无参数
+            then--这不是只看音乐方块 所以函数的第二个参数是false
+                createAreaBlockDataList(UIN, false)
+            elseif(command == "replace") --替换方块 index id data
+            then
+                --截取需要的三个参数
+                local index, id, data = string.match(arguments, "(%d+)%s+(%d+)%s+(%d+)")
+                --替换对应的方块 不只看音乐方块
+                areaBlockReplace(UIN, index, id, data, false)
+            elseif(command == "del") --删除方块 index
+            then
+                local index = tonumber(arguments) --只有一个参数
+                local tarId, tarData = PDB[UIN].areaBlockDataIndex[index].id, PDB[UIN].areaBlockDataIndex[index].data
+                delBlockInAreaByIdData(PDB[UIN].areaPAT.pos.strpos, PDB[UIN].areaPAT.pos.endpos, tarId, tarData)
+                --输出提示
+                msg(CL.tip.areaPAT.delSuc[Lang], UIN)
+            elseif(command == "clear") --清空区域
+            then
+                clearAreaMusicBlock(PDB[UIN].areaPAT.pos.strpos, PDB[UIN].areaPAT.pos.endpos)
+                --输出提示
+                msg(CL.tip.areaPAT.clearSuc[Lang], UIN)
             end
         end
     end
@@ -2305,8 +2806,8 @@ local function PlayerNewInputContent(event)
 
         if(clicknum>=0 and clicknum<=11)--若clicknum>=0且<=11 生成方块
         then
-            local result,x,y,z=Actor:getPosition(UIN)--获取玩家位置
-            local result=Block:setBlockAll(x,y,z,blockid,clicknum) --放置音调方块
+            local result, x, y, z = Actor:getPosition(UIN)--获取玩家位置
+            local result = Block:setBlockAll(x,y,z,blockid,clicknum) --放置音调方块
             if(result==1001)
             then
                 msg("PutMusicBlock:放置音调方块发育不正常",UIN)
@@ -2480,6 +2981,40 @@ local function PlayerSelectShortcut(event)
         end
     end
 
+    --如是炽烈法杖areaPAT 可取消点 或输出提示 如不是 则进行清除数据的操作
+    if(event.itemid == 11581)
+    then
+        local pos = PDB[UIN].areaPAT.pos --引用这个表
+        --分情况
+        if(pos.strpos.x and pos.endpos.x == nil)
+        then
+            World:stopEffectOnPosition(pos.strpos.x, pos.strpos.y, pos.strpos.z, CopyEffectId)--停止特效
+            pos.strpos = {}
+            msg(CL.tip.areaPAT.canStrPos[Lang],UIN)
+            return 0
+        end
+        if(pos.strpos.x and pos.endpos.x)
+        then
+            World:stopEffectOnPosition(pos.endpos.x,pos.endpos.y,pos.endpos.z,CopyEffectId)--停止特效
+            pos.endpos = {}
+            msg(CL.tip.areaPAT.canEndPos[Lang],UIN)
+            return 0
+        end
+        return 0
+    else
+        local pos = PDB[UIN].areaPAT.pos --引用这个表
+        if(pos.strpos.x or pos.endpos.x)
+        then
+            --停止特效
+            World:stopEffectOnPosition(pos.strpos.x,pos.strpos.y,pos.strpos.z,CopyEffectId)
+            World:stopEffectOnPosition(pos.endpos.x,pos.endpos.y,pos.endpos.z,CopyEffectId)
+            --清除数据
+            pos.strpos = {}
+            pos.endpos = {}
+            --不结束这个函数！这只是附带的功能！
+        end
+    end
+
     --如果是鼓方块 输出提示
     if(event.itemid == 693)
     then
@@ -2493,13 +3028,30 @@ local function PlayerSelectShortcut(event)
     then
         if(PDB[UIN].copy.direction.x )--有数据
         then
-            msg(string.format(CL.tip.copy.patTip[Lang],PDB[UIN].copy.way),UIN)
-            msg(CL.tip.copy.patTip2[Lang],UIN)
-            msg(CL.tip.copy.patTip3[Lang], UIN)
+            msg(string.format(CL.tip.copy.pasteTip[Lang], PDB[UIN].copy.way),UIN)
+            msg(CL.tip.copy.pasteTip2[Lang],UIN)
+            msg(CL.tip.copy.pasteTip3[Lang], UIN)
         else
-            msg(CL.tip.copy.patTip3[Lang], UIN)
+            msg(CL.tip.copy.pasteTip2[Lang],UIN)
+            msg(CL.tip.copy.pasteTip3[Lang], UIN)
         end
         return 0
+    end
+
+    --如是冰魄法杖 输出areaPAT提示 不是 则关掉areaPAT的状态
+    if(event.itemid == 11667)
+    then
+        msg(CL.tip.areaPAT.patTip[Lang], UIN)
+        msg(string.format(CL.tip.areaPAT.patTip2[Lang], PDB[UIN].areaPAT.way), UIN)
+        --如果有就绪的数据 提示当前的数据
+        if(PDB[UIN].areaPAT.nowPatId ~= -1)
+        then
+            msg(string.format(CL.tip.areaPAT.patTip3[Lang], PDB[UIN].areaPAT.nowPatId), UIN)
+        end
+    else
+        PDB[UIN].areaPAT.rename = false
+        PDB[UIN].areaPAT.renameId = -1
+        PDB[UIN].areaPAT.changePasWay = false
     end
 
     --如果是巨人核心或推拉机械臂 输出提示
@@ -2580,7 +3132,7 @@ local function BlockDigBegin(event)
         return 0
     end
 
-    --框选区域之锚定坐标点
+    --雷电法杖框选区域之锚定坐标点
     if(item_id == 11582)
     then
         --起点
@@ -2602,6 +3154,38 @@ local function BlockDigBegin(event)
             msg(CL.tip.copy.tip2[Lang], UIN)
             msg(CL.tip.copy.tip3[Lang], UIN)
             msg(CL.tip.copy.tip4[Lang], UIN)
+
+            --之后 提醒玩家可以进行选区移调和乐器方块替换的功能
+            msg(CL.tip.transpose.viewOrderList[Lang], UIN)
+            return 0
+        end
+    end
+
+    --炽烈法杖框选区域之锚定坐标点
+    if(item_id == 11581)
+    then
+        --起点
+        if(PDB[UIN].areaPAT.pos.strpos.x == nil and PDB[UIN].areaPAT.pos.endpos.x == nil)
+        then
+            PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.strpos.z = event.x,event.y,event.z
+            World:playParticalEffect(PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.strpos.z,CopyEffectId,1) --在锚定的点上播放特效
+            msg(string.format(CL.tip.areaPAT.strPos[Lang], PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.strpos.z),UIN)
+            msg(CL.tip.areaPAT.tip2[Lang], UIN)
+            return 0
+        end
+
+        --终点
+        if(PDB[UIN].areaPAT.pos.strpos.x and PDB[UIN].areaPAT.pos.endpos.x == nil)
+        then
+            PDB[UIN].areaPAT.pos.endpos.x, PDB[UIN].areaPAT.pos.endpos.y, PDB[UIN].areaPAT.pos.endpos.z = event.x,event.y,event.z
+            World:playParticalEffect(PDB[UIN].areaPAT.pos.endpos.x, PDB[UIN].areaPAT.pos.endpos.y, PDB[UIN].areaPAT.pos.endpos.z ,CopyEffectId,1) --在锚定的点上播放特效
+            msg(string.format(CL.tip.areaPAT.endPos[Lang],PDB[UIN].areaPAT.pos.endpos.x, PDB[UIN].areaPAT.pos.endpos.y, PDB[UIN].areaPAT.pos.endpos.z ),UIN)
+            msg(CL.tip.areaPAT.tip2[Lang], UIN)
+            msg(CL.tip.areaPAT.tip3[Lang], UIN)
+            msg(CL.tip.areaPAT.tip4[Lang], UIN)
+
+            --之后 提醒玩家可以进行选区移调和乐器方块替换的功能
+            msg(CL.tip.areaPAT.viewOrderList[Lang], UIN)
             return 0
         end
     end
@@ -2636,7 +3220,9 @@ local function useitem(event)
         --起点
         if(PDB[UIN].copy.pos.strpos.x == nil and PDB[UIN].copy.pos.endpos.x == nil)
         then
-            local result,x,y,z=Actor:getPosition(UIN)
+            local result, x, y, z = Actor:getPosition(UIN)
+            --对玩家坐标取整
+            x, y, z = math.floor(x), math.floor(y), math.floor(z)
             PDB[UIN].copy.pos.strpos.x = x
             PDB[UIN].copy.pos.strpos.y = y
             PDB[UIN].copy.pos.strpos.z = z
@@ -2649,7 +3235,9 @@ local function useitem(event)
         --终点
         if(PDB[UIN].copy.pos.strpos.x and PDB[UIN].copy.pos.endpos.x == nil)
         then
-            local result,x,y,z=Actor:getPosition(UIN)
+            local result, x, y, z = Actor:getPosition(UIN)
+            --对玩家坐标取整
+            x, y, z = math.floor(x), math.floor(y), math.floor(z)
             PDB[UIN].copy.pos.endpos.x = x
             PDB[UIN].copy.pos.endpos.y = y
             PDB[UIN].copy.pos.endpos.z = z
@@ -2660,18 +3248,7 @@ local function useitem(event)
             msg(CL.tip.copy.tip4[Lang], UIN)
 
             --之后 提醒玩家可以进行选区移调和乐器方块替换的功能
-            Trigger:wait(3) --等待3秒
-            --输出一些提示
-            msg(CL.tip.transpose.tip1[Lang], UIN)
-            Trigger:wait(1) --等待1秒
-            msg(CL.tip.transpose.ordTip1[Lang], UIN)
-            msg(CL.tip.transpose.ordTip2[Lang], UIN)
-            Trigger:wait(1) --等待1秒
-            msg(CL.tip.transpose.ordTip3[Lang], UIN)
-            msg(CL.tip.transpose.ordTip4[Lang], UIN)
-            Trigger:wait(1) --等待1秒
-            msg(CL.tip.transpose.ordTip5[Lang], UIN)
-            msg(CL.tip.transpose.ordTip6[Lang], UIN)
+            msg(CL.tip.transpose.viewOrderList[Lang], UIN)
             return 0
         end
 
@@ -2722,7 +3299,90 @@ local function useitem(event)
         end
     end
 
-    --极寒域法杖 粘贴 
+    --炽烈法杖areaPAT 框选区域之锚定坐标点和录入areaPAT数据
+    if(event.itemid == 11581)
+    then
+        --起点
+        if(PDB[UIN].areaPAT.pos.strpos.x == nil and PDB[UIN].areaPAT.pos.endpos.x == nil)
+        then
+            local result, x, y, z = Actor:getPosition(UIN)
+            --对玩家坐标取整
+            x, y, z = math.floor(x), math.floor(y), math.floor(z)
+            PDB[UIN].areaPAT.pos.strpos.x = x
+            PDB[UIN].areaPAT.pos.strpos.y = y
+            PDB[UIN].areaPAT.pos.strpos.z = z
+            World:playParticalEffect(PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.strpos.z,CopyEffectId,1) --在锚定的点上播放特效
+            msg(string.format(CL.tip.areaPAT.strPos[Lang], PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.strpos.z),UIN)
+            msg(CL.tip.areaPAT.tip2[Lang], UIN)
+            return 0
+        end
+
+        --终点
+        if(PDB[UIN].areaPAT.pos.strpos.x and PDB[UIN].areaPAT.pos.endpos.x == nil)
+        then
+            local result, x, y, z = Actor:getPosition(UIN)
+            --对玩家坐标取整
+            x, y, z = math.floor(x), math.floor(y), math.floor(z)
+            PDB[UIN].areaPAT.pos.endpos.x = x
+            PDB[UIN].areaPAT.pos.endpos.y = y
+            PDB[UIN].areaPAT.pos.endpos.z = z
+            World:playParticalEffect(PDB[UIN].areaPAT.pos.endpos.x, PDB[UIN].areaPAT.pos.endpos.y, PDB[UIN].areaPAT.pos.endpos.z ,CopyEffectId,1) --在锚定的点上播放特效
+            msg(string.format(CL.tip.areaPAT.endPos[Lang], PDB[UIN].areaPAT.pos.endpos.x, PDB[UIN].areaPAT.pos.endpos.y, PDB[UIN].areaPAT.pos.endpos.z),UIN)
+            msg(CL.tip.areaPAT.tip2[Lang], UIN)
+            msg(CL.tip.areaPAT.tip3[Lang], UIN)
+            msg(CL.tip.areaPAT.tip4[Lang], UIN)
+
+            --之后 提醒玩家可以进行选区移调和乐器方块替换的功能
+            msg(CL.tip.areaPAT.viewOrderList[Lang], UIN)
+            return 0
+        end
+
+        --录入areaPAT
+        if(PDB[UIN].areaPAT.pos.strpos.x and PDB[UIN].areaPAT.pos.endpos.x)
+        then
+            --末位置减去初位置，得到相对于原点的向量
+            PDB[UIN].areaPAT.vector.x = PDB[UIN].areaPAT.pos.endpos.x - PDB[UIN].areaPAT.pos.strpos.x
+            PDB[UIN].areaPAT.vector.y = PDB[UIN].areaPAT.pos.endpos.y - PDB[UIN].areaPAT.pos.strpos.y
+            PDB[UIN].areaPAT.vector.z = PDB[UIN].areaPAT.pos.endpos.z - PDB[UIN].areaPAT.pos.strpos.z
+            PDB[UIN].areaPAT.direction = {x=1,y=1,z=1} --the direction of the vector 向量的方向
+            --考虑负的情况
+            if(PDB[UIN].areaPAT.vector.x < 0)
+            then
+                PDB[UIN].areaPAT.direction.x = -1
+            end
+            if(PDB[UIN].areaPAT.vector.y < 0)
+            then
+                PDB[UIN].areaPAT.direction.y = -1
+            end
+            if(PDB[UIN].areaPAT.vector.z < 0)
+            then
+                PDB[UIN].areaPAT.direction.z = -1
+            end
+            --输出提示
+            msg(string.format(CL.tip.areaPAT.strEntData[Lang], PDB[UIN].areaPAT.vector.x, PDB[UIN].areaPAT.vector.y, PDB[UIN].areaPAT.vector.z, PDB[UIN].areaPAT.direction.x, PDB[UIN].areaPAT.direction.y, PDB[UIN].areaPAT.direction.z),UIN)
+
+            --录入areaPAT 并提示
+            local id, name = makeAreaPAT(UIN)
+            if(id)
+            then --成功
+                msg(string.format(CL.tip.areaPAT.enterAreaPATSuc[Lang], id, name), UIN)
+                msg(CL.tip.areaPAT.enterAreaPATSuc2[Lang], UIN)
+            else --失败
+                msg(CL.tip.areaPAT.enterAreaPATFail[Lang], UIN)
+            end
+
+            --停止起点和终点的特效
+            World:stopEffectOnPosition(PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.strpos.z,CopyEffectId)
+            World:stopEffectOnPosition(PDB[UIN].areaPAT.pos.endpos.x, PDB[UIN].areaPAT.pos.endpos.y, PDB[UIN].areaPAT.pos.endpos.z,CopyEffectId)
+
+            --清除起点和终点的数据
+            PDB[UIN].areaPAT.pos.strpos = {}
+            PDB[UIN].areaPAT.pos.endpos = {}
+            return 0
+        end
+    end
+
+    --极寒域法杖 区域音方粘贴 
     if(event.itemid == 11668)
     then
         if(PDB[UIN].copy.direction.x)
@@ -2733,10 +3393,18 @@ local function useitem(event)
         return 0
     end
 
-    --复苏法杖 粘贴
+    --复苏法杖 pat粘贴
     if(event.itemid == 11584)
     then
         pastePat(UIN)
+        return 0
+    end
+    
+    --冰魄法杖 areaPAT粘贴
+    if(event.itemid == 11667)
+    then
+        msg(CL.tip.areaPAT.startPaste[Lang], UIN)
+        pasteAreaPAT(UIN)
         return 0
     end
 end
@@ -2753,21 +3421,21 @@ end
 
 ---------------------- 事件监听器 ----------------------
 --注册玩家输入字符串监听器  
-ScriptSupportEvent:registerEvent([=[Player.NewInputContent]=],PlayerNewInputContent)
+ScriptSupportEvent:registerEvent([=[Player.NewInputContent]=], PlayerNewInputContent)
 --注册玩家进入游戏监听器
-ScriptSupportEvent:registerEvent([=[Game.AnyPlayer.EnterGame]=],Game_AnyPlayer_EnterGame)
+ScriptSupportEvent:registerEvent([=[Game.AnyPlayer.EnterGame]=], Game_AnyPlayer_EnterGame)
 --注册玩家离开游戏监听器
-ScriptSupportEvent:registerEvent([=[Game.AnyPlayer.LeaveGame]=],Game_AnyPlayer_LeaveGame)
+ScriptSupportEvent:registerEvent([=[Game.AnyPlayer.LeaveGame]=], Game_AnyPlayer_LeaveGame)
 --注册玩家选择快捷栏监听器
-ScriptSupportEvent:registerEvent([=[Player.SelectShortcut]=],PlayerSelectShortcut)
+ScriptSupportEvent:registerEvent([=[Player.SelectShortcut]=], PlayerSelectShortcut)
 --每秒运行一次的事件
-ScriptSupportEvent:registerEvent([=[Game.RunTime]=],Game_RunTime)
+ScriptSupportEvent:registerEvent([=[Game.RunTime]=], Game_RunTime)
 --注册玩家点击方块监听器
-ScriptSupportEvent:registerEvent([=[Player.ClickBlock]=],ClickBlock)--{eventobjid, blockid, x, y, z}
+ScriptSupportEvent:registerEvent([=[Player.ClickBlock]=], ClickBlock)--{eventobjid, blockid, x, y, z}
 --注册方块被撸监听器
-ScriptSupportEvent:registerEvent([=[Block.Dig.Begin]=],BlockDigBegin)--   {eventobjid, blockid, x, y, z}
+ScriptSupportEvent:registerEvent([=[Block.Dig.Begin]=], BlockDigBegin)--   {eventobjid, blockid, x, y, z}
 --注册玩家使用道具监听器
-ScriptSupportEvent:registerEvent([=[Player.UseItem]=],useitem)--eventobjid,itemid,itemnum,itemix
+ScriptSupportEvent:registerEvent([=[Player.UseItem]=], useitem)--eventobjid,itemid,itemnum,itemix
 --注册玩家移动监听器
 ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize) --eventobjid,shortix,x,y,z
 
@@ -2842,8 +3510,9 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
     v1.13
     bug修复
         修复玩家在没有复制音乐区域的情况下 手持复苏法杖进行pat录入提示错误的问题 --
+        玩家使用法杖锚定区域起点和终点 数值为负数时无法正确选中坐标点的问题 --
     通用功能更新
-        修改部分提示 -
+        修改部分提示 主要是英文部分的道具译名 -
         加速道具&人物大小设置 星铜钻头11016（前是铜 不是瞳） abc三个选项 --
             a 输入数字可设置自己移动速度 使用可向前冲刺
             b 输入数字可设置自己模型大小 可改变自己的大小以钻入一格高的地方
@@ -2858,10 +3527,10 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         巨人核心生成功能 手持 输入数字控制朝向 在玩家处生成 --
         推拉机械臂花纹星能块一键放置功能（输入数字控制朝向） --
         封轨 拆轨(把音轨的星能分流器发出的光束线用指定方块截断 与其逆过程(手持道具输入控制))
-    新增音乐地图装饰辅助选区类（烈焰/冰魄法杖）
+    新增音乐地图装饰辅助选区类（烈焰/冰魄法杖） -
         新增选区无限堆叠功能（用于装饰）
-        新增装饰pattern功能（同音乐pat那样）
-        新增选区根据方块id和data选择性删除/替换/清空功能 (整合到烈焰/冰魄法杖部分)
+        新增装饰pattern功能（同音乐pat那样） --
+        新增选区根据方块id和data选择性删除/替换/清空功能 (整合到烈焰/冰魄法杖部分) --
     新增其他装饰辅助类
         山生成器：可设定山高度 顶层/中层/底层方块id data和层数 生成范围大小
         随机在玩家周围生成指定id data的方块 可调区域形状大小 方块密度 生成数 是否无视原有方块生成 模式（向心/离散）
