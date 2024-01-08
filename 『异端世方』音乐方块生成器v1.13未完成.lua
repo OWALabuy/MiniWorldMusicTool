@@ -641,7 +641,7 @@ local readme = {
         "#cF0DBDB3. 两种方法都可以使用，具体依据个人需求",
         "#cDBA39A4. 框选好区域后，再使用一次手中的雷电法杖，系统会录入待复制的区域中所有音乐方块的数据",
         "#cFAF3F05. 复制好后，使用极寒域法杖，以自己的位置为起点，粘贴音乐方块",
-        "#cD4E2D46. 手持极寒域法杖，在聊天框输入“撤消”可撤消刚刚粘贴的东西，但使用2和3方式粘贴时被破坏的方块无法恢复",
+        "#cD4E2D46. 手持极寒域法杖，在聊天框输入“撤销”可撤消刚刚粘贴的东西，但使用2和3方式粘贴时被破坏的方块无法恢复",
         "#cFFCACC7. 在锚定点后，切换道具可取消所有锚定的点，再次选择雷电法杖快捷栏可取消区域的终结点",
         "#cDBC4F08. 手持极寒域法杖，输入数字可改变粘贴方式。 1:无视光束线粘贴(默认) 2.无视除电路外任何方块粘贴 3:无视任何方块粘贴",
         "#cB1B2FF9. 在持有区域的情况下，依提示输入命令实现选区移调和乐器替换等功能",
@@ -2691,7 +2691,9 @@ local function PlayerNewInputContent(event)
                 msg(CL.tip.areaPAT.delSuc[Lang], UIN)
             elseif(command == "clear") --清空区域
             then
-                clearAreaMusicBlock(PDB[UIN].areaPAT.pos.strpos, PDB[UIN].areaPAT.pos.endpos)
+                local result, areaid = Area:createAreaRectByRange(PDB[UIN].areaPAT.pos.strpos, PDB[UIN].areaPAT.pos.endpos)
+                Area:clearAllBlock(areaid)
+                Area:destroyArea(areaid)
                 --输出提示
                 msg(CL.tip.areaPAT.clearSuc[Lang], UIN)
             end
@@ -3522,6 +3524,7 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         玩家输入空格 向预设方向偏移一次 --
         新增选区移调与乐器方块替换功能 仅适用于音乐(整合到雷电法杖与极寒域法杖部分) --
         放置音调方块后的玩家位置偏移可选 确定偏移方向 适配s形折轨的音乐地图 --
+        小节显示板
     新增电路元件类辅助
         过山车轨道一键放置功能 带指示灯 (玩家需要手动制作一个周期的轨道 然后录入自动生成)
         巨人核心生成功能 手持 输入数字控制朝向 在玩家处生成 --
