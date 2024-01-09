@@ -473,6 +473,10 @@ local CL = {
                 "#W/clear #c164B60清空区域内所有的方块 无参数",
                 "#W/clear #c164B60Clear all blocks in the area, no argument",
             },
+            ordTip7 = {
+                "#W/fo #c164B60开启区域跟随玩家无限堆叠模式 切换道具可关闭 无参数",
+                "#W/fo #c164B60Toggle infinite stacking mode for area follow the player. Switch items to disable. No arguments.",
+            },
             clearSuc = {
                 "#W清除成功",
                 "#WCleared successfully",
@@ -593,6 +597,10 @@ local CL = {
                 "#c8bf6ab没有这个id的数据 请重新选择",
                 "#c8bf6abThere is no data for this id. Please select again",
             },
+            entDataSuc = {
+                "#c8bf6ab数据就绪 请玩家移动",
+                "#c8bf6abData is ready, please move",
+            },
         },
     },
 
@@ -652,7 +660,7 @@ local readme = {
         "#c756AB61. 与雷电法杖操作差不多，使用炽烈法杖可框选区域和录入areaPAT",
         "#cAC87C52. 使用炽烈法杖持有区域时，可输入指令对区域进行操作",
         "#cE0AED03. 使用冰魄法杖可粘贴areaPAT，类似于复苏法杖的操作",
-        "#cFFE5E5",
+        "#cFFE5E54. 持有区域时 使用/fo 指令可开启跟随玩家堆叠模式",
         "#c66ccff==========================",
     },
     {
@@ -710,7 +718,7 @@ local readme = {
         "#c756AB61. The operation is similar to the Thunder Staff. Using the Fiery Staff, you can select area and enter areaPAT.",
         "#cAC87C52. When using the Fiery Staff to hold an area, you can enter commands to operate the area.",
         "#cE0AED03. Use the Ice Staff to paste areaPAT, similar to the operation of the Revival Staff",
-        "#cFFE5E5",
+        "#cFFE5E54. When holding an area, use the /fo command to enable following player stacking mode.",
         "#c66ccff==========================",
     },
 }
@@ -845,6 +853,13 @@ local PDB={}
             vector = {},<向量坐标 代表区域的大小和相对于起点坐标的方向 形如{x=2,y=3,z=4} 末位置减去初位置> 
             direction = {},<向量的方向 如 {x=1,y=1,z=1}>
             LastPastePos = {}, <上次粘贴的坐标 用于撤销>
+            follow = false, --跟随堆叠的状态
+            followAreaData = {}, --区域的数据
+            foPasteCount = { --记录粘贴的次数用的
+                x = 0,
+                y = 0,
+                z = 0,
+            },
         },
     }
     --]]
@@ -1170,28 +1185,53 @@ local function ctrl_v(UIN)
     --将这次粘贴的位置保存到copy中
     PDB[UIN].copy.LastPastePos = {x=px,y=py,z=pz}
     --提取数据
-    for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x
-    do
-        for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y
+    if(PDB[UIN].copy.way == 1) --1.无视光束线粘贴(默认)
+    then
+        for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x
         do
-            for z = 0, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.z
+            for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y
             do
-                if(PDB[UIN].copy.areadata[x][y][z].id)
-                then
-                    local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
-                    if(PDB[UIN].copy.way == 1) --1.无视光束线粘贴(默认)
+                for z = 0, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.z
+                do
+                    if(PDB[UIN].copy.areadata[x][y][z].id)
                     then
+                        local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
                         if(BeforeId == 0 or BeforeId == 351) --空气或光束线
                         then
                             Block:setBlockAll(px+x, py+y, pz+z, PDB[UIN].copy.areadata[x][y][z].id, PDB[UIN].copy.areadata[x][y][z].data)
                         end
-                    elseif(PDB[UIN].copy.way == 2)-- 2.无视除电路外任何方块粘贴
+                    end
+                end
+            end
+        end
+    elseif(PDB[UIN].copy.way == 2)-- 2.无视除电路外任何方块粘贴
+    then
+        for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x
+        do
+            for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y
+            do
+                for z = 0, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.z
+                do
+                    if(PDB[UIN].copy.areadata[x][y][z].id)
                     then
+                        local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
                         if(not((BeforeId>=352 and BeforeId<=374) or (BeforeId==415) or (BeforeId>=690 and BeforeId<=722))) --排除电路元件和音乐方块
                         then
                             Block:setBlockAll(px+x, py+y, pz+z, PDB[UIN].copy.areadata[x][y][z].id, PDB[UIN].copy.areadata[x][y][z].data)
                         end
-                    elseif(PDB[UIN].copy.way == 3)-- 3.无视任何方块粘贴 
+                    end
+                end
+            end
+        end
+    elseif(PDB[UIN].copy.way == 3)-- 3.无视任何方块粘贴 
+    then
+        for x = 0, PDB[UIN].copy.vector.x, PDB[UIN].copy.direction.x
+        do
+            for y = 0, PDB[UIN].copy.vector.y, PDB[UIN].copy.direction.y
+            do
+                for z = 0, PDB[UIN].copy.vector.z, PDB[UIN].copy.direction.z
+                do
+                    if(PDB[UIN].copy.areadata[x][y][z].id)
                     then
                         Block:setBlockAll(px+x, py+y, pz+z, PDB[UIN].copy.areadata[x][y][z].id, PDB[UIN].copy.areadata[x][y][z].data)
                     end
@@ -1199,7 +1239,8 @@ local function ctrl_v(UIN)
             end
         end
     end
-    msg(string.format(CL.tip.copy.pasteSuc[Lang], px, py, pz),UIN)
+
+    msg(string.format(CL.tip.copy.pasteSuc[Lang], px, py, pz), UIN)
     return 0
 end
 
@@ -1368,29 +1409,55 @@ local function pastePat(UIN)
         --提取PatId
         local patId = PDB[UIN].pattern.nowPatId
         --提取数据
-        for x = 0, PAT.data[patId].vector.x, PAT.data[patId].direction.x
-        do
-            for y = 0, PAT.data[patId].vector.y, PAT.data[patId].direction.y
+        if(PDB[UIN].copy.way == 1) --1.无视光束线粘贴(默认)
+        then
+            for x = 0, PAT.data[patId].vector.x, PAT.data[patId].direction.x
             do
-                for z = 0, PAT.data[patId].vector.z, PAT.data[patId].direction.z
+                for y = 0, PAT.data[patId].vector.y, PAT.data[patId].direction.y
                 do
-                    if(PAT.data[patId].areadata[x][y][z].id)
-                    then
-                        local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
-                        if(PDB[UIN].copy.way == 1) --1.无视光束线粘贴(默认)
+                    for z = 0, PAT.data[patId].vector.z, PAT.data[patId].direction.z
+                    do
+                        if(PAT.data[patId].areadata[x][y][z].id)
                         then
+                            local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
                             if(BeforeId == 0 or BeforeId == 351) --空气或光束线
                             then
                                 Block:setBlockAll(px+x, py+y, pz+z, PAT.data[patId].areadata[x][y][z].id, PAT.data[patId].areadata[x][y][z].data)
                             end
-                        elseif(PDB[UIN].copy.way == 2)-- 2.无视除电路外任何方块粘贴
+                        end
+                    end
+                end
+            end
+        elseif(PDB[UIN].copy.way == 2)-- 2.无视除电路外任何方块粘贴
+        then
+            for x = 0, PAT.data[patId].vector.x, PAT.data[patId].direction.x
+            do
+                for y = 0, PAT.data[patId].vector.y, PAT.data[patId].direction.y
+                do
+                    for z = 0, PAT.data[patId].vector.z, PAT.data[patId].direction.z
+                    do
+                        if(PAT.data[patId].areadata[x][y][z].id)
                         then
+                            local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
                             if(not((BeforeId>=352 and BeforeId<=374) or (BeforeId==415) or (BeforeId>=690 and BeforeId<=722))) --排除电路元件和音乐方块
                             then
                                 Block:setBlockAll(px+x, py+y, pz+z, PAT.data[patId].areadata[x][y][z].id, PAT.data[patId].areadata[x][y][z].data)
                             end
-                        elseif(PDB[UIN].copy.way == 3)-- 3.无视任何方块粘贴 
+                        end
+                    end
+                end
+            end
+        elseif(PDB[UIN].copy.way == 3)-- 3.无视任何方块粘贴 
+        then
+            for x = 0, PAT.data[patId].vector.x, PAT.data[patId].direction.x
+            do
+                for y = 0, PAT.data[patId].vector.y, PAT.data[patId].direction.y
+                do
+                    for z = 0, PAT.data[patId].vector.z, PAT.data[patId].direction.z
+                    do
+                        if(PAT.data[patId].areadata[x][y][z].id)
                         then
+                            local result,BeforeId = Block:getBlockID(px+x, py+y, pz+z)
                             Block:setBlockAll(px+x, py+y, pz+z, PAT.data[patId].areadata[x][y][z].id, PAT.data[patId].areadata[x][y][z].data)
                         end
                     end
@@ -1894,28 +1961,53 @@ local function pasteAreaPAT(UIN)
         --提取PatId
         local patId = PDB[UIN].areaPAT.nowPatId
         --提取数据
-        for x = 0, areaPAT.data[patId].vector.x, areaPAT.data[patId].direction.x
-        do
-            for y = 0, areaPAT.data[patId].vector.y, areaPAT.data[patId].direction.y
+        if(PDB[UIN].areaPAT.way == 1) --1.无视光束线粘贴(默认)
+        then
+            for x = 0, areaPAT.data[patId].vector.x, areaPAT.data[patId].direction.x
             do
-                for z = 0, areaPAT.data[patId].vector.z, areaPAT.data[patId].direction.z
+                for y = 0, areaPAT.data[patId].vector.y, areaPAT.data[patId].direction.y
                 do
-                    if(areaPAT.data[patId].areadata[x][y][z].id)
-                    then
-                        local result,BeforeId = Block:getBlockID(px + x, py + y, pz + z)
-                        if(PDB[UIN].areaPAT.way == 1) --1.无视光束线粘贴(默认)
+                    for z = 0, areaPAT.data[patId].vector.z, areaPAT.data[patId].direction.z
+                    do
+                        if(areaPAT.data[patId].areadata[x][y][z].id)
                         then
+                            local result,BeforeId = Block:getBlockID(px + x, py + y, pz + z)
                             if(BeforeId == 0 or BeforeId == 351) --空气或光束线
                             then
                                 Block:setBlockAll(px+x, py+y, pz+z, areaPAT.data[patId].areadata[x][y][z].id, areaPAT.data[patId].areadata[x][y][z].data)
                             end
-                        elseif(PDB[UIN].areaPAT.way == 2)-- 2.无视除电路外任何方块粘贴
+                        end
+                    end
+                end
+            end
+        elseif(PDB[UIN].areaPAT.way == 2)-- 2.无视除电路外任何方块粘贴
+        then
+            for x = 0, areaPAT.data[patId].vector.x, areaPAT.data[patId].direction.x
+            do
+                for y = 0, areaPAT.data[patId].vector.y, areaPAT.data[patId].direction.y
+                do
+                    for z = 0, areaPAT.data[patId].vector.z, areaPAT.data[patId].direction.z
+                    do
+                        if(areaPAT.data[patId].areadata[x][y][z].id)
                         then
+                            local result,BeforeId = Block:getBlockID(px + x, py + y, pz + z)
                             if(not((BeforeId>=352 and BeforeId<=374) or (BeforeId==415) or (BeforeId>=690 and BeforeId<=722))) --排除电路元件和音乐方块
                             then
                                 Block:setBlockAll(px+x, py+y, pz+z, areaPAT.data[patId].areadata[x][y][z].id, areaPAT.data[patId].areadata[x][y][z].data)
                             end
-                        elseif(PDB[UIN].areaPAT.way == 3)-- 3.无视任何方块粘贴 
+                        end
+                    end
+                end
+            end
+        elseif(PDB[UIN].areaPAT.way == 3)-- 3.无视任何方块粘贴 
+        then
+            for x = 0, areaPAT.data[patId].vector.x, areaPAT.data[patId].direction.x
+            do
+                for y = 0, areaPAT.data[patId].vector.y, areaPAT.data[patId].direction.y
+                do
+                    for z = 0, areaPAT.data[patId].vector.z, areaPAT.data[patId].direction.z
+                    do
+                        if(areaPAT.data[patId].areadata[x][y][z].id)
                         then
                             Block:setBlockAll(px+x, py+y, pz+z, areaPAT.data[patId].areadata[x][y][z].id, areaPAT.data[patId].areadata[x][y][z].data)
                         end
@@ -1923,6 +2015,7 @@ local function pasteAreaPAT(UIN)
                 end
             end
         end
+        
         --记录id 输出提示
         PDB[UIN].areaPAT.lastPasPatId = patId
         msg(string.format(CL.tip.areaPAT.pastePatSuc[Lang], patId), UIN)
@@ -1978,6 +2071,119 @@ local function displayAreaPATList(UIN)
     return 0
 end
 
+--将玩家持有的areaPAT数据弄到followAreaData中 用来准备开启堆叠模式 参数是玩家的迷你号
+local function enterFoAreaData(UIN)
+    --先弄上vector和direction
+    --末位置减去初位置，得到相对于原点的向量
+    PDB[UIN].areaPAT.vector.x = PDB[UIN].areaPAT.pos.endpos.x - PDB[UIN].areaPAT.pos.strpos.x
+    PDB[UIN].areaPAT.vector.y = PDB[UIN].areaPAT.pos.endpos.y - PDB[UIN].areaPAT.pos.strpos.y
+    PDB[UIN].areaPAT.vector.z = PDB[UIN].areaPAT.pos.endpos.z - PDB[UIN].areaPAT.pos.strpos.z
+    PDB[UIN].areaPAT.direction = {x=1,y=1,z=1} --the direction of the vector 向量的方向
+    --考虑负的情况
+    if(PDB[UIN].areaPAT.vector.x < 0)
+    then
+        PDB[UIN].areaPAT.direction.x = -1
+    end
+    if(PDB[UIN].areaPAT.vector.y < 0)
+    then
+        PDB[UIN].areaPAT.direction.y = -1
+    end
+    if(PDB[UIN].areaPAT.vector.z < 0)
+    then
+        PDB[UIN].areaPAT.direction.z = -1
+    end
+
+    --开data跑循环 一层套一层 像俄罗斯套娃
+    for x = 0, PDB[UIN].areaPAT.vector.x, PDB[UIN].areaPAT.direction.x
+    do
+        PDB[UIN].areaPAT.followAreaData[x] = {}
+        for y = 0, PDB[UIN].areaPAT.vector.y, PDB[UIN].areaPAT.direction.y
+        do
+            PDB[UIN].areaPAT.followAreaData[x][y] ={}
+            for z = 0, PDB[UIN].areaPAT.vector.z, PDB[UIN].areaPAT.direction.z
+            do
+                PDB[UIN].areaPAT.followAreaData[x][y][z] ={}
+            end
+        end
+    end
+    --录入数据
+    for x = 0, PDB[UIN].areaPAT.vector.x, PDB[UIN].areaPAT.direction.x
+    do
+        for y = 0, PDB[UIN].areaPAT.vector.y, PDB[UIN].areaPAT.direction.y
+        do
+            for z = 0, PDB[UIN].areaPAT.vector.z, PDB[UIN].areaPAT.direction.z
+            do
+                local result, id = Block:getBlockID(PDB[UIN].areaPAT.pos.strpos.x + x, PDB[UIN].areaPAT.pos.strpos.y + y, PDB[UIN].areaPAT.pos.strpos.z + z)
+                local result, data = Block:getBlockData(PDB[UIN].areaPAT.pos.strpos.x + x, PDB[UIN].areaPAT.pos.strpos.y + y, PDB[UIN].areaPAT.pos.strpos.z + z)
+                --录入id 和data 
+                PDB[UIN].areaPAT.followAreaData[x][y][z] = {
+                    id = id,
+                    data = data,
+                }
+            end
+        end
+    end
+end
+
+--在指定的位置粘贴玩家的fo区域数据 参数是玩家的迷你号 和坐标
+local function pasteFoData(UIN, px, py, pz)
+    --提取数据
+    if(PDB[UIN].areaPAT.way == 1) --1.无视光束线粘贴(默认)
+    then
+        for x = 0, PDB[UIN].areaPAT.vector.x, PDB[UIN].areaPAT.direction.x
+        do
+            for y = 0, PDB[UIN].areaPAT.vector.y, PDB[UIN].areaPAT.direction.y
+            do
+                for z = 0, PDB[UIN].areaPAT.vector.z, PDB[UIN].areaPAT.direction.z
+                do
+                    if(PDB[UIN].areaPAT.followAreaData[x][y][z].id)
+                    then
+                        local result,BeforeId = Block:getBlockID(px + x, py + y, pz + z)
+                        if(BeforeId == 0 or BeforeId == 351) --空气或光束线
+                        then
+                            Block:setBlockAll(px+x, py+y, pz+z, PDB[UIN].areaPAT.followAreaData[x][y][z].id, PDB[UIN].areaPAT.followAreaData[x][y][z].data)
+                        end
+                    end
+                end
+            end
+        end
+    elseif(PDB[UIN].areaPAT.way == 2)-- 2.无视除电路外任何方块粘贴
+    then
+        for x = 0, PDB[UIN].areaPAT.vector.x, PDB[UIN].areaPAT.direction.x
+        do
+            for y = 0, PDB[UIN].areaPAT.vector.y, PDB[UIN].areaPAT.direction.y
+            do
+                for z = 0, PDB[UIN].areaPAT.vector.z, PDB[UIN].areaPAT.direction.z
+                do
+                    if(PDB[UIN].areaPAT.followAreaData[x][y][z].id)
+                    then
+                        local result,BeforeId = Block:getBlockID(px + x, py + y, pz + z)
+                        if(not((BeforeId>=352 and BeforeId<=374) or (BeforeId==415) or (BeforeId>=690 and BeforeId<=722))) --排除电路元件和音乐方块
+                        then
+                            Block:setBlockAll(px+x, py+y, pz+z, PDB[UIN].areaPAT.followAreaData[x][y][z].id, PDB[UIN].areaPAT.followAreaData[x][y][z].data)
+                        end
+                    end
+                end
+            end
+        end
+    elseif(PDB[UIN].areaPAT.way == 3)-- 3.无视任何方块粘贴 
+    then
+        for x = 0, PDB[UIN].areaPAT.vector.x, PDB[UIN].areaPAT.direction.x
+        do
+            for y = 0, PDB[UIN].areaPAT.vector.y, PDB[UIN].areaPAT.direction.y
+            do
+                for z = 0, PDB[UIN].areaPAT.vector.z, PDB[UIN].areaPAT.direction.z
+                do
+                    if(PDB[UIN].areaPAT.followAreaData[x][y][z].id)
+                    then
+                        Block:setBlockAll(px+x, py+y, pz+z, PDB[UIN].areaPAT.followAreaData[x][y][z].id, PDB[UIN].areaPAT.followAreaData[x][y][z].data)
+                    end
+                end
+            end
+        end
+    end
+end
+
 --对玩家显示雷电法杖的指令列表 参数是玩家的迷你号
 local function displayMIAreaOrder(UIN)
     msg(CL.tip.transpose.tip1[Lang], UIN)
@@ -1995,13 +2201,15 @@ end
 --对玩家显示炽烈法杖的areaPAT指令列表 参数是玩家的迷你号
 local function displayAreaPATOrder(UIN)
     msg(CL.tip.areaPAT.orderTip1[Lang], UIN)
+    Trigger:wait(1) --等待1秒
     msg(CL.tip.areaPAT.ordTip2[Lang], UIN)
-    Trigger:wait(1) --等待1秒
     msg(CL.tip.areaPAT.ordTip3[Lang], UIN)
-    msg(CL.tip.areaPAT.ordTip4[Lang], UIN)
     Trigger:wait(1) --等待1秒
+    msg(CL.tip.areaPAT.ordTip4[Lang], UIN)
     msg(CL.tip.areaPAT.ordTip5[Lang], UIN)
+    Trigger:wait(1) --等待1秒
     msg(CL.tip.areaPAT.ordTip6[Lang], UIN)
+    msg(CL.tip.areaPAT.ordTip7[Lang], UIN)
 end
 
 ---------------------- 事件关联动作定义 ----------------------
@@ -2082,6 +2290,9 @@ local function Game_AnyPlayer_EnterGame(event)
             vector = {},
             direction = {},
             LastPastePos = {},
+            follow = false,
+            followAreaData = {},
+            foPasteCount = {},
         },
     }
     return 0
@@ -2696,6 +2907,20 @@ local function PlayerNewInputContent(event)
                 Area:destroyArea(areaid)
                 --输出提示
                 msg(CL.tip.areaPAT.clearSuc[Lang], UIN)
+            elseif(command == "fo") --跟随玩家 无限堆叠
+            then
+                --录入到foData
+                enterFoAreaData(UIN)
+                --设置玩家的粘贴表
+                PDB[UIN].areaPAT.foPasteCount = {
+                    x = 0,
+                    y = 0,
+                    z = 0,
+                }
+                --输出提示
+                msg(CL.tip.areaPAT.entDataSuc[Lang], UIN)
+                --打开状态
+                PDB[UIN].areaPAT.follow = true
             end
         end
     end
@@ -2955,14 +3180,14 @@ local function PlayerSelectShortcut(event)
         local pos = PDB[UIN].copy.pos --引用这个表
         --分情况
         if(pos.strpos.x and pos.endpos.x == nil)
-        then
+        then --取消起点
             World:stopEffectOnPosition(pos.strpos.x,pos.strpos.y,pos.strpos.z,CopyEffectId)--停止特效
             pos.strpos = {}
             msg(CL.tip.copy.canStrPos[Lang],UIN)
             return 0
         end
         if(pos.strpos.x and pos.endpos.x)
-        then
+        then --取消终点
             World:stopEffectOnPosition(pos.endpos.x,pos.endpos.y,pos.endpos.z,CopyEffectId)--停止特效
             pos.endpos = {}
             msg(CL.tip.copy.canEndPos[Lang],UIN)
@@ -2989,16 +3214,18 @@ local function PlayerSelectShortcut(event)
         local pos = PDB[UIN].areaPAT.pos --引用这个表
         --分情况
         if(pos.strpos.x and pos.endpos.x == nil)
-        then
+        then --取消起点
             World:stopEffectOnPosition(pos.strpos.x, pos.strpos.y, pos.strpos.z, CopyEffectId)--停止特效
             pos.strpos = {}
             msg(CL.tip.areaPAT.canStrPos[Lang],UIN)
             return 0
         end
         if(pos.strpos.x and pos.endpos.x)
-        then
+        then --取消终点
             World:stopEffectOnPosition(pos.endpos.x,pos.endpos.y,pos.endpos.z,CopyEffectId)--停止特效
             pos.endpos = {}
+            --关掉跟随的状态
+            PDB[UIN].areaPAT.follow = false
             msg(CL.tip.areaPAT.canEndPos[Lang],UIN)
             return 0
         end
@@ -3013,8 +3240,14 @@ local function PlayerSelectShortcut(event)
             --清除数据
             pos.strpos = {}
             pos.endpos = {}
-            --不结束这个函数！这只是附带的功能！
         end
+        --把堆叠的状态清除了
+        if(PDB[UIN].areaPAT.follow)
+        then
+            PDB[UIN].areaPAT.follow = false
+            PDB[UIN].areaPAT.followAreaData = {}
+        end
+        --不结束这个函数 这个只是附带的功能awa
     end
 
     --如果是鼓方块 输出提示
@@ -3413,11 +3646,86 @@ end
 
 --玩家移动时执行
 local function MoveOneBlockSize(event)
+    --我只是不想让变量太长...
     local UIN = event.eventobjid
+
     --看看玩家刷子有没有打开
     if(PDB[UIN].Brush.state)
     then --若有 则执行刷子
         Brush(UIN)
+    end
+
+    --堆叠部分
+    if(PDB[UIN].areaPAT.follow)
+    then
+        PDB[UIN].areaPAT.follow = false --暂时关闭状态 避免重复执行
+        --取玩家坐标 并取整
+        local result, px, py, pz = Actor:getPosition(UIN)
+        px, py, pz = math.floor(px), math.floor(py), math.floor(pz)
+
+        --看看各坐标在不在可粘贴的范围内
+        local xtag = isNumInRange(PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.endpos.x, px, true)
+        local ytag = isNumInRange(PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.endpos.y, py, true)
+        local ztag = isNumInRange(PDB[UIN].areaPAT.pos.strpos.z, PDB[UIN].areaPAT.pos.endpos.z, pz, true)
+        if(ytag and ztag) --X
+        then
+            --条件：玩家位置已经超过已粘贴的区间范围
+            if(px < PDB[UIN].areaPAT.pos.strpos.x + (math.abs(PDB[UIN].areaPAT.vector.x) + 1) * (PDB[UIN].areaPAT.foPasteCount.x - 1) and px < PDB[UIN].areaPAT.pos.endpos.x + PDB[UIN].areaPAT.vector.x * (PDB[UIN].areaPAT.foPasteCount.x - 1))
+            then -- x-
+                --调试语句
+                print("str" .. PDB[UIN].areaPAT.pos.strpos.x + (math.abs(PDB[UIN].areaPAT.vector.x) + 1) * (PDB[UIN].areaPAT.foPasteCount.x - 1), "end" .. PDB[UIN].areaPAT.pos.endpos.x + (math.abs(PDB[UIN].areaPAT.vector.x) + 1) * (PDB[UIN].areaPAT.foPasteCount.x - 1))
+                --表中索引自减
+                PDB[UIN].areaPAT.foPasteCount.x = PDB[UIN].areaPAT.foPasteCount.x - 1
+                --执行粘贴的函数
+                pasteFoData(UIN, PDB[UIN].areaPAT.pos.strpos.x + (math.abs(PDB[UIN].areaPAT.vector.x) + 1) * PDB[UIN].areaPAT.foPasteCount.x, PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.strpos.z)
+            elseif(px > PDB[UIN].areaPAT.pos.strpos.x + (math.abs(PDB[UIN].areaPAT.vector.x) + 1) * (PDB[UIN].areaPAT.foPasteCount.x + 1) and px > PDB[UIN].areaPAT.pos.endpos.x + (math.abs(PDB[UIN].areaPAT.vector.x) + 1) * (PDB[UIN].areaPAT.foPasteCount.x + 1))
+            then -- x+
+                print("str" .. PDB[UIN].areaPAT.pos.strpos.x + (math.abs(PDB[UIN].areaPAT.vector.x) + 1) * (PDB[UIN].areaPAT.foPasteCount.x + 1), "end" .. PDB[UIN].areaPAT.pos.endpos.x + (math.abs(PDB[UIN].areaPAT.vector.x) + 1) * (PDB[UIN].areaPAT.foPasteCount.x + 1))
+                --表中索引自加
+                PDB[UIN].areaPAT.foPasteCount.x = PDB[UIN].areaPAT.foPasteCount.x + 1
+                --执行粘贴的函数
+                pasteFoData(UIN, PDB[UIN].areaPAT.pos.strpos.x + (math.abs(PDB[UIN].areaPAT.vector.x) + 1) * PDB[UIN].areaPAT.foPasteCount.x, PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.strpos.z)
+            end
+        elseif(xtag and ztag) --y
+        then
+            --条件：玩家位置已经超过已粘贴的区间范围
+            if(py < PDB[UIN].areaPAT.pos.strpos.y + (math.abs(PDB[UIN].areaPAT.vector.y) + 1) * (PDB[UIN].areaPAT.foPasteCount.y - 1) and py < PDB[UIN].areaPAT.pos.endpos.y + PDB[UIN].areaPAT.vector.y * (PDB[UIN].areaPAT.foPasteCount.y - 1))
+            then -- y-
+                --调试语句
+                print("str" .. PDB[UIN].areaPAT.pos.strpos.y + (math.abs(PDB[UIN].areaPAT.vector.y) + 1) * (PDB[UIN].areaPAT.foPasteCount.y - 1), "end" .. PDB[UIN].areaPAT.pos.endpos.y + (math.abs(PDB[UIN].areaPAT.vector.y) + 1) * (PDB[UIN].areaPAT.foPasteCount.y - 1))
+                --表中索引自减
+                PDB[UIN].areaPAT.foPasteCount.y = PDB[UIN].areaPAT.foPasteCount.y - 1
+                --执行粘贴的函数
+                pasteFoData(UIN, PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.strpos.y + (math.abs(PDB[UIN].areaPAT.vector.y) + 1) * PDB[UIN].areaPAT.foPasteCount.y, PDB[UIN].areaPAT.pos.strpos.z)
+            elseif(py > PDB[UIN].areaPAT.pos.strpos.y + (math.abs(PDB[UIN].areaPAT.vector.y) + 1) * (PDB[UIN].areaPAT.foPasteCount.y + 1) and py > PDB[UIN].areaPAT.pos.endpos.y + (math.abs(PDB[UIN].areaPAT.vector.y) + 1) * (PDB[UIN].areaPAT.foPasteCount.y + 1))
+            then -- y+
+                print("str" .. PDB[UIN].areaPAT.pos.strpos.y + (math.abs(PDB[UIN].areaPAT.vector.y) + 1) * (PDB[UIN].areaPAT.foPasteCount.y + 1), "end" .. PDB[UIN].areaPAT.pos.endpos.y + (math.abs(PDB[UIN].areaPAT.vector.y) + 1) * (PDB[UIN].areaPAT.foPasteCount.y + 1))
+                --表中索引自加
+                PDB[UIN].areaPAT.foPasteCount.y = PDB[UIN].areaPAT.foPasteCount.y + 1
+                --执行粘贴的函数
+                pasteFoData(UIN, PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.strpos.y + (math.abs(PDB[UIN].areaPAT.vector.y) + 1) * PDB[UIN].areaPAT.foPasteCount.y, PDB[UIN].areaPAT.pos.strpos.z)
+            end
+        elseif(xtag and ytag) --z
+        then
+            --条件：玩家位置已经超过已粘贴的区间范围
+            if(pz < PDB[UIN].areaPAT.pos.strpos.z + (math.abs(PDB[UIN].areaPAT.vector.z) + 1) * (PDB[UIN].areaPAT.foPasteCount.z - 1) and pz < PDB[UIN].areaPAT.pos.endpos.z + PDB[UIN].areaPAT.vector.z * (PDB[UIN].areaPAT.foPasteCount.z - 1))
+            then -- z-
+                --调试语句
+                print("str" .. PDB[UIN].areaPAT.pos.strpos.z + (math.abs(PDB[UIN].areaPAT.vector.z) + 1) * (PDB[UIN].areaPAT.foPasteCount.z - 1), "end" .. PDB[UIN].areaPAT.pos.endpos.z + (math.abs(PDB[UIN].areaPAT.vector.z) + 1) * (PDB[UIN].areaPAT.foPasteCount.z - 1))
+                --表中索引自减
+                PDB[UIN].areaPAT.foPasteCount.z = PDB[UIN].areaPAT.foPasteCount.z - 1
+                --执行粘贴的函数
+                pasteFoData(UIN, PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.strpos.z + (math.abs(PDB[UIN].areaPAT.vector.z) + 1) * PDB[UIN].areaPAT.foPasteCount.z)
+            elseif(pz > PDB[UIN].areaPAT.pos.strpos.z + (math.abs(PDB[UIN].areaPAT.vector.z) + 1) * (PDB[UIN].areaPAT.foPasteCount.z + 1) and pz > PDB[UIN].areaPAT.pos.endpos.z + (math.abs(PDB[UIN].areaPAT.vector.z) + 1) * (PDB[UIN].areaPAT.foPasteCount.z + 1))
+            then -- z+
+                print("str" .. PDB[UIN].areaPAT.pos.strpos.z + (math.abs(PDB[UIN].areaPAT.vector.z) + 1) * (PDB[UIN].areaPAT.foPasteCount.z + 1), "end" .. PDB[UIN].areaPAT.pos.endpos.z + (math.abs(PDB[UIN].areaPAT.vector.z) + 1) * (PDB[UIN].areaPAT.foPasteCount.z + 1))
+                --表中索引自加
+                PDB[UIN].areaPAT.foPasteCount.z = PDB[UIN].areaPAT.foPasteCount.z + 1
+                --执行粘贴的函数
+                pasteFoData(UIN, PDB[UIN].areaPAT.pos.strpos.x, PDB[UIN].areaPAT.pos.strpos.y, PDB[UIN].areaPAT.pos.strpos.z + (math.abs(PDB[UIN].areaPAT.vector.z) + 1) * PDB[UIN].areaPAT.foPasteCount.z)
+            end
+        end
+        PDB[UIN].areaPAT.follow = true --重新开启状态
     end
 end
 
@@ -3524,20 +3832,24 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         玩家输入空格 向预设方向偏移一次 --
         新增选区移调与乐器方块替换功能 仅适用于音乐(整合到雷电法杖与极寒域法杖部分) --
         放置音调方块后的玩家位置偏移可选 确定偏移方向 适配s形折轨的音乐地图 --
-        小节显示板
+        小节显示板(石箭12051) 
+            手持其道具标记两个相邻的小节关键点 最后输入两个整数代表小节总数和小节样式周期（也可不输入这个 只输入一个整数 那默认是4小节一循环） 生成全部的小节
+            /clear 清除所有小节标记 并清除数据
+            （玩家定小节的时候锚定的两个点一定是在一条直线上 X轴或Z轴 否则报错）
     新增电路元件类辅助
         过山车轨道一键放置功能 带指示灯 (玩家需要手动制作一个周期的轨道 然后录入自动生成)
         巨人核心生成功能 手持 输入数字控制朝向 在玩家处生成 --
         推拉机械臂花纹星能块一键放置功能（输入数字控制朝向） --
         封轨 拆轨(把音轨的星能分流器发出的光束线用指定方块截断 与其逆过程(手持道具输入控制))
-    新增音乐地图装饰辅助选区类（烈焰/冰魄法杖） -
-        新增选区无限堆叠功能（用于装饰）
+    新增音乐地图装饰辅助选区类（烈焰/冰魄法杖） --
+        新增选区无限堆叠功能（炽烈 持有区域 /fo <follow>开启 切换道具关闭） --
         新增装饰pattern功能（同音乐pat那样） --
         新增选区根据方块id和data选择性删除/替换/清空功能 (整合到烈焰/冰魄法杖部分) --
-    新增其他装饰辅助类
-        山生成器：可设定山高度 顶层/中层/底层方块id data和层数 生成范围大小
-        随机在玩家周围生成指定id data的方块 可调区域形状大小 方块密度 生成数 是否无视原有方块生成 模式（向心/离散）
     
     后面打一个-表示该功能已经在开发中 2个- 表示已完成
 
+    v1.14
+    新增其他装饰辅助类
+        山生成器：可设定山高度 顶层/中层/底层方块id data和层数 生成范围大小
+        随机在玩家周围生成指定id data的方块 可调区域形状大小 方块密度 生成数 是否无视原有方块生成 模式（向心/离散）
 --}]]
