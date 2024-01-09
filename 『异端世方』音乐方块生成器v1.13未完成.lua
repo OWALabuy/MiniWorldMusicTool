@@ -24,6 +24,31 @@ Author: Heresy Shifang Studio - @OWALabuy-528278703
 All rights reserved by Heresy Shifang Studio.
 
 This project is hosted on Github: OWALabuy/MiniWorldMusicTool
+
+
+======== License ========
+
+MIT License
+
+Copyright (c) 2024 欧阳闻奕
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 --]]
 
 
@@ -598,8 +623,38 @@ local CL = {
                 "#c8bf6abThere is no data for this id. Please select again",
             },
             entDataSuc = {
-                "#c8bf6ab数据就绪 请玩家移动",
-                "#c8bf6abData is ready, please move",
+                "#c8bf6ab数据就绪 请玩家移动/n粘贴策略可在冰魄法杖处更改",
+                "#c8bf6abData is ready, please move/nThe pasting strategy can be changed at the Ice Staff",
+            },
+        },
+        rail = {
+            argErr = {
+                "#c8bf6ab参数不完整",
+                "#c8bf6abArguments are incomplete",
+            },
+            tip1 = {
+                "#cC683D7站在将要放置加速轨道节点的位置输入指令和参数 可自动生成过山车轨道",
+                "#cC683D7Stand at the future location of the acceleration rail node, input command and arguments to auto-generate a rail",
+            },
+            tip2 = {
+                "指令格式：#W/rail #n<axis> <direction> <len> <totalNum>",
+                "Command format: #W/rail #n<axis> <direction> <len> <totalNum>",
+            },
+            tip3 = {
+                "#W<axis>: #cFFB6B9与轨道方向平行的坐标轴 可接受x或z",
+                "#W<axis>: #cFFB6B9The coordinate axis parallel to the rail direction. Accepts x or z",
+            },
+            tip4 = {
+                "#W<direction>: #cFAE3D9沿坐标轴的方向 可接受1或-1",
+                "#W<direction>: #cFAE3D9direction along the coordinate axis, acceptable 1 or -1",
+            },
+            tip5 = {
+                "#W<len>: #cBBDED6一个周期的长度 可接受一个整数",
+                "#W<len>: #cBBDED6The length of a period, which can accept an integer",
+            },
+            tip6 = {
+                "#W<totalNum>: #c61C0BF需要生成的周期数 可接受一个整数",
+                "#W<totalNum>: #c61C0BFThe number of cycles to be generated, which can accept an integer",
             },
         },
     },
@@ -630,8 +685,12 @@ local readme = {
         "#cEED7CE6. 使用星铜钻头，向前冲刺。还可以调整玩家移动速度和模型大小。",
         "#c92C7CF7. 手持巨人核心输入数字可在玩家位置处生成",
         "#cAAD7D98. 手持推拉机械臂输入数字可在玩家位置生成，并附带一个电源",
-        "#cFBF9F1",
-        "#cE5E1DA",
+        "#cFBF9F19. 输入id（不分大小写）获取手持道具信息",
+        "#cE5E1DA10. 手持过山车头输入指令可一键放置过山车轨道",
+        "#cF9F5F6",
+        "#cF8E8EE",
+        "#cFDCEDF",
+        "#cF2BED1",
         "#cFFFF81音调方块的生成：",
         "#cE5D1FA1. 手持高中低音块，站在目标位置上，输入音块的点击次数(0~12)或音名(CDEFGAB)可生成音调方块。",
         "#cE3DFFD2. 音调方块生成后，可以对玩家做一个位置偏移以避免被生成的方块卡住。可以手持收割者设置这个偏移的值。",
@@ -676,8 +735,12 @@ local readme = {
         "#cEED7CE6. Use the Horas Copper Drill to dash forward. Player movement speed and model size can also be adjusted in this.",
         "#c92C7CF7. Holding the Giant Core and inputting numbers can generate it at your position.",
         "#cAAD7D98. Holding a Push-pull Robot Arm and input num can generate at your position and comes with a power supply",
-        "#cFBF9F1",
-        "#cE5E1DA",
+        "#cFBF9F19. Enter the id (not case sensitive) to get the handheld item information",
+        "#cE5E1DA10. Hold the Roller Coaster Engine and enter commands to generate the roller coaster rail",
+        "#cF9F5F6",
+        "#cF8E8EE",
+        "#cFDCEDF",
+        "#cF2BED1",
         "#cFFFF81Music Note Block Generation:",
         "#cE5D1FA1. Hold Treble, Alto, or Base Blocks, stand at the target location,",
             "#cE5D1FAand enter the number of clicks (0~12) or a note name (CDEFGAB) to generate a music note block.",
@@ -739,6 +802,10 @@ local itemIntro = {
         "#cE7BCDE巨人核心：输入数字生成",
         "#cBB9CC0推拉机械臂：输入数字生成 附带一个花纹星能块",
         "#c67729D炽烈法杖和冰魄法杖：区域装饰方块与areaPAT操作",
+        "#cFCD1D1过山车头：过山车轨道一键放置功能",
+        "#cECE2E1",
+        "#cD3E0DC",
+        "#cAEE1E1",
         "#c66ccff==========================",
     },
     {
@@ -756,6 +823,10 @@ local itemIntro = {
         "#cE7BCDEGiant Core: Enter number to generate",
         "#cBB9CC0Push-pull Robot Arm: Enter number to generate, Place a Patterned Celesthium Block at the same time",
         "#c67729DFiery Staff and Ice Staff: Area decoration blocks and areaPAT operations",
+        "#cFCD1D1Roller Coaster Engine: one-click placement function for roller coaster tracks",
+        "#cECE2E1",
+        "#cD3E0DC",
+        "#cAEE1E1",
         "#c66ccff==========================",
     },
 }
@@ -914,6 +985,7 @@ local Itemid_List={ --要检测和添加的初始道具列表
     368, --推拉机械臂 花纹电石块是1104
     1059, --巨人核心
     11581, 11667, --炽烈法杖和冰魄法杖 用于装饰区域和pat操作
+    13802, --过山车头 轨道一键放置功能
 }
 
 local globalSetState = {
@@ -1031,6 +1103,17 @@ local robotArmDir = { --推拉机械臂放置后 电石块应该放在哪里
     [3] = {x = 0, y = 0, z = 1},
     [4] = {x = 0, y = -1, z = 0},
     [5] = {x = 0, y = 1, z = 0},
+}
+
+local railDirection = { --过山车轨道的方向和索引
+    x = {
+        [1] = {x = 1, z = 0},
+        [-1] = {x = -1, z = 0},
+    },
+    z = {
+        [1] = {x = 0, z = 1},
+        [-1] = {x = 0, z = -1},
+    },
 }
 
 local Lang = 1 --语言language 1:简体中文 2:English
@@ -2212,6 +2295,44 @@ local function displayAreaPATOrder(UIN)
     msg(CL.tip.areaPAT.ordTip7[Lang], UIN)
 end
 
+--过山车轨道放置 参数是玩家的迷你号 轴(x/z) 方向<1/-1> 一节的长度 节数
+local function putRail(UIN, axis, direction, len, totalNum)
+    --检查参数
+    if(not (UIN and axis and direction and len and totalNum))
+    then
+        msg(CL.tip.rail.argErr[Lang], UIN)
+        return 1001
+    end
+
+    --获取玩家位置
+    local result, px, py, pz = Actor:getPosition(UIN)
+    px, py, pz = math.floor(px), math.floor(py), math.floor(pz)
+    --开始放置 从1到最大值
+    for i = 1, totalNum
+    do
+        --在当前位置放置加速轨道节点
+        Block:setBlockAll(px, py, pz, 729, 4)
+        --在加速轨道节点下面放置星能分流器（指定的id和data）
+        Block:setBlockAll(px, py - 1, pz, 356, 5)
+        --在后方上一格放置铁轨
+        Block:setBlockAll(px - railDirection[axis][direction].x, py + 1, pz - railDirection[axis][direction].z, 725, 4)
+        --向前方放置len - 2个铁轨
+        for j = 1, len - 2
+        do
+            Block:setBlockAll(px + railDirection[axis][direction].x * j, py, pz + railDirection[axis][direction].z * j, 725, 4)
+        end
+
+        --处理玩家的坐标
+        px = px + railDirection[axis][direction].x * len
+        pz = pz + railDirection[axis][direction].z * len
+
+        --传送玩家 并等待 (避免速度过快造成卡顿)
+        Actor:setPosition(UIN, px, py, pz)
+        Trigger:wait(1)
+    end
+    return 0
+end
+
 ---------------------- 事件关联动作定义 ----------------------
 --玩家进入游戏时
 local function Game_AnyPlayer_EnterGame(event)
@@ -2622,6 +2743,27 @@ local function PlayerNewInputContent(event)
             end
         end
     end
+
+    --过山车头 轨道放置
+    if(CurToolid == 13802)
+    then
+        if(isCommand(event.content))
+        then
+            --解析指令
+            local pattern = "/(%a+)%s+(%a)%s+(-?%d)%s+(%d+)%s+(%d+)"
+            local command, axis, direction, len, totalnum = string.match(event.content, pattern)
+            if(command == "rail")
+            then
+                --进一步处理指令的参数
+                direction, len, totalnum = tonumber(direction), tonumber(len), tonumber(totalnum)
+                axis = string.lower(axis)
+                --执行放置轨道的函数
+                putRail(UIN, axis, direction, len, totalnum)
+                return 0
+            end
+        end
+    end
+
     ---------------------- 区域方块复制、操作与pat ----------------------
     --手持极寒域法杖 执行撤销操作/ 输入数字 改变copy.way(粘贴的方式)
     if(CurToolid == 11668)
@@ -3295,8 +3437,21 @@ local function PlayerSelectShortcut(event)
         local result, name = Item:getItemName(event.itemid) --获取道具的名称
         local str = string.format(CL.tip.armAndGiant.tip[Lang], name) --制作一个消息
         msg(str, UIN) --对玩家输出
+        return 0
     end
-    return 0
+
+    --如果是过山车头 输出提示
+    if(event.itemid == 13802)
+    then
+        msg(CL.tip.rail.tip1[Lang], UIN)
+        msg(CL.tip.rail.tip2[Lang], UIN)
+        Trigger:wait(1)
+        msg(CL.tip.rail.tip3[Lang], UIN)
+        msg(CL.tip.rail.tip4[Lang], UIN)
+        Trigger:wait(1)
+        msg(CL.tip.rail.tip5[Lang], UIN)
+        msg(CL.tip.rail.tip6[Lang], UIN)
+    end
 end
 
 --每秒运行一次
@@ -3837,7 +3992,7 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
             /clear 清除所有小节标记 并清除数据
             （玩家定小节的时候锚定的两个点一定是在一条直线上 X轴或Z轴 否则报错）
     新增电路元件类辅助
-        过山车轨道一键放置功能 带指示灯 (玩家需要手动制作一个周期的轨道 然后录入自动生成)
+        过山车轨道一键放置功能 手持过山车头 站在第一个加速节点上 /rail <方向(x/z)> <1/-1> <一节的长度> <节数> --
         巨人核心生成功能 手持 输入数字控制朝向 在玩家处生成 --
         推拉机械臂花纹星能块一键放置功能（输入数字控制朝向） --
         封轨 拆轨(把音轨的星能分流器发出的光束线用指定方块截断 与其逆过程(手持道具输入控制))
