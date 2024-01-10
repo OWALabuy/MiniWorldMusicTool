@@ -2418,6 +2418,7 @@ local function putMeasureDisBoard(UIN)
     end
 
     --康康方向
+    measure.direction = 1
     if(measure.firPos[measure.axis] > measure.secPos[measure.axis])
     then --如果坐标是反着的
         measure.direction = -1
