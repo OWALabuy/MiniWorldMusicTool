@@ -657,6 +657,36 @@ local CL = {
                 "#W<totalNum>: #c61C0BFThe number of cycles to be generated, which can accept an integer",
             },
         },
+        measure = { --小节
+            tip1 = {
+                "#cBBE1FA这个工具可以生成整个地图的小节提示板",
+                "#cBBE1FAThis tool can generate measure DisPlayBoards of the entire map",
+            },
+            tip2 = {
+                "#cA8D8EA站在任何一个你想标记的点上 告诉我这是第几小节(输入一个数字)",
+                "#cA8D8EAStand at any point you want to mark and tell me which measure it is (enter a number)",
+            },
+            tip3 = {
+                "#cAA96DA站在下一个小节的的标记点上面 告诉我这是第几小节",
+                "#cAA96DAStand on the mark of the next measure and tell me which measure it is.",
+            },
+            tip4 = {
+                "#cFCBAD3现在 告诉我这个音乐地图一共有多少小节",
+                "#cFCBAD3Now tell me how many measure are there in this map",
+            },
+            tip5 = {
+                "#cFFFFD2生成成功！\n手持本道具输入/clear可清除",
+                "#cFFFFD2Generated successfully!\nHold this item and enter /clear can clear it",
+            },
+            argErr = {
+                "#c8bf6ab参数不完整",
+                "#c8bf6abArguments are incomplete",
+            },
+            posErr = {
+                "#c8bf6ab标记的两点不在同一直线上或在同一点上",
+                "#c8bf6abThe two marked points are not on the same straight line or on the same point",
+            },
+        },
     },
 
     order = { --指令
@@ -687,7 +717,7 @@ local readme = {
         "#cAAD7D98. 手持推拉机械臂输入数字可在玩家位置生成，并附带一个电源",
         "#cFBF9F19. 输入id（不分大小写）获取手持道具信息",
         "#cE5E1DA10. 手持过山车头输入指令可一键放置过山车轨道",
-        "#cF9F5F6",
+        "#cF9F5F611. 手持石箭可设置音乐小节标记",
         "#cF8E8EE",
         "#cFDCEDF",
         "#cF2BED1",
@@ -737,7 +767,7 @@ local readme = {
         "#cAAD7D98. Holding a Push-pull Robot Arm and input num can generate at your position and comes with a power supply",
         "#cFBF9F19. Enter the id (not case sensitive) to get the handheld item information",
         "#cE5E1DA10. Hold the Roller Coaster Engine and enter commands to generate the roller coaster rail",
-        "#cF9F5F6",
+        "#cF9F5F611. Hold the Stone Arrow to set music measure markers",
         "#cF8E8EE",
         "#cFDCEDF",
         "#cF2BED1",
@@ -803,7 +833,7 @@ local itemIntro = {
         "#cBB9CC0推拉机械臂：输入数字生成 附带一个花纹星能块",
         "#c67729D炽烈法杖和冰魄法杖：区域装饰方块与areaPAT操作",
         "#cFCD1D1过山车头：过山车轨道一键放置功能",
-        "#cECE2E1",
+        "#cECE2E1石箭：设置音乐小节标记",
         "#cD3E0DC",
         "#cAEE1E1",
         "#c66ccff==========================",
@@ -824,7 +854,7 @@ local itemIntro = {
         "#cBB9CC0Push-pull Robot Arm: Enter number to generate, Place a Patterned Celesthium Block at the same time",
         "#c67729DFiery Staff and Ice Staff: Area decoration blocks and areaPAT operations",
         "#cFCD1D1Roller Coaster Engine: one-click placement function for roller coaster tracks",
-        "#cECE2E1",
+        "#cECE2E1Stone Arrow: Set music measure markers",
         "#cD3E0DC",
         "#cAEE1E1",
         "#c66ccff==========================",
@@ -986,6 +1016,7 @@ local Itemid_List={ --要检测和添加的初始道具列表
     1059, --巨人核心
     11581, 11667, --炽烈法杖和冰魄法杖 用于装饰区域和pat操作
     13802, --过山车头 轨道一键放置功能
+    12051, --石箭 小节标记功能
 }
 
 local globalSetState = {
@@ -1007,6 +1038,29 @@ local fold = { --地图的折轨设定 这里的数值全是乱写的 数据等�
     leftTrackInPeriod = 1, --向左的轨在周期中的位置
     distance = 1.5, --轨距离的二分之一 用于判断玩家的坐标
     period = 6, --周期 也就是轨距离的二倍
+}
+
+local measure = { --小节的信息
+    state = { --锚定两个点的状态
+        firPos = false,
+        secPos = false,
+    },
+    firPos = {},
+    secPos = {},
+    fir = -1, --第一个点是第几小节
+    sec = -1, --第二个点是第几小节
+    total = -1, --总的小节数
+    --下面几个不是玩家输入的 而是计算所得
+    distance = -1, --两个小节标记间的距离
+    axis = "awa", --轴
+    direction = 1, --方向
+    firstMeaPos = {--[=[x = 0, y = 0, z = 0--]=]}, --第一个小节的坐标
+}
+
+local meaDir = { --小节的方向列表
+    x = {x = 1, y = 0, z = 0},
+    y = {x = 0, y = 1, z = 0},
+    z = {x = 0, y = 0, z = 1},
 }
 
 local foldList = { --折轨的情况列表 玩家选了就注入到fold表中
@@ -2333,6 +2387,87 @@ local function putRail(UIN, axis, direction, len, totalNum)
     return 0
 end
 
+--根据measure中的数据生成整个地图的显示板 参数是玩家的迷你号
+local function putMeasureDisBoard(UIN)
+    if(measure.total == -1) --检查表中是否有数据
+    then
+        msg(CL.tip.measure.argErr[Lang], UIN)
+        return 1001
+    end
+
+    --轴上的坐标是否相等
+    local xtag, ytag, ztag = measure.firPos.x == measure.secPos.x, measure.firPos.y == measure.secPos.y, measure.firPos.z == measure.secPos.z
+
+    --看看是哪个轴的
+    if(xtag and ytag and ztag)
+    then --同一点 报错
+        msg(CL.tip.measure.posErr[Lang], UIN)
+        return 1001
+    elseif(ytag and ztag) --x
+    then
+        measure.axis = "x"
+    elseif(xtag and ztag) --y
+    then
+        measure.axis = "y"
+    elseif(xtag and ytag) --z
+    then
+        measure.axis = "z"
+    else --不在一条直线上 报错
+        msg(CL.tip.measure.posErr[Lang], UIN)
+        return 1001
+    end
+
+    --康康方向
+    if(measure.firPos[measure.axis] > measure.secPos[measure.axis])
+    then --如果坐标是反着的
+        measure.direction = -1
+    end
+
+    --计算第一个小节标识的位置
+    measure.distance = math.abs(measure.firPos[measure.axis] - measure.secPos[measure.axis]) --小节长度
+    measure.firstMeaPos = {
+        x = measure.firPos.x,
+        y = measure.firPos.y,
+        z = measure.firPos.z,
+    }
+    measure.firPos[measure.axis] = measure.firPos[measure.axis] - measure.distance * (measure.fir - 1) * measure.direction
+
+    --开始生成
+    local font = 15--字体大小
+    local alpha = 100 --背景透明度(0:完全透明 100:不透明)
+    for i = 0, measure.total - 1
+    do
+        local title = tostring(i + 1)--文字内容
+        local itype = i + 1 --文字板编号
+        --创建一个文字板信息，存到graphicsInfo中
+        local graphicsInfo = Graphics:makeGraphicsText(title, font, alpha, itype)
+
+        --显示信息的坐标
+        local x = measure.firstMeaPos.x + (meaDir[measure.axis].x * measure.distance * i * measure.direction)
+        local y = measure.firstMeaPos.y + (meaDir[measure.axis].y * measure.distance * i * measure.direction)
+        local z = measure.firstMeaPos.z + (meaDir[measure.axis].z * measure.distance * i * measure.direction)
+
+        local x2, y2 = 0, 0--偏移量
+        local result, graphid = Graphics:createGraphicsTxtByPos(x, y, z, graphicsInfo, x2, y2)
+    end
+    return 0
+end
+
+--清除小节标记 无参数
+local function clearMea()
+    for i = 0, measure.total - 1
+    do
+        local itype = i + 1 --文字板编号
+        --显示信息的坐标
+        local x = measure.firstMeaPos.x + (meaDir[measure.axis].x * measure.distance * i * measure.direction)
+        local y = measure.firstMeaPos.y + (meaDir[measure.axis].y * measure.distance * i * measure.direction)
+        local z = measure.firstMeaPos.z + (meaDir[measure.axis].z * measure.distance * i * measure.direction)
+
+        local x2, y2 = 0, 0--偏移量
+        Graphics:removeGraphicsByPos(x, y, z, itype, 1)
+    end
+    return 0
+end
 ---------------------- 事件关联动作定义 ----------------------
 --玩家进入游戏时
 local function Game_AnyPlayer_EnterGame(event)
@@ -2760,6 +2895,62 @@ local function PlayerNewInputContent(event)
                 --执行放置轨道的函数
                 putRail(UIN, axis, direction, len, totalnum)
                 return 0
+            end
+        end
+    end
+
+    --石箭 小节标记
+    if(CurToolid == 12051)
+    then
+        if(event.content == "/clear") --清除小节标记
+        then
+            clearMea()
+        end
+        local num = tonumber(event.content)
+        if(num)
+        then
+            if(measure.state.firPos == false and measure.state.secPos == false) --第一个坐标
+            then
+                --获取玩家位置
+                local result, px, py, pz = Actor:getPosition(UIN)
+                px, py, pz = math.floor(px), math.floor(py), math.floor(pz)
+                --录入数据
+                measure.firPos = {
+                    x = px,
+                    y = py,
+                    z = pz,
+                }
+                measure.fir = num
+                --打开状态
+                measure.state.firPos = true
+                msg(CL.tip.measure.tip3[Lang], UIN)
+                return 0
+            elseif(measure.state.firPos and measure.state.secPos == false) --第二个坐标
+            then
+                --获取玩家位置
+                local result, px, py, pz = Actor:getPosition(UIN)
+                px, py, pz = math.floor(px), math.floor(py), math.floor(pz)
+                --录入数据
+                measure.secPos = {
+                    x = px,
+                    y = py,
+                    z = pz,
+                }
+                measure.sec = num
+                --打开状态
+                measure.state.secPos = true
+                msg(CL.tip.measure.tip4[Lang], UIN)
+                return 0
+            elseif(measure.state.firPos and measure.state.secPos) --总的小节数
+            then
+                measure.total = num
+                --放置显示板
+                local result = putMeasureDisBoard(UIN)
+                if(result == 0)--看看有没有正常执行
+                then
+                    msg(CL.tip.measure.tip5[Lang], UIN)
+                    return 0
+                end
             end
         end
     end
@@ -3451,6 +3642,21 @@ local function PlayerSelectShortcut(event)
         Trigger:wait(1)
         msg(CL.tip.rail.tip5[Lang], UIN)
         msg(CL.tip.rail.tip6[Lang], UIN)
+        return 0
+    end
+
+    --如果是石箭 输出提示 否则关闭状态
+    if(event.itemid == 12051)
+    then
+        if(measure.state.firPos == false and measure.state.secPos == false)
+        then
+            msg(CL.tip.measure.tip1[Lang], UIN)
+            msg(CL.tip.measure.tip2[Lang], UIN)
+        end
+        return 0
+    else--不是
+        measure.state.firPos = false
+        measure.state.secPos = false
     end
 end
 
@@ -3987,10 +4193,9 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         玩家输入空格 向预设方向偏移一次 --
         新增选区移调与乐器方块替换功能 仅适用于音乐(整合到雷电法杖与极寒域法杖部分) --
         放置音调方块后的玩家位置偏移可选 确定偏移方向 适配s形折轨的音乐地图 --
-        小节显示板(石箭12051) 
-            手持其道具标记两个相邻的小节关键点 最后输入两个整数代表小节总数和小节样式周期（也可不输入这个 只输入一个整数 那默认是4小节一循环） 生成全部的小节
+        小节显示板(石箭12051) --
+            手持其道具标记两个相邻的小节关键点 最后输入两个整数代表小节总数 生成全部的小节
             /clear 清除所有小节标记 并清除数据
-            （玩家定小节的时候锚定的两个点一定是在一条直线上 X轴或Z轴 否则报错）
     新增电路元件类辅助
         过山车轨道一键放置功能 手持过山车头 站在第一个加速节点上 /rail <方向(x/z)> <1/-1> <一节的长度> <节数> --
         巨人核心生成功能 手持 输入数字控制朝向 在玩家处生成 --
