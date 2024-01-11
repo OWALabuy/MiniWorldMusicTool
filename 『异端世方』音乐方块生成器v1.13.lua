@@ -687,6 +687,48 @@ local CL = {
                 "#c8bf6abThe two marked points are not on the same straight line or on the same point",
             },
         },
+        blockTrack = {
+            tip1 = {
+                "#cE5BEEC封轨/拆轨功能(把音轨的星能分流器发出的光束线用指定方块截断 与其逆过程) 可用指令如下",
+                "#cE5BEECTrack sealing/detachment function (interrupts the beam line from the Celesthium Diverter of the track with a",
+            },
+            tip2 = {
+                "#cE5BEEC切换道具可关闭",
+                "#cE5BEECspecified block, and its reverse process) The available commands are as follows. Switch props to close",
+            },
+            tip3 = {
+                "#cFDE2F3您当前选择的方块信息：\n名称：%s, Id：%d, Data：%d",
+                "#cFDE2F3The block information you currently select:\nName: %s, Id: %d, Data: %d",
+            },
+            tip4 = {
+                "#cE5BEEC开启成功 您当前的范围为\nx: %d y: %d z: %d",
+                "#cE5BEECOpened successfully. Your current range is\nx: %d y: %d z: %d",
+            },
+            tip5 = {
+                "#cBAABDA成功将区域半长改为x: %d y: %d z: %d",
+                "#cBAABDASuccessfully changed the half-length of the area to x: %d y: %d z: %d",
+            },
+            tip6 = {
+                "#cA6DCEF成功将检测模式改为%d",
+                "#cA6DCEFSuccessfully changed detection mode to %d",
+            },
+            ordTip1 = {
+                "#W/blo #n<Id> <Data> #cFFE6EB封轨 参数是使用的方块的id和data 可不填",
+                "#W/blo #n<Id> <Data> #cFFE6EBTrack sealing, the arguments are the id and data of the block used, can be left blank",
+            },
+            ordTip2 = {
+                "#W/dis #n<Id> <Data> #cDEFCFC拆轨 参数是要检测的方块的id和data 可不填",
+                "#W/dis #n<Id> <Data> #cDEFCFCTrack detachment, the arguments are the info of the block to be detected, can be left blank",
+            },
+            ordTip3 = {
+                "#W/range #n<x> <y> <z> #cCBF1F5范围 参数是以玩家为中心向各方向扩展的格数",
+                "#W/range #n<x> <y> <z> #cCBF1F5Range, the args is the num of cells extending in all directions with you as the center",
+            },
+            ordTip4 = {
+                "#W/mode #n<enum> #cA6E3E9检测的方式 1为检测左右 2为上下左右",
+                "#W/mode #n<enum> #cA6E3E9Detection method, 1 is to detect left and right, 2 is to detect up, down, left and right",
+            },
+        },
     },
 
     order = { --指令
@@ -718,7 +760,7 @@ local readme = {
         "#cFBF9F19. 输入id（不分大小写）获取手持道具信息",
         "#cE5E1DA10. 手持过山车头输入指令可一键放置过山车轨道",
         "#cF9F5F611. 手持石箭可设置音乐小节标记",
-        "#cF8E8EE",
+        "#cF8E8EE12. 手持脉冲箭可进行封轨/拆轨操作",
         "#cFDCEDF",
         "#cF2BED1",
         "#cFFFF81音调方块的生成：",
@@ -768,7 +810,7 @@ local readme = {
         "#cFBF9F19. Enter the id (not case sensitive) to get the handheld item information",
         "#cE5E1DA10. Hold the Roller Coaster Engine and enter commands to generate the roller coaster rail",
         "#cF9F5F611. Hold the Stone Arrow to set music measure markers",
-        "#cF8E8EE",
+        "#cF8E8EE12. Hold the Energy Pulse Arrow can use music track sealing/detachment function",
         "#cFDCEDF",
         "#cF2BED1",
         "#cFFFF81Music Note Block Generation:",
@@ -834,7 +876,7 @@ local itemIntro = {
         "#c67729D炽烈法杖和冰魄法杖：区域装饰方块与areaPAT操作",
         "#cFCD1D1过山车头：过山车轨道一键放置功能",
         "#cECE2E1石箭：设置音乐小节标记",
-        "#cD3E0DC",
+        "#cD3E0DC脉冲箭：封轨/拆轨操作",
         "#cAEE1E1",
         "#c66ccff==========================",
     },
@@ -855,7 +897,7 @@ local itemIntro = {
         "#c67729DFiery Staff and Ice Staff: Area decoration blocks and areaPAT operations",
         "#cFCD1D1Roller Coaster Engine: one-click placement function for roller coaster tracks",
         "#cECE2E1Stone Arrow: Set music measure markers",
-        "#cD3E0DC",
+        "#cD3E0DCEnergy Pulse Arrow: Music track sealing/detachment function",
         "#cAEE1E1",
         "#c66ccff==========================",
     },
@@ -962,6 +1004,20 @@ local PDB={}
                 z = 0,
             },
         },
+        bloTrack = { --封轨 拆轨
+            status = { --开关状态
+                blo = false,
+                dis = false,
+            },
+            blo = { --封轨用的东西和拆轨检测的东西 默认透明玻璃块
+                id = 632,
+                data = 0,
+            },
+            range = { --刷子的范围（半区长）
+                x = 2, y = 2, z = 2
+            },
+            enum = 1, --检测的方式 1：左右 2：上下左右
+        },
     }
     --]]
 
@@ -1017,6 +1073,7 @@ local Itemid_List={ --要检测和添加的初始道具列表
     11581, 11667, --炽烈法杖和冰魄法杖 用于装饰区域和pat操作
     13802, --过山车头 轨道一键放置功能
     12051, --石箭 小节标记功能
+    12292, --脉冲箭 封轨 拆轨
 }
 
 local globalSetState = {
@@ -1223,6 +1280,29 @@ local pitchList = {--调性调用的东西
     [12] = {
         name = "B/G#m", intro = "C# D# E F# G# A# B",
         tone = {c=1, d=3, e=4, f=6, g=8, a=10, b=11},
+    },
+}
+
+local diverter = { --分流器的对应data下 要检测的位置
+    [0] = {
+        {x = 0, z = -1},
+        {x = 0, z = 1},
+    },
+    [1] = {
+        {x = 0, z = -1},
+        {x = 0, z = 1},
+    },
+    [2] = {
+        {x = 1, z = 0},
+        {x = -1, z = 0},
+    },
+    [3] = {
+        {x = 1, z = 0},
+        {x = -1, z = 0},
+    },
+    [4] = { --这条索引不是data 是用来检测上下的
+        {y = 1},
+        {y = -1},
     },
 }
 
@@ -2469,6 +2549,168 @@ local function clearMea()
     end
     return 0
 end
+
+--封轨 参数是玩家的迷你号
+local function bloTrack(UIN)
+    --获取玩家位置
+    local result, px, py, pz = Actor:getPosition(UIN)
+    px, py, pz = math.floor(px), math.floor(py), math.floor(pz)
+
+    --开始检测 遍历玩家周围的区间
+    if(PDB[UIN].bloTrack.enum == 1)
+    then
+        for x = px - PDB[UIN].bloTrack.range.x, px + PDB[UIN].bloTrack.range.x
+        do
+            for y = py - PDB[UIN].bloTrack.range.y, py + PDB[UIN].bloTrack.range.y
+            do
+                for z = pz - PDB[UIN].bloTrack.range.z, pz + PDB[UIN].bloTrack.range.z
+                do
+                    local result, id = Block:getBlockID(x, y, z)
+                    if(id == 356) --如果当前方块是分流器
+                    then
+                        local result, data = Block:getBlockData(x, y, z)
+                        if(0 <= data and data <= 3) --方向符合检测标准
+                        then
+                            for i = 1, 2
+                            do
+                                --如果是光束线 就把它用对应的方块封住
+                                local result, detId = Block:getBlockID(x + diverter[data][i].x, y, z + diverter[data][i].z)
+                                if(detId == 351)
+                                then
+                                    Block:setBlockAll(x + diverter[data][i].x, y, z + diverter[data][i].z, PDB[UIN].bloTrack.blo.id, PDB[UIN].bloTrack.blo.data)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    elseif(PDB[UIN].bloTrack.enum == 2)
+    then
+        for x = px - PDB[UIN].bloTrack.range.x, px + PDB[UIN].bloTrack.range.x
+        do
+            for y = py - PDB[UIN].bloTrack.range.y, py + PDB[UIN].bloTrack.range.y
+            do
+                for z = pz - PDB[UIN].bloTrack.range.z, pz + PDB[UIN].bloTrack.range.z
+                do
+                    local result, id = Block:getBlockID(x, y, z)
+                    if(id == 356) --如果当前方块是分流器
+                    then
+                        local result, data = Block:getBlockData(x, y, z)
+                        if(0 <= data and data <= 3) --方向符合检测标准
+                        then
+                            for i = 1, 2
+                            do
+                                --如果是光束线 就把它用对应的方块封住
+                                local result, detId = Block:getBlockID(x + diverter[data][i].x, y, z + diverter[data][i].z)
+                                if(detId == 351)
+                                then
+                                    Block:setBlockAll(x + diverter[data][i].x, y, z + diverter[data][i].z, PDB[UIN].bloTrack.blo.id, PDB[UIN].bloTrack.blo.data)
+                                end
+                            end
+                            --再检测它的上下的
+                            for i = 1, 2
+                            do
+                                --如果是光束线 就把它用对应的方块封住
+                                local result, detId = Block:getBlockID(x, y + diverter[4][i].y, z)
+                                if(detId == 351)
+                                then
+                                    Block:setBlockAll(x, y + diverter[4][i].y, z, PDB[UIN].bloTrack.blo.id, PDB[UIN].bloTrack.blo.data)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+--拆轨 参数是玩家的迷你号
+local function disTrack(UIN)
+    --获取玩家位置
+    local result, px, py, pz = Actor:getPosition(UIN)
+    px, py, pz = math.floor(px), math.floor(py), math.floor(pz)
+
+    --开始检测 遍历玩家周围的区间
+    if(PDB[UIN].bloTrack.enum == 1)
+    then
+        for x = px - PDB[UIN].bloTrack.range.x, px + PDB[UIN].bloTrack.range.x
+        do
+            for y = py - PDB[UIN].bloTrack.range.y, py + PDB[UIN].bloTrack.range.y
+            do
+                for z = pz - PDB[UIN].bloTrack.range.z, pz + PDB[UIN].bloTrack.range.z
+                do
+                    local result, id = Block:getBlockID(x, y, z)
+                    if(id == 356) --如果当前方块是分流器
+                    then
+                        local result, data = Block:getBlockData(x, y, z)
+                        if(0 <= data and data <= 3) --方向符合检测标准
+                        then
+                            for i = 1, 2
+                            do
+                                local result, detId = Block:getBlockID(x + diverter[data][i].x, y, z + diverter[data][i].z)
+                                if(detId == PDB[UIN].bloTrack.blo.id) --如果是要检测的id
+                                then --康康data
+                                    local result, detData = Block:getBlockData(x + diverter[data][i].x, y, z + diverter[data][i].z)
+                                    if(detData == PDB[UIN].bloTrack.blo.data)
+                                    then
+                                        Block:destroyBlock(x + diverter[data][i].x, y, z + diverter[data][i].z, false)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    elseif(PDB[UIN].bloTrack.enum == 2)
+    then
+        for x = px - PDB[UIN].bloTrack.range.x, px + PDB[UIN].bloTrack.range.x
+        do
+            for y = py - PDB[UIN].bloTrack.range.y, py + PDB[UIN].bloTrack.range.y
+            do
+                for z = pz - PDB[UIN].bloTrack.range.z, pz + PDB[UIN].bloTrack.range.z
+                do
+                    local result, id = Block:getBlockID(x, y, z)
+                    if(id == 356) --如果当前方块是分流器
+                    then
+                        local result, data = Block:getBlockData(x, y, z)
+                        if(0 <= data and data <= 3) --方向符合检测标准
+                        then
+                            for i = 1, 2
+                            do
+                                local result, detId = Block:getBlockID(x + diverter[data][i].x, y, z + diverter[data][i].z)
+                                if(detId == PDB[UIN].bloTrack.blo.id) --如果是要检测的id
+                                then --康康data
+                                    local result, detData = Block:getBlockData(x + diverter[data][i].x, y, z + diverter[data][i].z)
+                                    if(detData == PDB[UIN].bloTrack.blo.data)
+                                    then
+                                        Block:destroyBlock(x + diverter[data][i].x, y, z + diverter[data][i].z, false)
+                                    end
+                                end
+                            end
+                            --再检测它的上下的
+                            for i = 1, 2
+                            do
+                                local result, detId = Block:getBlockID(x, y + diverter[4][i].y, z)
+                                if(detId == PDB[UIN].bloTrack.blo.id)
+                                then
+                                    local result, detData = Block:getBlockData(x, y + diverter[4][i].y, z)
+                                    if(detData == PDB[UIN].bloTrack.blo.data)
+                                    then
+                                        Block:destroyBlock(x, y + diverter[4][i].y, z, false)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
 ---------------------- 事件关联动作定义 ----------------------
 --玩家进入游戏时
 local function Game_AnyPlayer_EnterGame(event)
@@ -2550,6 +2792,20 @@ local function Game_AnyPlayer_EnterGame(event)
             follow = false,
             followAreaData = {},
             foPasteCount = {},
+        },
+        bloTrack = {
+            status = {
+                blo = false,
+                dis = false,
+            },
+            blo = {
+                id = 632,
+                data = 0,
+            },
+            range = {
+                x = 2, y = 2, z = 2
+            },
+            enum = 1,
         },
     }
     return 0
@@ -2952,6 +3208,77 @@ local function PlayerNewInputContent(event)
                     msg(CL.tip.measure.tip5[Lang], UIN)
                     return 0
                 end
+            end
+        end
+    end
+
+    --脉冲箭 封轨等
+    if(CurToolid == 12292)
+    then
+        --先把最简单的两种情况列出
+        if(event.content == "/blo")
+        then --单独开启封轨
+            PDB[UIN].bloTrack.status.blo = true
+            PDB[UIN].bloTrack.status.dis = false
+            msg(string.format(CL.tip.blockTrack.tip4[Lang], PDB[UIN].bloTrack.range.x, PDB[UIN].bloTrack.range.y,  PDB[UIN].bloTrack.range.z), UIN)
+            return 0
+        elseif(event.content == "/dis")
+        then --单独开启拆轨
+            PDB[UIN].bloTrack.status.blo = false
+            PDB[UIN].bloTrack.status.dis = true
+            msg(string.format(CL.tip.blockTrack.tip4[Lang], PDB[UIN].bloTrack.range.x, PDB[UIN].bloTrack.range.y,  PDB[UIN].bloTrack.range.z), UIN)
+            return 0
+        end
+
+        if(isCommand(event.content)) --如果是指令 带参数的
+        then --判断对应的指令 按规则截取它们的参数 执行对应的函数
+            local pattern = "/(%a+)%s*()" --匹配它的指令(string) 和参数开头的位置(num)
+            local command, strnum = string.match(event.content, pattern)
+
+            --从对应的位置开始截取它的参数
+            local arguments = string.sub(event.content, strnum)
+            
+            --检测它的参数 执行对应的语句
+            if(command == "blo")
+            then
+                --获得参数
+                local id, data = string.match(arguments, "(%d+)%s+(%d+)")
+                --改变方块信息
+                PDB[UIN].bloTrack.blo.id = id
+                PDB[UIN].bloTrack.blo.data = data
+                local name = Item:getItemName(PDB[UIN].bloTrack.blo.id)
+                msg(string.format(CL.tip.blockTrack.tip3[Lang], name, PDB[UIN].bloTrack.blo.id, PDB[UIN].bloTrack.blo.data), UIN)
+                --改变状态
+                PDB[UIN].bloTrack.status.blo = true
+                PDB[UIN].bloTrack.status.dis = false
+                msg(string.format(CL.tip.blockTrack.tip4[Lang], PDB[UIN].bloTrack.range.x, PDB[UIN].bloTrack.range.y, PDB[UIN].bloTrack.range.z), UIN)
+            elseif(command == "dis")
+            then
+                --获得参数
+                local id, data = string.match(arguments, "(%d+)%s+(%d+)")
+                --改变方块信息
+                PDB[UIN].bloTrack.blo.id = id
+                PDB[UIN].bloTrack.blo.data = data
+                local name = Item:getItemName(PDB[UIN].bloTrack.blo.id)
+                msg(string.format(CL.tip.blockTrack.tip3[Lang], name, PDB[UIN].bloTrack.blo.id, PDB[UIN].bloTrack.blo.data), UIN)
+                --改变状态
+                PDB[UIN].bloTrack.status.blo = false
+                PDB[UIN].bloTrack.status.dis = true
+                msg(string.format(CL.tip.blockTrack.tip4[Lang], PDB[UIN].bloTrack.range.x, PDB[UIN].bloTrack.range.y,  PDB[UIN].bloTrack.range.z), UIN)
+            elseif(command == "range")
+            then
+                local x, y, z = string.match(arguments, "(%d+)%s+(%d+)%s+(%d+)")
+                PDB[UIN].bloTrack.range = {
+                x = x,
+                y = y,
+                z = z
+                }
+                msg(string.format(CL.tip.blockTrack.tip5[Lang], PDB[UIN].bloTrack.range.x, PDB[UIN].bloTrack.range.y,  PDB[UIN].bloTrack.range.z), UIN)
+            elseif(command == "mode")
+            then
+                local enum = tonumber(arguments) --只有一个参数
+                PDB[UIN].bloTrack.enum = enum
+                msg(string.format(CL.tip.blockTrack.tip6[Lang], PDB[UIN].bloTrack.enum), UIN)
             end
         end
     end
@@ -3659,6 +3986,24 @@ local function PlayerSelectShortcut(event)
         measure.state.firPos = false
         measure.state.secPos = false
     end
+
+    --如果是脉冲箭 输出提示 否则关闭状态
+    if(event.itemid == 12292)
+    then
+        msg(CL.tip.blockTrack.tip1[Lang], UIN)
+        msg(CL.tip.blockTrack.tip2[Lang], UIN)
+        local name = Item:getItemName(PDB[UIN].bloTrack.blo.id)
+        msg(string.format(CL.tip.blockTrack.tip3[Lang], name, PDB[UIN].bloTrack.blo.id, PDB[UIN].bloTrack.blo.data), UIN)
+        Trigger:wait(2)
+        msg(CL.tip.blockTrack.ordTip1[Lang], UIN)
+        msg(CL.tip.blockTrack.ordTip2[Lang], UIN)
+        Trigger:wait(1)
+        msg(CL.tip.blockTrack.ordTip3[Lang], UIN)
+        msg(CL.tip.blockTrack.ordTip4[Lang], UIN)
+    else
+        PDB[UIN].bloTrack.status.blo = false
+        PDB[UIN].bloTrack.status.dis = false
+    end
 end
 
 --每秒运行一次
@@ -4014,7 +4359,9 @@ local function MoveOneBlockSize(event)
     --看看玩家刷子有没有打开
     if(PDB[UIN].Brush.state)
     then --若有 则执行刷子
+        PDB[UIN].Brush.state = false
         Brush(UIN)
+        PDB[UIN].Brush.state = true
     end
 
     --堆叠部分
@@ -4088,6 +4435,22 @@ local function MoveOneBlockSize(event)
             end
         end
         PDB[UIN].areaPAT.follow = true --重新开启状态
+    end
+
+    --封轨
+    if(PDB[UIN].bloTrack.status.blo)
+    then
+        PDB[UIN].bloTrack.status.blo = false
+        bloTrack(UIN)
+        PDB[UIN].bloTrack.status.blo = true
+    end
+
+    --拆轨
+    if(PDB[UIN].bloTrack.status.dis)
+    then
+        PDB[UIN].bloTrack.status.dis = false
+        disTrack(UIN)
+        PDB[UIN].bloTrack.status.dis = true
     end
 end
 
@@ -4179,35 +4542,33 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         设置位置偏移时 输入负数无法接受的问题
         修复intro的问题
 
-    v1.13
+    v1.13 2024.1.11
     bug修复
-        修复玩家在没有复制音乐区域的情况下 手持复苏法杖进行pat录入提示错误的问题 --
-        玩家使用法杖锚定区域起点和终点 数值为负数时无法正确选中坐标点的问题 --
+        修复玩家在没有复制音乐区域的情况下 手持复苏法杖进行pat录入提示错误的问题
+        玩家使用法杖锚定区域起点和终点 数值为负数时无法正确选中坐标点的问题
     通用功能更新
-        修改部分提示 主要是英文部分的道具译名 -
-        加速道具&人物大小设置 星铜钻头11016（前是铜 不是瞳） abc三个选项 --
+        修改部分提示 主要是英文部分的道具译名
+        加速道具&人物大小设置 星铜钻头11016（前是铜 不是瞳） abc三个选项
             a 输入数字可设置自己移动速度 使用可向前冲刺
             b 输入数字可设置自己模型大小 可改变自己的大小以钻入一格高的地方
             c 输入数字 调整弹飞的力度
-        检测手持道具信息功能 可显示id 名字 输入"id"(不分大小写)查看 --
+        检测手持道具信息功能 可显示id 名字 输入"id"(不分大小写)查看
     音乐部分
-        玩家输入空格 向预设方向偏移一次 --
-        新增选区移调与乐器方块替换功能 仅适用于音乐(整合到雷电法杖与极寒域法杖部分) --
-        放置音调方块后的玩家位置偏移可选 确定偏移方向 适配s形折轨的音乐地图 --
-        小节显示板(石箭12051) --
+        玩家输入空格 向预设方向偏移一次
+        新增选区移调与乐器方块替换功能 仅适用于音乐(整合到雷电法杖与极寒域法杖部分)
+        放置音调方块后的玩家位置偏移可选 确定偏移方向 适配s形折轨的音乐地图
+        小节显示板(石箭12051)
             手持其道具标记两个相邻的小节关键点 最后输入两个整数代表小节总数 生成全部的小节
             /clear 清除所有小节标记 并清除数据
     新增电路元件类辅助
-        过山车轨道一键放置功能 手持过山车头 站在第一个加速节点上 /rail <方向(x/z)> <1/-1> <一节的长度> <节数> --
-        巨人核心生成功能 手持 输入数字控制朝向 在玩家处生成 --
-        推拉机械臂花纹星能块一键放置功能（输入数字控制朝向） --
+        过山车轨道一键放置功能 手持过山车头 站在第一个加速节点上 /rail <方向(x/z)> <1/-1> <一节的长度> <节数>
+        巨人核心生成功能 手持 输入数字控制朝向 在玩家处生成
+        推拉机械臂花纹星能块一键放置功能（输入数字控制朝向）
         封轨 拆轨(把音轨的星能分流器发出的光束线用指定方块截断 与其逆过程(手持道具输入控制))
-    新增音乐地图装饰辅助选区类（烈焰/冰魄法杖） --
-        新增选区无限堆叠功能（炽烈 持有区域 /fo <follow>开启 切换道具关闭） --
-        新增装饰pattern功能（同音乐pat那样） --
-        新增选区根据方块id和data选择性删除/替换/清空功能 (整合到烈焰/冰魄法杖部分) --
-    
-    后面打一个-表示该功能已经在开发中 2个- 表示已完成
+    新增音乐地图装饰辅助选区类（烈焰/冰魄法杖）
+        新增选区无限堆叠功能（炽烈 持有区域 /fo <follow>开启 切换道具关闭）
+        新增装饰pattern功能（同音乐pat那样）
+        新增选区根据方块id和data选择性删除/替换/清空功能 (整合到烈焰/冰魄法杖部分) 
 
     v1.14
     新增其他装饰辅助类
