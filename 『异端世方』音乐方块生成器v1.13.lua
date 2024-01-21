@@ -433,28 +433,28 @@ local CL = {
                 "#c66ccffNow you can enter commands in the chat box to perform the following operations",
             },
             ordTip1 = {
-                "#W/trans #nsemitoneNum #cF6F4EB对选区内所有音调方块移调 参数是半音数 可接受-12 ~ 12",
-                "#W/trans #nsemitoneNum #cF6F4EBTransposes all pitch blocks in the selection. Argument: Semitones count. Range: -12 ~ 12",
+                "#W/t #nsemitoneNum #cF6F4EBtrans 对选区内所有音调方块移调 参数是半音数 可接受-12 ~ 12",
+                "#W/t #nsemitoneNum #cF6F4EBTransposes all pitch blocks in the selection. Argument: Semitones count. Range: -12 ~ 12",
             },
             ordTip2 = {
-                "#W/index #c91C8E4为区域的音乐方块创建索引 没有参数",
-                "#W/index #c91C8E4Creates an index for the area's music blocks, no argument",
+                "#W/i #c91C8E4index 为区域的音乐方块创建索引 没有参数",
+                "#W/i #c91C8E4Creates an index for the area's music blocks, no argument",
             },
             ordTip3 = {
-                "#W/replace #nindex id data #c7895CB指定选区索引对应的方块种类和data",
-                "#W/replace #nindex id data #c7895CBSelect the block type and data corresponding to the selection index",
+                "#W/r #nindex id data #c7895CBreplace指定选区索引对应的方块种类和data",
+                "#W/r #nindex id data #c7895CBSelect the block type and data corresponding to the selection index",
             },
             ordTip4 = {
                 "#c7895CB并将其替换成你所指定的方块id和data 参数是索引 替换后的id和data",
                 "#c7895CBreplace it with the block id and data you specified, argument: index, replaced id and data",
             },
             ordTip5 = {
-                "#W/del #nindex #c4682A9删除区域内指定索引的方块",
-                "#W/del #nindex #c4682A9Delete the block at the specified index in the area",
+                "#W/d #nindex #c4682A9del 删除区域内指定索引的方块",
+                "#W/d #nindex #c4682A9Delete the block at the specified index in the area",
             },
             ordTip6 = {
-                "#W/clear #c164B60清空区域内所有的音乐方块 无参数",
-                "#W/clear #c164B60Clear all the music block in the area, no argument",
+                "#W/c #c164B60clear 清空区域内所有的音乐方块 无参数",
+                "#W/c #c164B60Clear all the music block in the area, no argument",
             },
             clearSuc = {
                 "#W清除成功",
@@ -479,28 +479,28 @@ local CL = {
                 "#c66ccffNow you can enter commands in the chat box to perform the following operations",
             },
             ordTip2 = {
-                "#W/index #c91C8E4为区域内的方块创建索引 没有参数",
-                "#W/index #c91C8E4Creates an index for the area's blocks, no argument",
+                "#W/i #c91C8E4为区域内的方块创建索引 没有参数",
+                "#W/i #c91C8E4Creates an index for the area's blocks, no argument",
             },
             ordTip3 = {
-                "#W/replace #nindex id data #c7895CB指定选区索引对应的方块种类和data",
-                "#W/replace #nindex id data #c7895CBSelect the block type and data corresponding to the selection index",
+                "#W/r #nindex id data #c7895CB指定选区索引对应的方块种类和data",
+                "#W/r #nindex id data #c7895CBSelect the block type and data corresponding to the selection index",
             },
             ordTip4 = {
                 "#c7895CB并将其替换成你所指定的方块id和data 参数是索引 替换后的id和data",
                 "#c7895CBreplace it with the block id and data you specified, argument: index, replaced id and data",
             },
             ordTip5 = {
-                "#W/del #nindex #c4682A9删除区域内指定索引的方块",
-                "#W/del #nindex #c4682A9Delete the block at the specified index in the area",
+                "#W/d #nindex #c4682A9删除区域内指定索引的方块",
+                "#W/d #nindex #c4682A9Delete the block at the specified index in the area",
             },
             ordTip6 = {
-                "#W/clear #c164B60清空区域内所有的方块 无参数",
-                "#W/clear #c164B60Clear all blocks in the area, no argument",
+                "#W/c #c164B60清空区域内所有的方块 无参数",
+                "#W/c #c164B60Clear all blocks in the area, no argument",
             },
             ordTip7 = {
-                "#W/fo #c164B60开启区域跟随玩家无限堆叠模式 切换道具可关闭 无参数",
-                "#W/fo #c164B60Toggle infinite stacking mode for area follow the player. Switch items to disable. No arguments.",
+                "#W/f #c164B60follow 开启区域跟随玩家无限堆叠模式 切换道具可关闭 无参数",
+                "#W/f #c164B60Toggle infinite stacking mode for area follow the player. Switch items to disable. No arguments.",
             },
             clearSuc = {
                 "#W清除成功",
@@ -3493,27 +3493,28 @@ local function PlayerNewInputContent(event)
                 arguments = nil
             end
 
-            if(command == "trans") --移调 nsemitoneNum
+            if(command == "t") --移调 nsemitoneNum
             then
                 local num = tonumber(arguments) --只有一个参数 那么直接转成数值就行了
                 transpose(UIN, num) --移调
-            elseif(command == "index") --创建索引 无参数
+            elseif(command == "i") --创建索引 无参数
             then--这一定是只看音乐方块 所以函数的第二个参数是true
                 createAreaBlockDataList(UIN, true)
-            elseif(command == "replace") --替换方块 index id data
+            elseif(command == "r") --替换方块 index id data
             then
                 --截取需要的三个参数
                 local index, id, data = string.match(arguments, "(%d+)%s+(%d+)%s+(%d+)")
+                index, id, data = tonumber(index), tonumber(id), tonumber(data)
                 --替换对应的方块 只看音乐方块
                 areaBlockReplace(UIN, index, id, data, true)
-            elseif(command == "del") --删除方块 index
+            elseif(command == "d") --删除方块 index
             then
                 local index = tonumber(arguments) --只有一个参数
                 local tarId, tarData = PDB[UIN].areaBlockDataIndex[index].id, PDB[UIN].areaBlockDataIndex[index].data
                 delBlockInAreaByIdData(PDB[UIN].copy.pos.strpos, PDB[UIN].copy.pos.endpos, tarId, tarData)
                 --输出提示
                 msg(CL.tip.transpose.delSuc[Lang], UIN)
-            elseif(command == "clear") --清空区域
+            elseif(command == "c") --清空区域
             then
                 clearAreaMusicBlock(PDB[UIN].copy.pos.strpos, PDB[UIN].copy.pos.endpos)
                 --输出提示
@@ -3545,30 +3546,31 @@ local function PlayerNewInputContent(event)
                 arguments = nil
             end
 
-            if(command == "index") --创建索引 无参数
+            if(command == "i") --创建索引 无参数
             then--这不是只看音乐方块 所以函数的第二个参数是false
                 createAreaBlockDataList(UIN, false)
-            elseif(command == "replace") --替换方块 index id data
+            elseif(command == "r") --替换方块 index id data
             then
                 --截取需要的三个参数
                 local index, id, data = string.match(arguments, "(%d+)%s+(%d+)%s+(%d+)")
+                index, id, data = tonumber(index), tonumber(id), tonumber(data)
                 --替换对应的方块 不只看音乐方块
                 areaBlockReplace(UIN, index, id, data, false)
-            elseif(command == "del") --删除方块 index
+            elseif(command == "d") --删除方块 index
             then
                 local index = tonumber(arguments) --只有一个参数
                 local tarId, tarData = PDB[UIN].areaBlockDataIndex[index].id, PDB[UIN].areaBlockDataIndex[index].data
                 delBlockInAreaByIdData(PDB[UIN].areaPAT.pos.strpos, PDB[UIN].areaPAT.pos.endpos, tarId, tarData)
                 --输出提示
                 msg(CL.tip.areaPAT.delSuc[Lang], UIN)
-            elseif(command == "clear") --清空区域
+            elseif(command == "c") --清空区域
             then
                 local result, areaid = Area:createAreaRectByRange(PDB[UIN].areaPAT.pos.strpos, PDB[UIN].areaPAT.pos.endpos)
                 Area:clearAllBlock(areaid)
                 Area:destroyArea(areaid)
                 --输出提示
                 msg(CL.tip.areaPAT.clearSuc[Lang], UIN)
-            elseif(command == "fo") --跟随玩家 无限堆叠
+            elseif(command == "f") --跟随玩家 无限堆叠
             then
                 --录入到foData
                 enterFoAreaData(UIN)
@@ -4570,6 +4572,28 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         新增装饰pattern功能（同音乐pat那样）
         新增选区根据方块id和data选择性删除/替换/清空功能 (整合到烈焰/冰魄法杖部分) 
 
+    v1.13.1 
+    简化常用指令 如 "/index" -> "/i" 方便玩家输入
+    修复bug
+        使用炽烈法杖或雷电法杖持有区域时 replace指令索引错误的问题
+            后查明是数据类型的问题 将问题原因写在这里以做警示
+            在指令中 我原来是这样写的
+            ```lua
+                elseif(command == "replace") --替换方块 index id data
+                then
+                    --截取需要的三个参数
+                    local index, id, data = string.match(arguments, "(%d+)%s+(%d+)%s+(%d+)")
+                    --替换对应的方块 不只看音乐方块
+                    areaBlockReplace(UIN, index, id, data, false)
+            ```
+            我用正则表达式截取参数后 未经过任何处理就传给函数作为参数了 运行的时候出现索引值为空的报错
+            在这个案例中 正则表达式截取的是%d+ 就是尽可能匹配长的一串数字 我误以为它会自动格式化为int 没想到它截取后仍是string型
+            字符串截取后的产物全是字符串！！！一定要经过tonumber()函数的处理！！！否则可能会造成不可预知的后果！！！
+                index, id, data = tonumber(index), tonumber(id), tonumber(data)
+            
+        小节显示板的bug
+            给出的小节标记非1 2时 显示错误的问题
+            使用/clear 指令清除标记之后 重新放会有bug 数据疑似没有清理干净
     v1.14
     新增其他装饰辅助类
         山生成器：可设定山高度 顶层/中层/底层方块id data和层数 生成范围大小
