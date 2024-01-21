@@ -1,5 +1,5 @@
 --[[        
-       『异端世方』音乐方块生成器v1.13
+       『异端世方』音乐方块生成器v1.13.1
 音乐玩家一天7张图的秘密 告别手撸 拯救肝脏 让你的音乐创作更加高效且准确
 开发者模式下 新建一个脚本 将此文档粘贴 转换玩法地图即可使用 
 若要保留玩法模式下的创作 请开启玩法模式退出不重置地图
@@ -2511,8 +2511,8 @@ local function putMeasureDisBoard(UIN)
         y = measure.firPos.y,
         z = measure.firPos.z,
     }
-    measure.firPos[measure.axis] = measure.firPos[measure.axis] - measure.distance * (measure.fir - 1) * measure.direction
-
+    measure.firstMeaPos[measure.axis] = measure.firPos[measure.axis] - measure.distance * (measure.fir - 1) * measure.direction
+    
     --开始生成
     local font = 15--字体大小
     local alpha = 100 --背景透明度(0:完全透明 100:不透明)
@@ -2547,6 +2547,10 @@ local function clearMea()
         local x2, y2 = 0, 0--偏移量
         Graphics:removeGraphicsByPos(x, y, z, itype, 1)
     end
+    measure.state = { --重置锚定两个点的状态
+    firPos = false,
+    secPos = false,
+    }
     return 0
 end
 
@@ -4572,7 +4576,7 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         新增装饰pattern功能（同音乐pat那样）
         新增选区根据方块id和data选择性删除/替换/清空功能 (整合到烈焰/冰魄法杖部分) 
 
-    v1.13.1 
+    v1.13.1 2024.1.21
     简化常用指令 如 "/index" -> "/i" 方便玩家输入
     修复bug
         使用炽烈法杖或雷电法杖持有区域时 replace指令索引错误的问题
@@ -4590,10 +4594,11 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
             在这个案例中 正则表达式截取的是%d+ 就是尽可能匹配长的一串数字 我误以为它会自动格式化为int 没想到它截取后仍是string型
             字符串截取后的产物全是字符串！！！一定要经过tonumber()函数的处理！！！否则可能会造成不可预知的后果！！！
                 index, id, data = tonumber(index), tonumber(id), tonumber(data)
-            
+    
         小节显示板的bug
             给出的小节标记非1 2时 显示错误的问题
             使用/clear 指令清除标记之后 重新放会有bug 数据疑似没有清理干净
+
     v1.14
     新增其他装饰辅助类
         山生成器：可设定山高度 顶层/中层/底层方块id data和层数 生成范围大小
