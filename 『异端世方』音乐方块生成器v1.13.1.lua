@@ -791,7 +791,7 @@ local readme = {
         "#c756AB61. 与雷电法杖操作差不多，使用炽烈法杖可框选区域和录入areaPAT",
         "#cAC87C52. 使用炽烈法杖持有区域时，可输入指令对区域进行操作",
         "#cE0AED03. 使用冰魄法杖可粘贴areaPAT，类似于复苏法杖的操作",
-        "#cFFE5E54. 持有区域时 使用/fo 指令可开启跟随玩家堆叠模式",
+        "#cFFE5E54. 持有区域时 使用/f 指令可开启跟随玩家堆叠模式",
         "#c66ccff==========================",
     },
     {
@@ -853,7 +853,7 @@ local readme = {
         "#c756AB61. The operation is similar to the Thunder Staff. Using the Fiery Staff, you can select area and enter areaPAT.",
         "#cAC87C52. When using the Fiery Staff to hold an area, you can enter commands to operate the area.",
         "#cE0AED03. Use the Ice Staff to paste areaPAT, similar to the operation of the Revival Staff",
-        "#cFFE5E54. When holding an area, use the /fo command to enable following player stacking mode.",
+        "#cFFE5E54. When holding an area, use the /f command to enable following player stacking mode.",
         "#c66ccff==========================",
     },
 }
@@ -4572,7 +4572,7 @@ ScriptSupportEvent:registerEvent([=[Player.MoveOneBlockSize]=], MoveOneBlockSize
         推拉机械臂花纹星能块一键放置功能（输入数字控制朝向）
         封轨 拆轨(把音轨的星能分流器发出的光束线用指定方块截断 与其逆过程(手持道具输入控制))
     新增音乐地图装饰辅助选区类（烈焰/冰魄法杖）
-        新增选区无限堆叠功能（炽烈 持有区域 /fo <follow>开启 切换道具关闭）
+        新增选区无限堆叠功能（炽烈 持有区域 /f <follow>开启 切换道具关闭）
         新增装饰pattern功能（同音乐pat那样）
         新增选区根据方块id和data选择性删除/替换/清空功能 (整合到烈焰/冰魄法杖部分) 
 
